@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('password');
             $table->foreignId('roles_id');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

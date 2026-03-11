@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('employee_id');
             $table->foreignId('roles_id');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Users\Tables;
+namespace App\Filament\Resources\Departments\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -8,7 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class UsersTable
+class DepartmentsTable
 {
     public static function configure(Table $table): Table
     {
@@ -16,19 +16,16 @@ class UsersTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
-                TextColumn::make('role.name')
-                    ->label('Rol')
-                    ->searchable(),
-                TextColumn::make('department.name')
-                    ->label('Departamento')
-                    ->searchable(),
-                TextColumn::make('email_verified_at')
+                TextColumn::make('employee_id')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('roles_id')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

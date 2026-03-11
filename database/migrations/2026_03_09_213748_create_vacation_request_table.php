@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('status');
             $table->date('request_date');
             $table->text('comment');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

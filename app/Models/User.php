@@ -45,4 +45,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function department(){
+        return $this->belongsTo(Department::class); // Relacion muchos a uno, esta relacion es de empleados a departamentos
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function employee(){
+        return $this->belongsTo(Employee::class); // Se hace relacion con la tabla de empleados
+    }
 }

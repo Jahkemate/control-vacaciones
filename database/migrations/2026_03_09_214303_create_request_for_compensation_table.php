@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('approval_date');
             $table->date('pending_date');
             $table->text('comment');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

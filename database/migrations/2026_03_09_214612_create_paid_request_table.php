@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('total_days');
             $table->string('status');
             $table->date('request_date');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

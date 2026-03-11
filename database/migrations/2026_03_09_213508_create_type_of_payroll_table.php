@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('vacations_days');
             $table->string('vacations_bonus');
             $table->foreignId('employee_id');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

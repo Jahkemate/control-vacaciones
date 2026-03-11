@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employee', function (Blueprint $table) {
+        Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
@@ -19,11 +19,11 @@ return new class extends Migration
             $table->string('address_number')->unique();
             $table->date('hiring_date');
             $table->date('anniversary_date');
-            $table->foreignId('dapartment_id');
+            $table->foreignId('department_id');
             $table->string('employee_state');
             $table->foreignId('payroll_id');
             $table->foreignId('user_id');
-            $table->string('status');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
