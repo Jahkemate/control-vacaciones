@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Schemas;
 
+use App\States\EmployeeStatus;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -38,7 +39,8 @@ class EmployeeForm
                             ->relationship('department','name')
                             ->label('Departamento')
                             ->required(),
-                    TextInput::make('employee_state')
+                    Select::make('employee_state')
+                        ->options(EmployeeStatus::class)
                         ->required(),
                     TextInput::make('payroll_id')
                         ->required()

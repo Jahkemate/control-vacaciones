@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Tables;
 
+use App\States\EmployeeStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -17,6 +18,8 @@ class EmployeesTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->searchable(),
                 TextColumn::make('first_name')
                     ->searchable(),
                 TextColumn::make('last_name')
@@ -31,19 +34,22 @@ class EmployeesTable
                 TextColumn::make('anniversary_date')
                     ->date()
                     ->sortable(),
-                TextColumn::make('dapartment_id')
+                TextColumn::make('department.name')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('employee_state')
+                    ->badge()
+                    //Convierte los strings dinamicamente a Enum, para que filament pueda leer los metodos del Enum (getLabel, getColor, getIcon), hace esto porque el enum se hace directamente desde la logica des sistema.
+                    ->formatStateUsing(fn ($state) => EmployeeStatus::tryFrom($state)?->getLabel())
+                    ->color(fn ($state) => EmployeeStatus::tryFrom($state)?->getColor()) // tryFrom es un método de los Enums con valor respaldado (BackedEnum) en PHP, que sirve para convertir un string o número en un Enum de manera segura.
+                    ->icon(fn ($state) => EmployeeStatus::tryFrom($state)?->getIcon())
                     ->searchable(),
                 TextColumn::make('payroll_id')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable(), 
                 TextColumn::make('user.name')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('status')
-                    ->searchable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
