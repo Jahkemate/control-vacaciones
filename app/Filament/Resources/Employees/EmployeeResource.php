@@ -15,12 +15,18 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class EmployeeResource extends Resource
 {
     protected static ?string $model = Employee::class;
+    protected static ?string $navigationLabel = 'Empleados';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?int $navigationSort = 3;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Gestion del Sistema';
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
     protected static ?string $recordTitleAttribute = 'Employee';
 

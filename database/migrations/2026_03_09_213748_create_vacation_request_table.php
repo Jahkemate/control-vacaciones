@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('employee_id');
             $table->date('start_date');
             $table->date('end_date');
-            $table->string('status');
+            $table->string('state');
             $table->date('request_date');
             $table->text('comment');
             $table->softDeletes();

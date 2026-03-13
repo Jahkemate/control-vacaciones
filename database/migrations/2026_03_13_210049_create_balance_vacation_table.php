@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user', function (Blueprint $table) {
-            $table->id(); 
-            $table->string('email',100);
-            $table->string('password');
-            $table->foreignId('roles_id');
-            $table->softDeletes();
+        Schema::create('balance_vacation', function (Blueprint $table) {
+            $table->id();
+            $table->integer('accrued_total');
+            $table->integer('accrued_this_year');
+            $table->integer('used');
+            $table->integer('balance');
+            $table->integer('employee_id');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user');
+        Schema::dropIfExists('balance_vacation');
     }
 };
