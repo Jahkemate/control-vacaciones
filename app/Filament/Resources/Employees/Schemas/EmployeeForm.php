@@ -23,6 +23,8 @@ class EmployeeForm
                     TextInput::make('last_name')
                         ->required(),
                     TextInput::make('identity_number')
+                        ->unique(ignoreRecord:true)
+                        ->validationMessages(['Este numero de identidad ya existe'])
                         ->required(),
                 ]),
 
@@ -30,6 +32,8 @@ class EmployeeForm
                 ->columns(3)
                 ->schema([
                     TextInput::make('address_number')
+                        ->unique(ignoreRecord:true)
+                        ->validationMessages(['Este numero de identidad ya existe'])
                         ->required(),
                     DatePicker::make('hiring_date')
                         ->required(),
@@ -42,9 +46,9 @@ class EmployeeForm
                     Select::make('employee_state')
                         ->options(EmployeeStatus::class)
                         ->required(),
-                    TextInput::make('payroll_id')
-                        ->required()
-                        ->numeric(),
+                    Select::make('payroll_id')
+                        ->relationship('payroll', 'payroll_type')
+                        ->required(),
                     Select::make('user_id')
                             ->relationship('user','name')
                             ->label('Usuario')

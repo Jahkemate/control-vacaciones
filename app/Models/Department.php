@@ -13,6 +13,10 @@ class Department extends Model
     protected $fillable = ['id', 'name','employee_id', 'roles_id'];
 
      public function employee(){
-        return $this->hasMany(Employee::class);
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function getFullNameAttribute(){
+        return $this->first_name . ' ' . $this->last_name;
     }
 }

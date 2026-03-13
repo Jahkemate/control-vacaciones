@@ -1,33 +1,34 @@
 <?php
 
-namespace App\Filament\Resources\Users\Tables;
+namespace App\Filament\Resources\TypeOfPayrolls\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
-class UsersTable
+class TypeOfPayrollsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('name')
+           ->columns([
+                TextColumn::make('payroll_type')
+                    ->label('Tipo de Nomina')
                     ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email address')
+                TextColumn::make('vacations_days')
+                    ->label('Vacaciones')
                     ->searchable(),
-                TextColumn::make('role.name')
-                    ->label('Rol')
+                TextColumn::make('vacations_bonus')
+                    ->label('Bonus')
                     ->searchable(),
-                TextColumn::make('department.name')
-                    ->label('Departamento')
-                    ->searchable(),
-                TextColumn::make('email_verified_at')
+                TextColumn::make('deleted_at')
                     ->dateTime()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -36,7 +37,7 @@ class UsersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -44,6 +45,8 @@ class UsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }

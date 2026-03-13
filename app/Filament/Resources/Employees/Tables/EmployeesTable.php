@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Employees\Tables;
 
 use App\States\EmployeeStatus;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -20,23 +21,22 @@ class EmployeesTable
             ->columns([
                 TextColumn::make('id')
                     ->searchable(),
-                TextColumn::make('first_name')
-                    ->searchable(),
-                TextColumn::make('last_name')
-                    ->searchable(),
+                TextColumn::make('full_name')
+                    ->label('Nombre')
+                    ->searchable(['first_name', 'last_name']), //Esto es para que al momento de buscar no de un error, ya que el nombre esta usando un accesor
                 TextColumn::make('identity_number')
                     ->searchable(),
                 TextColumn::make('address_number')
                     ->searchable(),
                 TextColumn::make('hiring_date')
                     ->date()
-                    ->sortable(),
+                    ->searchable(),
                 TextColumn::make('anniversary_date')
                     ->date()
-                    ->sortable(),
+                    ->searchable(),
                 TextColumn::make('department.name')
                     ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 TextColumn::make('employee_state')
                     ->badge()
                     //Convierte los strings dinamicamente a Enum, para que filament pueda leer los metodos del Enum (getLabel, getColor, getIcon), hace esto porque el enum se hace directamente desde la logica des sistema.
@@ -44,23 +44,20 @@ class EmployeesTable
                     ->color(fn ($state) => EmployeeStatus::tryFrom($state)?->getColor()) // tryFrom es un método de los Enums con valor respaldado (BackedEnum) en PHP, que sirve para convertir un string o número en un Enum de manera segura.
                     ->icon(fn ($state) => EmployeeStatus::tryFrom($state)?->getIcon())
                     ->searchable(),
-                TextColumn::make('payroll_id')
-                    ->numeric()
-                    ->sortable(), 
+                TextColumn::make('payroll.payroll_type')
+                    ->label('Nomina')
+                    ->searchable(), 
                 TextColumn::make('user.name')
                     ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -68,6 +65,7 @@ class EmployeesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

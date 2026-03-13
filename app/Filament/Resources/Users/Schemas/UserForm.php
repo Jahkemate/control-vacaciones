@@ -34,7 +34,7 @@ class UserForm
                 Section::make('Rol Info')
                 ->columns(2)
                 ->schema([
-                        Select::make('role_id')
+                        TextInput::make('role_id')
                         ->label('Rol')
                         ->required(),
                         Select::make('department_id')

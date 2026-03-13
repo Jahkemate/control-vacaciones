@@ -15,24 +15,24 @@ class DepartmentsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Departamento')
                     ->searchable(),
-                TextColumn::make('employee_id')
+                TextColumn::make('employee.full_name')
+                    ->label('Empleado')
                     ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 TextColumn::make('roles_id')
+                    ->label('Rol')
                     ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

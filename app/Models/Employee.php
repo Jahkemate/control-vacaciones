@@ -12,9 +12,8 @@ class Employee extends Model
     //
     use HasFactory;
     use SoftDeletes;
-     protected $table = 'employees'; // nombre real de la tabla
-    protected $fillable = [
-        'id', 
+    protected $table = 'employees'; // nombre real de la tabla
+    protected $fillable = [ 
         'first_name',
         'last_name', 
         'identity_number',
@@ -27,6 +26,10 @@ class Employee extends Model
         'user_id'
         ];
 
+    public function getFullNameAttribute(){
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
     public function department(){
         return $this->belongsTo(Department::class);// relacion con la tabla department
     }
@@ -34,4 +37,9 @@ class Employee extends Model
     public function user(){
         return $this->belongsTo(User::class);// relacion con la tabla usuario
     }
+
+      public function payroll(){
+        return $this->belongsTo(Payroll::class); //relacion con la tabla de Nominas/Type_of_Payroll
+    }
+
 }
