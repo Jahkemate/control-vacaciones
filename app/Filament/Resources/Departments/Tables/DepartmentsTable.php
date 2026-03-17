@@ -19,7 +19,6 @@ class DepartmentsTable
                     ->searchable(),
                 TextColumn::make('employee.full_name')
                     ->label('Jefe Departamento')
-                    ->numeric()
                     ->searchable(['first_name', 'last_name']),
                 TextColumn::make('deleted_at')
                     ->dateTime()

@@ -38,8 +38,11 @@ class Employee extends Model
         return $this->belongsTo(User::class);// relacion con la tabla usuario
     }
 
-      public function payroll(){
+    public function payroll(){
         return $this->belongsTo(Payroll::class); //relacion con la tabla de Nominas/Type_of_Payroll
     }
 
+    public function balanceVacation(){
+        return $this->hasOne(BalanceVacation::class, 'employee_id'); //relacion con la tabla de Balance Vacation
+    }
 }
