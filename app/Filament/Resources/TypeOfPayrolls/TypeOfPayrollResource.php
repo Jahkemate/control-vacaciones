@@ -29,6 +29,7 @@ class TypeOfPayrollResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
     protected static ?string $recordTitleAttribute = 'Payroll';
+    
 
     public static function form(Schema $schema): Schema
     {

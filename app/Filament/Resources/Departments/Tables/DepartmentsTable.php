@@ -18,13 +18,9 @@ class DepartmentsTable
                     ->label('Departamento')
                     ->searchable(),
                 TextColumn::make('employee.full_name')
-                    ->label('Empleado')
+                    ->label('Jefe Departamento')
                     ->numeric()
-                    ->searchable(),
-                TextColumn::make('roles_id')
-                    ->label('Rol')
-                    ->numeric()
-                    ->searchable(),
+                    ->searchable(['first_name', 'last_name']),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),

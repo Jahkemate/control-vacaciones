@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Models\Employee;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+
+use function Laravel\Prompts\select;
 
 class UserForm
 {
@@ -18,7 +21,7 @@ class UserForm
                 ->columns(3)
                 ->schema([
                     Select::make('employee_id')
-                    ->relationship('employee', 'first_name')
+                    ->relationship('employee', 'first_name')                    
                     ->label('Nombre')
                     ->required(),
                     TextInput::make('email')
@@ -32,15 +35,12 @@ class UserForm
                 ]),
 
                 Section::make('Rol Info')
-                ->columns(2)
+                ->columns(1)
                 ->schema([
-                        TextInput::make('role_id')
+                        Select::make('role_id')
+                        ->relationship('role', 'role_name')
                         ->label('Rol')
                         ->required(),
-                        Select::make('department_id')
-                            ->relationship('department','name')
-                            ->label('Departamento')
-                            ->required(),
                 ]),
              
             ]);

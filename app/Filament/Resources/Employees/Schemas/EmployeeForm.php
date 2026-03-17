@@ -16,13 +16,14 @@ class EmployeeForm
         return $schema
             ->components([
                 Section::make('Personal Info')
-                ->columns(3)
+                ->columns(1)
                 ->schema([
                     TextInput::make('first_name')
                         ->required(),
                     TextInput::make('last_name')
                         ->required(),
                     TextInput::make('identity_number')
+                        ->maxLength(13)
                         ->unique(ignoreRecord:true)
                         ->validationMessages(['Este numero de identidad ya existe'])
                         ->required(),
@@ -32,8 +33,9 @@ class EmployeeForm
                 ->columns(3)
                 ->schema([
                     TextInput::make('address_number')
+                        ->maxLength(9)
                         ->unique(ignoreRecord:true)
-                        ->validationMessages(['Este numero de identidad ya existe'])
+                        ->validationMessages(['Este numero de direccion ya existe'])
                         ->required(),
                     DatePicker::make('hiring_date')
                         ->required(),

@@ -29,6 +29,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
             self::Inactivo => 'warning',
             self::Eliminado => 'danger',
         };
+        
     }
 
     // getLabel(): Devuelve el texto visible que aparecerá en la UI

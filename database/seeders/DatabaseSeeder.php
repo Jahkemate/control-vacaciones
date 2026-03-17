@@ -23,7 +23,8 @@ class DatabaseSeeder extends Seeder
             'password' => '123456'
         ]);
 
-
+        //Se llama a los seederspara ejecutarlos
          $this->call(DepartmentSeeder::class);
+         $this->call(PayrollSeeder::class);
     }
 }

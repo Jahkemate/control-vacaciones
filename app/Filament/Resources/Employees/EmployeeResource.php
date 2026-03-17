@@ -63,4 +63,6 @@ class EmployeeResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+    
 }

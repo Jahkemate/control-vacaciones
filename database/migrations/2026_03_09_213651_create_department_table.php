@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('department', function (Blueprint $table) {
             $table->id();
             $table->string('name',50);
-            $table->foreignId('employee_id');
-            $table->foreignId('roles_id');
+            $table->foreignId('employee_id')->nullable();
+            $table->foreignId('roles_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
