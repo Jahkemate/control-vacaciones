@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('type_of_payroll', function (Blueprint $table) {
             $table->id();
+            $table->string('years');
             $table->string('payroll_type', 100);
             $table->string('vacations_days', 100);
             $table->string('vacations_bonus', 100);

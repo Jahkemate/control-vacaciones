@@ -17,6 +17,8 @@ class TypeOfPayrollsTable
     {
         return $table
            ->columns([
+                TextColumn::make('id')
+                    ->searchable(),
                 TextColumn::make('payroll_type')
                     ->label('Tipo de Nomina')
                     ->searchable(),

@@ -56,7 +56,7 @@ class User extends Authenticatable
         return $this->belongsTo(User::class);
     }
 
-    public function employees(){
+    public function employee(){
         return $this->hasMany(Employee::class); // Se hace relacion con la tabla de empleados
     }
 

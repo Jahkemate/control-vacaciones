@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\BalanceVacations\Schemas;
 
 use App\Models\Employee;
+use App\Models\Payroll;
 use App\States\EmployeeStatus;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -15,6 +17,7 @@ class BalanceVacationForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+        // Este formulario solo es visual, solo es para extraer los datos que haran el balance.
             ->components([  Section::make('Personal Info')
                 ->columns(1)
                 ->schema([
@@ -25,7 +28,8 @@ class BalanceVacationForm
                             )
                         ->label('Nombre Empleado')
                         ->reactive()
-                        ->afterStateUpdated(function ($state, callable $set) {
+                        //Este metodo es para traer los datos de la tabla de employee al formulario de balance_vacation
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
 
                                     $employee = Employee::find($state);
 
@@ -35,51 +39,140 @@ class BalanceVacationForm
                                         $set('hiring_date', $employee->hiring_date);
                                         $set('anniversary_date', $employee->anniversary_date);
                                         $set('employee_state', $employee->employee_state);
-                                        $set('department_id', $employee->department);
-                                        $set('payroll_id', $employee->payroll);
-                                        $set('user_id', $employee->user);
+                                        $set('department_id', $employee->department_id);
+                                        $set('payroll_id', $employee->payroll_id);
+                                        $set('user_id', $employee->user_id);
                                     }
+
+
+                                    // Calcular vacaciones (Acumuladas en total y Este año)
+                                    $total = self::calculateAccruedTotal($state);
+                                    $thisYear = self::calculateAccruedThisYear($employee);
+
+                                    $set('accrued_total', $total);
+                                    $set('accrued_this_year', $thisYear);
+
+                                    // Inicializamos balance si no hay usadas
+                                    $used = $get('used') ?? 0;
+                                    $set('balance', $total - $used);
                                 })
+
                         ->required(),
                     TextInput::make('identity_number')
+                        ->label('Numero de Identidad')
                         ->disabled()
                         ->dehydrated(false),
-                        TextInput::make('address_number')
+                    TextInput::make('address_number')
+                        ->label('Numero de Direccion')
                         ->disabled()
                         ->dehydrated(false),
                     DatePicker::make('hiring_date')
+                        ->label('Fecha de Contratacion')
                         ->disabled()
                         ->dehydrated(false),
                     DatePicker::make('anniversary_date')
+                        ->label('Fecha de Aniversario')
                         ->disabled()
                         ->dehydrated(false),
                     Select::make('department_id')
                             ->relationship('department','name')
                             ->label('Departamento')
-                            //->disabled()
+                            ->disabled()
                             ->dehydrated(false),
                     Select::make('employee_state')
+                        ->label('Estado de Empleado')
                         ->options(EmployeeStatus::class)
                         ->disabled()
                         ->dehydrated(false),
                     Select::make('payroll_id')
+                        ->label('Tipo de Nomina')
                         ->relationship('payroll', 'payroll_type')
-                        //->disabled()
+                        ->disabled()
                         ->dehydrated(false),
                     Select::make('user_id')
                             ->relationship('user','name')
                             ->label('Usuario')
-                            //->disabled()
+                            ->disabled()
                             ->dehydrated(false),
                 ]),
 
                 Section::make('Balance Info')
                 ->columns(1)
                 ->schema([
-                    
+                    //Total acmumulado
+                    TextInput::make('accrued_total')
+                    ->readOnly()
+                    ->label('Total Acumulado'),  
+
+                    //Acumulado este año
+                    TextInput::make('accrued_this_year')
+                    ->readOnly()
+                    ->label('Acumulado este Año'),
+
+                    //Vacaciones usadas
+                    TextInput::make('used')
+                    ->reactive()
+                    ->label('Vacaciones Usadas')
+                    ->numeric()
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        $total = $get('accrued_total') ?? 0;
+                        $set('balance', $total - $state);
+                    }),
+
+                    //Balance
+                    TextInput::make('balance')
+                    ->readOnly()
+                    ->label('Balance'),        
                 ]),
                
-            ]);
-                
+            ]);  
     }
+
+    //Metodos para hacer los calculos
+    //Metodo que va a hacer el calculo del acumulado total 
+    public static function calculateAccruedTotal($employee_id)
+        {
+                if (!$employee_id) return 0;
+
+            $employee_id = Employee::find($employee_id);
+                if (!$employee_id || !$employee_id->payroll_id) return 0;
+
+            $payroll = Payroll::find($employee_id->payroll_id);
+                if (!$payroll) return 0;
+
+            $yearsWorked = Carbon::parse($employee_id->hiring_date)->diffInYears(now());
+
+                return (int) ($yearsWorked * ($payroll->vacations_days ?? 0));
+        }
+
+    //Metodo para hacer el claculo de acumulado este año
+    // Vacaciones acumuladas este año (proporcional exacta)
+    public static function calculateAccruedThisYear(Employee $employee_id)
+        
+    {
+        if (!$employee_id || !$employee_id->payroll_id) return 0;
+
+        $payroll = Payroll::find($employee_id->payroll_id);
+        if (!$payroll) return 0;
+
+        $hiringDate = Carbon::parse($employee_id->hiring_date);
+        $startOfYear = Carbon::now()->startOfYear();
+        $today = Carbon::today();
+
+        // Días trabajados este año
+        $daysWorked = $hiringDate->greaterThan($startOfYear)
+            ? $hiringDate->diffInDays($today)
+            : $startOfYear->diffInDays($today);
+
+        // Proporcional de vacaciones
+        return (int) (($payroll->vacations_days ?? 0) * ($daysWorked / 365));
+    }
+
+
+    //Metodo para hacer el el calculo del balance
+    public static function calculateBalance($employee_id, $used)
+        {
+            return self::calculateAccruedTotal($employee_id) - $used;
+        }
+
 }
