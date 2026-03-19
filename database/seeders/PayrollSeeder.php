@@ -36,5 +36,11 @@ class PayrollSeeder extends Seeder
         $payroll->vacations_days = '20';
         $payroll->vacations_bonus = 'no';
         $payroll->save();
+
+        $payroll = new Payroll();
+        $payroll->payroll_type = 'Confidencial';
+        $payroll->vacations_days = '22';
+        $payroll->vacations_bonus = 'no';
+        $payroll->save();
     }
 }

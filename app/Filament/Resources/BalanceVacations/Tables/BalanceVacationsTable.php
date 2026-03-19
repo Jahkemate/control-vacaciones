@@ -34,6 +34,12 @@ class BalanceVacationsTable
                 TextColumn::make('balance')
                     ->label('Balance de Vaciones')
                     ->searchable(),
+                TextColumn::make('pendientes')
+                    ->label('Pendientes de Gozar')
+                    ->searchable(),
+                TextColumn::make('notas')
+                    ->label('Notas')
+                    ->searchable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),

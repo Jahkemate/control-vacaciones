@@ -17,6 +17,8 @@ return new class extends Migration
             $table->integer('accrued_this_year');
             $table->integer('used');
             $table->integer('balance');
+            $table->integer('pendings')->nullable();
+            $table->string('notes')->nullable();
             $table->integer('employee_id');
             $table->softDeletes();
             $table->timestamps();

@@ -17,7 +17,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
     // Los valores son los que se usarían en la lógica interna del sistema. 
     case Activo = 'activo';
     case Inactivo = 'inactivo';
-    case Eliminado = 'eliminado';
+    case Vacaciones = 'vacaciones';
     
 
     // getColor(): Devuelve el color que Filament usará en un badge (el badge se pone en la tabla de employees).
@@ -27,7 +27,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
         return match ($this) {
             self::Activo => 'success',
             self::Inactivo => 'warning',
-            self::Eliminado => 'danger',
+            self::Vacaciones => 'info',
         };
         
     }
@@ -39,7 +39,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
         return match ($this) {
             self::Activo => 'Activo',
             self::Inactivo => 'Inactivo',
-            self::Eliminado => 'Eliminado',
+            self::Vacaciones => 'Vacaciones',
         };
     }
 
@@ -49,7 +49,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
         return match ($this) {
             self::Activo => Heroicon::Check,
             self::Inactivo => Heroicon::ExclamationCircle,
-            self::Eliminado => Heroicon::XMark,
+            self::Vacaciones => Heroicon::CalendarDays,
         };
     }
 

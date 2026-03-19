@@ -8,6 +8,7 @@ use App\States\EmployeeStatus;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -44,17 +45,19 @@ class BalanceVacationForm
                                         $set('user_id', $employee->user_id);
                                     }
 
+                                     // Calcular vacaciones
+                                        $total = self::calculateAccruedTotal($state);
+                                        $thisYear = self::calculateAccruedThisYear($employee);
+                                        //$pendientes = self::calculatePendientes($total, $get('used') ?? 0);
 
-                                    // Calcular vacaciones (Acumuladas en total y Este año)
-                                    $total = self::calculateAccruedTotal($state);
-                                    $thisYear = self::calculateAccruedThisYear($employee);
+                                        $set('accrued_total', $total);
+                                        $set('accrued_this_year', $thisYear);
+                                        //$set('pendings',$pendientes);
 
-                                    $set('accrued_total', $total);
-                                    $set('accrued_this_year', $thisYear);
-
-                                    // Inicializamos balance si no hay usadas
-                                    $used = $get('used') ?? 0;
-                                    $set('balance', $total - $used);
+                                    // Reiniciar usadas y recalcular balance
+                                        $set('used', 0);
+                                        $set('balance', $total);
+                                  
                                 })
 
                         ->required(),
@@ -102,29 +105,43 @@ class BalanceVacationForm
                     //Total acmumulado
                     TextInput::make('accrued_total')
                     ->readOnly()
+                    ->default(0)
                     ->label('Total Acumulado'),  
 
                     //Acumulado este año
                     TextInput::make('accrued_this_year')
                     ->readOnly()
+                    ->default(0)
                     ->label('Acumulado este Año'),
 
                     //Vacaciones usadas
                     TextInput::make('used')
                     ->reactive()
+                    ->default(0)
                     ->label('Vacaciones Usadas')
-                    ->numeric()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        $total = $get('accrued_total') ?? 0;
-                        $set('balance', $total - $state);
+                       $total = (int) ($get('accrued_total') ?? 0);
+                        $used = (int) $state;
+
+                        // Balance contable (puede ser negativo si excede)
+                        $balance = $total - $used;
+
+                        $set('balance', $balance);
                     }),
 
                     //Balance
                     TextInput::make('balance')
+                    ->default(0)
                     ->readOnly()
-                    ->label('Balance'),        
-                ]),
-               
+                    ->label('Balance'),
+
+                    //Pednientes de Gozar
+                    TextInput::make('pendings')
+                    ->default(0)
+                    ->readOnly()
+                    ->label('Pendientes de Gozar'),
+
+                ]), 
             ]);  
     }
 
@@ -142,37 +159,35 @@ class BalanceVacationForm
 
             $yearsWorked = Carbon::parse($employee_id->hiring_date)->diffInYears(now());
 
-                return (int) ($yearsWorked * ($payroll->vacations_days ?? 0));
+                return (int) floor($yearsWorked * ($payroll->vacations_days ?? 0));
         }
 
-    //Metodo para hacer el claculo de acumulado este año
+    // Metodo para hacer el claculo de acumulado este año
     // Vacaciones acumuladas este año (proporcional exacta)
     public static function calculateAccruedThisYear(Employee $employee_id)
         
     {
-        if (!$employee_id || !$employee_id->payroll_id) return 0;
+       if (!$employee_id || !$employee_id->hiring_date) return 0;
 
-        $payroll = Payroll::find($employee_id->payroll_id);
-        if (!$payroll) return 0;
+            $hiringDate = Carbon::parse($employee_id->hiring_date);
+            $today = Carbon::today();
 
-        $hiringDate = Carbon::parse($employee_id->hiring_date);
-        $startOfYear = Carbon::now()->startOfYear();
-        $today = Carbon::today();
+            // Equivalente a SIFECHA(...;"yd")
+            $daysThisYear = $hiringDate->diffInDays($today) % 365 + 1;
 
-        // Días trabajados este año
-        $daysWorked = $hiringDate->greaterThan($startOfYear)
-            ? $hiringDate->diffInDays($today)
-            : $startOfYear->diffInDays($today);
+            // Fórmula tipo Excel
+            $vacationDays = ($daysThisYear / 30) * 1.83;
 
-        // Proporcional de vacaciones
-        return (int) (($payroll->vacations_days ?? 0) * ($daysWorked / 365));
+        return (int) floor($vacationDays);
     }
 
 
     //Metodo para hacer el el calculo del balance
-    public static function calculateBalance($employee_id, $used)
+   /*  public static function calculatePendientes(int $total, int $used): int
         {
-            return self::calculateAccruedTotal($employee_id) - $used;
-        }
+            return $total - $used; // Si quieres permitir negativos
+    // return max(0, $total - $used); // Si no quieres negativos
+
+        }  */
 
 }
