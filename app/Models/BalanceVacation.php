@@ -17,7 +17,9 @@ class BalanceVacation extends Model
         'accrued_this_year',
         'used',
         'balance',
-        'employee_id'
+        'employee_id',
+        'notes',
+        'pendings'
         ];
 
     //Relaciones de la tabla de Balance
