@@ -23,7 +23,7 @@ class Payroll extends Model
     }
 
 
-    // PARA OSTRA LOS DATOS DE LA TABLA DE tIPO DE NOMINA AL FORMULARIO 
+    // PARA MOSTRAR LOS DATOS DE LA TABLA DE tIPO DE NOMINA AL FORMULARIO 
       public static function getDaysByYears($id)
     {
         return self::where('payroll_type', '<=', $id)

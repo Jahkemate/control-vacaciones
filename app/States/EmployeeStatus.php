@@ -53,7 +53,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
         };
     }
 
-     // options(): Método helper que devuelve el array que se puede usar en un Select del formulario de Employee
+    // options(): Método helper que devuelve el array que se puede usar en un Select del formulario de Employee
     // Estructura: [valor_interno => label_para_mostrar]
     //Devuelve un array [valor => label] listo para un Select en Filament.
     public static function options(): array

@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\BalanceVacations\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Tables\Columns\Summarizers\Average;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -47,6 +47,8 @@ class BalanceVacationsTable
                     ->label('Pendientes de Gozar')
                     ->searchable(),
                 TextColumn::make('notes')
+                    ->limit(10)
+                    ->tooltip(fn ($record) => $record->notes) //muestra el texto complteo al pasar el mouse
                     ->alignCenter()
                     ->label('Notas')
                     ->searchable(),
@@ -64,8 +66,25 @@ class BalanceVacationsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                Action::make('verNotas')
+                ->color(fn ($record) =>
+                    $record->notes ? 'success' : 'gray')// hace el color dinamico
+                ->label('Ver notas')
+                ->icon('heroicon-o-eye')
+                ->modalHeading('Notas')
+                ->modalWidth('sm')// cambia el tamaño del modal
+                ->modalContent(fn ($record) => view('filament.modals.notes', [
+                    'notes' => $record->notes
+                ]))
+                ->modalSubmitAction(false),
+
+                EditAction::make()
+                ->label('Editar'),
+                DeleteAction::make()
+                ->label('Borrar')
+                ->modalHeading('Borrar Balance')
+                ->modalDescription('Estas seguro/a que quieres borrar este balance ')
+                ->modalSubmitActionLabel('Si, borralo'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

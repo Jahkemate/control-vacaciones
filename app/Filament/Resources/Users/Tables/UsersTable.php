@@ -19,12 +19,12 @@ class UsersTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
-                TextColumn::make('role.name')
+/*                 TextColumn::make('role.name')
                     ->label('Rol')
                     ->searchable(),
                 TextColumn::make('department.name')
                     ->label('Departamento')
-                    ->searchable(),
+                    ->searchable(), */
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: false),

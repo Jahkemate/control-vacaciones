@@ -37,6 +37,8 @@ class BalanceVacationForm
                             ->label('Nombre Empleado')
                             ->reactive()
                             ->required()
+                            ->unique(ignoreRecord:true)
+                            ->validationMessages([])
                             //Este metodo es para traer los datos de la tabla de employee al formulario de balance_vacation
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
 
@@ -72,38 +74,46 @@ class BalanceVacationForm
                             
                         TextInput::make('identity_number')
                             ->label('Numero de Identidad')
+                            ->hiddenOn('edit')
                             ->disabled()
                             ->dehydrated(false),
                         TextInput::make('address_number')
                             ->label('Numero de Direccion')
+                            ->hiddenOn('edit')
                             ->disabled()
                             ->dehydrated(false),
                         DatePicker::make('hiring_date')
                             ->label('Fecha de Contratacion')
                             ->disabled()
+                            ->hiddenOn('edit')
                             ->dehydrated(false),
                         DatePicker::make('anniversary_date')
                             ->label('Fecha de Aniversario')
                             ->disabled()
+                            ->hiddenOn('edit')
                             ->dehydrated(false),
                         Select::make('department_id')
                                 ->relationship('department','name')
                                 ->label('Departamento')
                                 ->disabled()
+                                ->hiddenOn('edit')
                                 ->dehydrated(false),
                         Select::make('employee_state')
                             ->label('Estado de Empleado')
                             ->options(EmployeeStatus::class)
                             ->disabled()
+                            ->hiddenOn('edit')
                             ->dehydrated(false),
                         Select::make('payroll_id')
                             ->label('Tipo de Nomina')
                             ->relationship('payroll', 'payroll_type')
                             ->disabled()
+                            ->hiddenOn('edit')
                             ->dehydrated(false),
                         Select::make('user_id')
                                 ->relationship('user','name')
                                 ->label('Usuario')
+                                ->hiddenOn('edit')
                                 ->disabled()
                                 ->dehydrated(false),
                     ]),

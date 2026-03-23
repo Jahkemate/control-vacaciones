@@ -16,4 +16,10 @@ class EditUser extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+     protected function getRedirectUrl(): string
+        {
+            // Redirige a la página de lista de la tabla
+            return $this->getResource()::getUrl('index');
+        }
 }

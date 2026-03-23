@@ -9,9 +9,9 @@ class CreateBalanceVacation extends CreateRecord
 {
     protected static string $resource = BalanceVacationResource::class;
 
-     protected function getRedirectUrl(): string
-    {
-        // Redirige a la página de lista de la tabla
-        return $this->getResource()::getUrl('index');
-    }
+        protected function getRedirectUrl(): string
+        {
+            // Redirige a la página de lista de la tabla
+            return $this->getResource()::getUrl('index');
+        }
 }

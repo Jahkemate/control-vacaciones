@@ -70,8 +70,13 @@ class EmployeesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+               EditAction::make()
+                ->label('Editar'),
+                DeleteAction::make()
+                ->label('Borrar')
+                ->modalHeading('Borrar Empleado')
+                ->modalDescription('Estas seguro/a que quieres borrar este Empleado')
+                ->modalSubmitActionLabel('Si, borralo'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

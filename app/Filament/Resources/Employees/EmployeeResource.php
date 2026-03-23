@@ -28,6 +28,26 @@ class EmployeeResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
+    // CONFIGURACIONES DEL BADGE
+     //para mostrar el numero de empleados
+            public static function getNavigationBadge(): ?string
+                {
+
+                    return Employee::count();
+                }
+
+     //para cambiar el color del numero
+            public static function getNavigationBadgeColor(): ?string
+                {
+                    return 'info';
+                }
+
+     //para mostra un mensaje al pasar por el numero de empleados
+            public static function getNavigationBadgeTooltip(): ?string
+                    {
+                        return 'Total de empleados';
+                    }
+    //CIERRE CONFIGURACIONES DEL BADGE
     protected static ?string $recordTitleAttribute = 'Employee';
 
     public static function form(Schema $schema): Schema

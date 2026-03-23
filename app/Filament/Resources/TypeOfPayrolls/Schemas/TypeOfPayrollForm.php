@@ -21,8 +21,8 @@ class TypeOfPayrollForm
                 Select::make('vacations_bonus')
                     ->label('Bonus')
                     ->options([
-                        'si' => 'Si',
-                        'no' => 'No',
+                        'Si' => 'Si',
+                        'No' => 'No',
                     ])
                     ->required(),
             ]);
