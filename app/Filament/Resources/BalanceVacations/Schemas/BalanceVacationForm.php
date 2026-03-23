@@ -7,8 +7,6 @@ use App\Models\Payroll;
 use App\States\EmployeeStatus;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -40,7 +38,7 @@ class BalanceVacationForm
                             ->unique(ignoreRecord:true)
                             ->validationMessages([])
                             //Este metodo es para traer los datos de la tabla de employee al formulario de balance_vacation
-                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            ->afterStateUpdated(function ($state, callable $set) {
 
                                         $employee = Employee::find($state);
 
@@ -76,7 +74,7 @@ class BalanceVacationForm
                             ->label('Numero de Identidad')
                             ->hiddenOn('edit')
                             ->disabled()
-                            ->dehydrated(false),
+                            ->dehydrated(false), // para que el valor del campo no se envie ni se guarde en la base de datos (temporal)
                         TextInput::make('address_number')
                             ->label('Numero de Direccion')
                             ->hiddenOn('edit')

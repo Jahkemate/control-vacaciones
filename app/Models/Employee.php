@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\States\EmployeeStatus;
+use App\Models\VacationRequest;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,9 +13,9 @@ class Employee extends Model
     use HasFactory;
     use SoftDeletes;
     protected $table = 'employees'; // nombre real de la tabla
-    protected $fillable = [ 
+    protected $fillable = [
         'first_name',
-        'last_name', 
+        'last_name',
         'identity_number',
         'address_number',
         'hiring_date',
@@ -24,25 +24,35 @@ class Employee extends Model
         'employee_state',
         'payroll_id',
         'user_id'
-        ];
+    ];
 
-    public function getFullNameAttribute(){
+    public function getFullNameAttribute()
+    {
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    public function department(){
-        return $this->belongsTo(Department::class);// relacion con la tabla department
+    public function department()
+    {
+        return $this->belongsTo(Department::class); // relacion con la tabla department
     }
 
-    public function user(){
-        return $this->belongsTo(User::class);// relacion con la tabla usuario
+    public function user()
+    {
+        return $this->belongsTo(User::class); // relacion con la tabla usuario
     }
 
-    public function payroll(){
+    public function payroll()
+    {
         return $this->belongsTo(Payroll::class); //relacion con la tabla de Nominas/Type_of_Payroll
     }
 
-    public function balanceVacation(){
+    public function balanceVacation()
+    {
         return $this->hasOne(BalanceVacation::class, 'employee_id'); //relacion con la tabla de Balance Vacation
+    }
+
+    public function vacationRequests()
+    {
+        return $this->hasMany(VacationRequest::class);
     }
 }

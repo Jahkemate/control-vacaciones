@@ -17,8 +17,9 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->string('state');
-            $table->date('request_date');
-            $table->text('comment');
+            $table->dateTime('request_date');
+            $table->integer('total_business_days');
+            $table->text('comment')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
