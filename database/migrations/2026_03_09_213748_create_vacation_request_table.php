@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->string('state');
-            $table->dateTime('request_date');
+            //fecha de creacion de solicitud ira en la columna que filamente crea por defecto
             $table->integer('total_business_days');
             $table->text('comment')->nullable();
             $table->softDeletes();

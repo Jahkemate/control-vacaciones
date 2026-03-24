@@ -15,14 +15,14 @@ class Department extends Model
     protected $fillable = [
         'name',
         'employee_id',
-        'roles_id'
-        ];
+    ];
 
-     public function employee(){
-        return $this->hasMany(Employee::class);
-    }
-
-    public function getFullNameAttribute(){
-        return $this->first_name . ' ' . $this->last_name;
+    //--------Para llamar solo a los empleados Jefe de cada departamento---------
+    public function manager()
+    {
+        return $this->hasMany(Employee::class)
+            ->whereHas('user', function ($query) {
+                $query->where('role', 'manager');
+            });
     }
 }

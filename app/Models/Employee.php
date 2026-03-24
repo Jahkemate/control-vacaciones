@@ -25,12 +25,14 @@ class Employee extends Model
         'payroll_id',
         'user_id'
     ];
-
+    
+    //----------Accesor para mostar el nombre completo----------
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
     }
 
+    //---------------------Relaciones----------------------------
     public function department()
     {
         return $this->belongsTo(Department::class); // relacion con la tabla department

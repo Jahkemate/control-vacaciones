@@ -17,7 +17,7 @@ class DepartmentsTable
                 TextColumn::make('name')
                     ->label('Departamento')
                     ->searchable(),
-                TextColumn::make('employee.full_name')
+                TextColumn::make('manager.full_name')
                     ->label('Jefe Departamento')
                     ->searchable(['first_name', 'last_name']),
                 TextColumn::make('deleted_at')

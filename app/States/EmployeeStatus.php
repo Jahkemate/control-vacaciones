@@ -4,7 +4,6 @@ namespace App\States;
 
 use BackedEnum;
 use Filament\Support\Contracts\HasColor;
-use Filament\Support\Contracts\HasDescription;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
@@ -47,7 +46,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
      public function getIcon(): string | BackedEnum | Htmlable | null
     {
         return match ($this) {
-            self::Activo => Heroicon::Check,
+            self::Activo => Heroicon::OutlinedCheckCircle,
             self::Inactivo => Heroicon::ExclamationCircle,
             self::Vacaciones => Heroicon::CalendarDays,
         };

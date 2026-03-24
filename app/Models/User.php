@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -48,16 +49,9 @@ class User extends Authenticatable
 
     //Relaciones de la tabla de usuarios
 
-    public function department(){
-        return $this->belongsTo(Department::class); // Relacion muchos a uno, esta relacion es de empleados a departamentos
-    }
-
-    public function user(){
-        return $this->belongsTo(User::class);
-    }
-
     public function employee(){
         return $this->hasMany(Employee::class); // Se hace relacion con la tabla de empleados
     }
+
 
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -15,16 +16,25 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nombre de Usuario')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
-/*                 TextColumn::make('role.name')
+                TextColumn::make('role')
                     ->label('Rol')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'employee' => 'info',
+                        'admin'    => 'danger',
+                        'manager'  => 'secondary'
+                    })
+                    ->icon(fn(string $state): Heroicon => match ($state) {
+                        'employee' => Heroicon::OutlinedUserCircle,
+                        'admin' => Heroicon::OutlinedShieldCheck,
+                        'manager' => Heroicon::OutlinedBriefcase
+                    })
                     ->searchable(),
-                TextColumn::make('department.name')
-                    ->label('Departamento')
-                    ->searchable(), */
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: false),
