@@ -32,61 +32,77 @@ class VacationRequestForm
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
 
-                                $balance = BalanceVacation::where('employee_id', $state)->first(); //Esto solo me mostrara los empleados que tiene balance de vacaciones
+                                if ($state) {
+                                    // Buscamos el balance del empleado seleccionado
+                                    $balance = BalanceVacation::where('employee_id', $state)->first();
 
-                                if ($balance) {
-                                    $set('balance', $balance->balance);
+                                    if ($balance) {
+                                        $set('balance', $balance->balance);
+                                    } else {
+                                        $set('balance', null); // Si no hay balance, dejamos vacío
+                                    }
+                                } else {
+                                    // Si no hay empleado seleccionado, limpiamos el balance
+                                    $set('balance', null);
                                 }
                             }),
                         Select::make('state')
                             ->label('Estado de la Solicitud')
                             ->options(RequestStatus::class)
                             ->default(RequestStatus::Draft),
-                        DatePicker::make('start_date')
-                            ->label('Fecha de Inicio')
-                            ->reactive()
-                            ->date()
-                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                $fechaInicio = $state;
-                                $fechaFin = $get('end_date');
 
-                                if ($fechaInicio && $fechaFin) {
-                                    $diasHabiles = 0;
-                                    $inicio = Carbon::parse($fechaInicio);
-                                    $fin = Carbon::parse($fechaFin);
+                        Section::make('Fechas de Vacaciones')
+                            ->columns(2)
+                            ->schema([
+                                DatePicker::make('start_date')
+                                    ->label('Fecha de Inicio')
+                                    ->required()
+                                    ->reactive()
+                                    ->date()
+                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                        $fechaInicio = $state;
+                                        $fechaFin = $get('end_date');
 
-                                    while ($inicio->lte($fin)) {
-                                        if (!$inicio->isWeekend()) {
-                                            $diasHabiles++;
+                                        if ($fechaInicio && $fechaFin) {
+                                            $diasHabiles = 0;
+                                            $inicio = Carbon::parse($fechaInicio);
+                                            $fin = Carbon::parse($fechaFin);
+
+                                            while ($inicio->lte($fin)) {
+                                                if (!$inicio->isWeekend()) {
+                                                    $diasHabiles++;
+                                                }
+                                                $inicio->addDay();
+                                            }
+
+                                            $set('total_business_days', $diasHabiles); // guardamos el resultado
                                         }
-                                        $inicio->addDay();
-                                    }
+                                    }),
+                                DatePicker::make('end_date')
+                                    ->label('Fecha Final')
+                                    ->reactive()
+                                    ->required()
+                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                        $fechaInicio = $get('start_date');
+                                        $fechaFin = $state;
 
-                                    $set('total_business_days', $diasHabiles); // guardamos el resultado
-                                }
-                            }),
-                        DatePicker::make('end_date')
-                            ->label('Fecha Final')
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                $fechaInicio = $get('start_date');
-                                $fechaFin = $state;
+                                        if ($fechaInicio && $fechaFin) {
+                                            $diasHabiles = 0;
+                                            $inicio = Carbon::parse($fechaInicio);
+                                            $fin = Carbon::parse($fechaFin);
 
-                                if ($fechaInicio && $fechaFin) {
-                                    $diasHabiles = 0;
-                                    $inicio = Carbon::parse($fechaInicio);
-                                    $fin = Carbon::parse($fechaFin);
+                                            while ($inicio->lte($fin)) {
+                                                if (!$inicio->isWeekend()) {
+                                                    $diasHabiles++;
+                                                }
+                                                $inicio->addDay();
+                                            }
 
-                                    while ($inicio->lte($fin)) {
-                                        if (!$inicio->isWeekend()) {
-                                            $diasHabiles++;
+                                            $set('total_business_days', $diasHabiles);
                                         }
-                                        $inicio->addDay();
-                                    }
+                                    }),
+                            ]),
 
-                                    $set('total_business_days', $diasHabiles);
-                                }
-                            }),
                         TextInput::make('total_business_days')
                             ->label('Total de Dias Habiles')
                             ->readOnly(),
@@ -98,14 +114,18 @@ class VacationRequestForm
                             ->columns(1)
                             ->schema([
                                 TextInput::make('balance')
+                                    ->reactive()
                                     ->readOnly()
-                                    ->label('Vacaciones'),
+                                    ->visibleOn('create', 'edit')
+                                    ->label('Vacaciones')
+                                    ->placeholder('Vacaciones disponibles'),
                             ]),
                         Section::make('Informacion Adicional')
                             ->columns(1)
                             ->schema([
                                 Textarea::make('comment')
-                                    ->label('Comentario')
+                                    ->label('Comentario o Justificacion')
+                                    ->placeholder('Breve de Descripcion (Opcional)')
                             ])
                     ]),
             ]);

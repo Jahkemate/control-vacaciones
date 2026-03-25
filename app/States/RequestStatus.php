@@ -7,10 +7,11 @@ use Illuminate\Contracts\Support\Htmlable;
 
 enum RequestStatus: string implements HasLabel
 {
-    case Approved = 'aproved';
+    case Approved = 'approved';
     case Draft = 'draft';
     case Pending = 'pending';
     case Rejected = 'rejected';
+    case Published = 'published';
 
 
     public function getLabel(): string|Htmlable|null
@@ -20,6 +21,7 @@ enum RequestStatus: string implements HasLabel
             self::Draft => 'Borrador',
             self::Pending => 'Pendiente',
             self::Rejected => 'Rechazadas',
+            self::Published => 'Publicado'
         };
     }
 }

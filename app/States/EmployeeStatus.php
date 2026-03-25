@@ -14,9 +14,9 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
 {
     // Aquí definimos los posibles estados con sus valores "backing values"
     // Los valores son los que se usarían en la lógica interna del sistema. 
-    case Activo = 'activo';
-    case Inactivo = 'inactivo';
-    case Vacaciones = 'vacaciones';
+    case Active = 'active';
+    case Inactive = 'inactive';
+    case Vacations = 'vacations';
     
 
     // getColor(): Devuelve el color que Filament usará en un badge (el badge se pone en la tabla de employees).
@@ -24,9 +24,9 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
     public function getColor(): string | array | null
     {
         return match ($this) {
-            self::Activo => 'success',
-            self::Inactivo => 'warning',
-            self::Vacaciones => 'info',
+            self::Active => 'success',
+            self::Inactive => 'warning',
+            self::Vacations => 'info',
         };
         
     }
@@ -36,9 +36,9 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
     public function getLabel(): string
     {
         return match ($this) {
-            self::Activo => 'Activo',
-            self::Inactivo => 'Inactivo',
-            self::Vacaciones => 'Vacaciones',
+            self::Active => 'Activo',
+            self::Inactive => 'Inactivo',
+            self::Vacations => 'Vacaciones',
         };
     }
 
@@ -46,9 +46,9 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
      public function getIcon(): string | BackedEnum | Htmlable | null
     {
         return match ($this) {
-            self::Activo => Heroicon::OutlinedCheckCircle,
-            self::Inactivo => Heroicon::ExclamationCircle,
-            self::Vacaciones => Heroicon::CalendarDays,
+            self::Active => Heroicon::OutlinedCheckCircle,
+            self::Inactive => Heroicon::ExclamationCircle,
+            self::Vacations => Heroicon::CalendarDays,
         };
     }
 
