@@ -17,7 +17,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
     case Active = 'active';
     case Inactive = 'inactive';
     case Vacations = 'vacations';
-    
+
 
     // getColor(): Devuelve el color que Filament usará en un badge (el badge se pone en la tabla de employees).
     // Puede devolver un string (como 'success') o un array si se quiere algo más complejo
@@ -28,7 +28,6 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
             self::Inactive => 'warning',
             self::Vacations => 'info',
         };
-        
     }
 
     // getLabel(): Devuelve el texto visible que aparecerá en la UI
@@ -42,8 +41,8 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
         };
     }
 
-      // getIcon(): Devuelve un ícono de Heroicon que se puede mostrar junto al badge
-     public function getIcon(): string | BackedEnum | Htmlable | null
+    // getIcon(): Devuelve un ícono de Heroicon que se puede mostrar junto al badge
+    public function getIcon(): string | BackedEnum | Htmlable | null
     {
         return match ($this) {
             self::Active => Heroicon::OutlinedCheckCircle,
@@ -58,7 +57,7 @@ enum EmployeeStatus: string implements HasColor, HasLabel, HasIcon
     public static function options(): array
     {
         return collect(self::cases()) // Obtenemos todos los cases del Enum
-            ->mapWithKeys(fn ($case) => [$case->value => $case->getLabel()]) // Creamos el array
+            ->mapWithKeys(fn($case) => [$case->value => $case->getLabel()]) // Creamos el array
             ->toArray(); // Se convierte la colección a un array simple
     }
 }

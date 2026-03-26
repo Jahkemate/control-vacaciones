@@ -51,7 +51,7 @@ class EmployeeForm
                             ->relationship('department','name')
                             ->label('Departamento')
                             ->required(),
-                    Select::make('employee_state')
+                    Select::make('employee_status')
                         ->label('Estado de Empleado')
                         ->options(EmployeeStatus::class)
                         ->required(),

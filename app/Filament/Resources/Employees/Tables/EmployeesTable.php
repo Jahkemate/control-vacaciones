@@ -41,7 +41,7 @@ class EmployeesTable
                 TextColumn::make('department.name')
                     ->label('Departamento')
                     ->searchable(),
-                TextColumn::make('employee_state')
+                TextColumn::make('employee_status')
                     ->label('Estado')
                     ->badge()
                     //Convierte los strings dinamicamente a Enum, para que filament pueda leer los metodos del Enum (getLabel, getColor, getIcon), hace esto porque el enum se hace directamente desde la logica des sistema.

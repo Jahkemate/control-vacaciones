@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('hiring_date');
             $table->date('anniversary_date');
             $table->foreignId('department_id');
-            $table->string('employee_state');
+            $table->string('employee_status');
             $table->foreignId('payroll_id');
             $table->foreignId('user_id');
             $table->softDeletes();

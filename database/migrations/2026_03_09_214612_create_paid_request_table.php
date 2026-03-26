@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id');
             $table->integer('total_days');
-            $table->string('state');
+            $table->string('status');
             $table->date('request_date');
             $table->softDeletes();
             $table->timestamps();

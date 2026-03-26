@@ -48,7 +48,7 @@ class BalanceVacationForm
                                             $set('address_number', $employee->address_number);
                                             $set('hiring_date', $employee->hiring_date);
                                             $set('anniversary_date', $employee->anniversary_date);
-                                            $set('employee_state', $employee->employee_state);
+                                            $set('employee_status', $employee->employee_status);
                                             $set('department_id', $employee->department_id);
                                             $set('payroll_id', $employee->payroll_id);
                                             $set('user_id', $employee->user_id);
@@ -96,7 +96,7 @@ class BalanceVacationForm
                                     ->disabled()
                                     ->hiddenOn('edit')
                                     ->dehydrated(false),
-                                Select::make('employee_state')
+                                Select::make('employee_status')
                                     ->label('Estado de Empleado')
                                     ->options(EmployeeStatus::class)
                                     ->disabled()

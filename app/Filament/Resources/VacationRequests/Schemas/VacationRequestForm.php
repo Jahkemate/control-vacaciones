@@ -46,7 +46,8 @@ class VacationRequestForm
                                     $set('balance', null);
                                 }
                             }),
-                        Select::make('state')
+                        Select::make('status')
+                            ->disabled()
                             ->label('Estado de la Solicitud')
                             ->options(RequestStatus::class)
                             ->default(RequestStatus::Draft),

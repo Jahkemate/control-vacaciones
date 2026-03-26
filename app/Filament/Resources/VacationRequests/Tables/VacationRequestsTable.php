@@ -10,8 +10,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -25,46 +25,46 @@ class VacationRequestsTable
                     ->searchable(['first_name', 'last_name'])
                     ->label('Empleado Solicitante'),
                 TextColumn::make('start_date')
+                    ->searchable()
                     ->label('Fecha de Inicio')
                     ->date(),
                 TextColumn::make('end_date')
+                    ->searchable()
                     ->label('Fecha de Inicio')
                     ->date(),
                 TextColumn::make('total_business_days')
+                    ->alignCenter()
+                    ->searchable()
                     ->label('Dias Totales'),
-                TextColumn::make('state')
-                    ->badge()
-                    ->label('Estado de la Solicitud')
-                    ->formatStateUsing(fn($state) => RequestStatus::tryFrom($state)?->getLabel())
-                    ->default(RequestStatus::Draft)
-                    ->color(fn(string $state): string => match ($state) {
-                        'draft' => 'gray',
-                        'approved' => 'success',
-                        'pending' => 'primary',
-                        'rejected' => 'danger',
-                        'published' => 'info'
-                    })
-                    ->icon(fn(string $state): Heroicon => match ($state) {
-                        'draft' => Heroicon::OutlinedDocumentText,
-                        'approved' => Heroicon::OutlinedCheckCircle,
-                        'pending' => Heroicon::OutlinedClock,
-                        'rejected' => Heroicon::OutlinedXCircle,
-                        'published' => Heroicon::OutlinedPaperAirplane
-                    }),
                 TextColumn::make('created_at')
                     ->label('Fecha de Solicitud')
-                    ->dateTime()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable()
+                    ->dateTime(),
+                TextColumn::make('status')
+                    ->alignCenter()
+                    ->badge()
+                    ->searchable()
+                    ->label('Estado de la Solicitud')
+                    ->formatStateUsing(fn(RequestStatus $state) => $state->getLabel())
+                    ->color(fn(RequestStatus $state) => $state->getColor())
+                    ->icon(fn(RequestStatus $state) => $state->getIcon()),
                 TextColumn::make('comment')
+                    ->searchable()
                     ->limit(10)
                     ->tooltip(fn($record) => $record->comment) //muestra el texto complteo al pasar el mouse
                     ->label('Comentario'),
-                TextColumn::make('updated_at')
+                TextColumn::make('observation')
+                    ->limit(10)
+                    ->tooltip(fn($record) => $record->comment) //muestra el texto complteo al pasar el mouse
+                    ->label('Motivo de Rechazo')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),
+                SelectFilter::make('status')
+                    ->label('Filtrar por Estado')
+                    ->options(RequestStatus::class),
             ])
             ->recordActions([
                 Action::make('viewComments')
