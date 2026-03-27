@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\VacationRequests\Tables;
 
+use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -14,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class VacationRequestsTable
 {
@@ -65,6 +67,7 @@ class VacationRequestsTable
                 SelectFilter::make('status')
                     ->label('Filtrar por Estado')
                     ->options(RequestStatus::class),
+                AuthUser::pluck('department_id', 'name')->toArray(), //para facilitar la busquea mas eficiente en la base de datos.
             ])
             ->recordActions([
                 Action::make('viewComments')
@@ -81,6 +84,7 @@ class VacationRequestsTable
                 EditAction::make(),
                 DeleteAction::make(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

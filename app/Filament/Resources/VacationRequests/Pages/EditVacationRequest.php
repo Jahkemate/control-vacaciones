@@ -116,7 +116,7 @@ class EditVacationRequest extends EditRecord
     }
     //------------------------------------------------------
 
-    //Para que el formulario este desactivo de acuerdo a los siguientes estados
+    //Para que el formulario este desactivado de acuerdo a los siguientes estados
     protected function isFormDisabled(): bool
     {
         return in_array($this->record->status, [
