@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class VacationRequestForm
 {
@@ -24,30 +25,19 @@ class VacationRequestForm
                     ->schema([
                         Select::make('employee_id')
                             ->label('Empleado Solicitante')
+                            ->default(fn() => Auth::user()->employee?->first()?->id) // Establece el valor predeterminado al primer empleado del usuario autenticado
+                            ->disabled()
+                            ->dehydrated()
                             ->relationship('employee', 'first_name', fn($query) => $query->whereHas('BalanceVacation')) //Para que solo me muestre los empleadfos que tiene balance
                             ->getOptionLabelFromRecordUsing(
                                 fn($record) =>
                                 $record->first_name . ' ' . $record->last_name
                             )
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set) {
+                            ->reactive(),
 
-                                if ($state) {
-                                    // Buscamos el balance del empleado seleccionado
-                                    $balance = BalanceVacation::where('employee_id', $state)->first();
-
-                                    if ($balance) {
-                                        $set('balance', $balance->balance);
-                                    } else {
-                                        $set('balance', null); // Si no hay balance, dejamos vacío
-                                    }
-                                } else {
-                                    // Si no hay empleado seleccionado, limpiamos el balance
-                                    $set('balance', null);
-                                }
-                            }),
                         Select::make('status')
                             ->disabled()
+                            ->reactive()
                             ->label('Estado de la Solicitud')
                             ->options(RequestStatus::class)
                             ->default(RequestStatus::Draft),
@@ -83,6 +73,7 @@ class VacationRequestForm
                                     ->label('Fecha Final')
                                     ->reactive()
                                     ->required()
+                                    ->date()
                                     ->afterStateUpdated(function ($state, callable $set, $get) {
                                         $fechaInicio = $get('start_date');
                                         $fechaFin = $state;
@@ -105,6 +96,7 @@ class VacationRequestForm
                             ]),
 
                         TextInput::make('total_business_days')
+                            ->reactive()
                             ->label('Total de Dias Habiles')
                             ->readOnly(),
                     ]),
@@ -119,7 +111,11 @@ class VacationRequestForm
                                     ->readOnly()
                                     ->visibleOn('create', 'edit')
                                     ->label('Vacaciones')
-                                    ->placeholder('Vacaciones disponibles'),
+                                    ->placeholder('Vacaciones disponibles')
+                                    ->default(
+                                        fn($get) =>
+                                        BalanceVacation::where('employee_id', $get('employee_id'))->value('balance') // Obtiene el balance de vacaciones del empleado seleccionado
+                                    ),
                             ]),
                         Section::make('Informacion Adicional')
                             ->columns(1)

@@ -10,6 +10,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 
 class EditVacationRequest extends EditRecord
@@ -22,6 +23,9 @@ class EditVacationRequest extends EditRecord
             //------------------Boton de Aprobar----------------------------------------
             Action::make('approved')
                 ->label('Aprobar Solicitud')
+                ->requiresConfirmation()
+                ->modalDescription('¿ Desea aprobar esta Solicitud ?')
+                ->modalSubmitActionLabel('Si, Aprobar')
                 ->color('secondary')
                 ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager']) &&
                     ! in_array($this->record->status, [
@@ -40,6 +44,9 @@ class EditVacationRequest extends EditRecord
             //------------------Boton de Rechazar-------------------------------------
             Action::make('rejected')
                 ->label('Rechazar Solicitud')
+                ->requiresConfirmation()
+                ->modalDescription('¿ Desea rechazar esta Solicitud ?')
+                ->modalSubmitActionLabel('Si, Rechazar')
                 ->color('danger')
                 ->requiresConfirmation()
                 ->schema([
@@ -67,6 +74,10 @@ class EditVacationRequest extends EditRecord
             //--------------------Boton de Guardar como Borrador------------------------
             Action::make('draft')
                 ->label('Guardar como Borrador')
+                ->requiresConfirmation()
+                ->modalDescription('¿ Desea guardar como Borrador ?')
+                ->modalSubmitActionLabel('Si, Guardar')
+                ->modalIcon(Heroicon::OutlinedPencil)
                 ->color('gray')
                 ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
@@ -85,6 +96,10 @@ class EditVacationRequest extends EditRecord
             //--------------------Boton de Enviar----------------------------------------
             Action::make('pending')
                 ->label('Enviar Solicitud')
+                ->requiresConfirmation()
+                ->modalDescription('¿ Desea enviar esta Solicitud ?')
+                ->modalSubmitActionLabel('Si, Enviar')
+                ->modalIcon(Heroicon::OutlinedPaperAirplane)
                 ->color('send')
                 ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [

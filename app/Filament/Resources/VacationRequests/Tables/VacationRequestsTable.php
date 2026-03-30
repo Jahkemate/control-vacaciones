@@ -15,7 +15,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as AuthUser;
+use Illuminate\Support\Facades\Auth;
 
 class VacationRequestsTable
 {
@@ -67,7 +69,6 @@ class VacationRequestsTable
                 SelectFilter::make('status')
                     ->label('Filtrar por Estado')
                     ->options(RequestStatus::class),
-                AuthUser::pluck('department_id', 'name')->toArray(), //para facilitar la busquea mas eficiente en la base de datos.
             ])
             ->recordActions([
                 Action::make('viewComments')

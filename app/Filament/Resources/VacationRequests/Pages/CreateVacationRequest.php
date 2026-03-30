@@ -33,7 +33,8 @@ class CreateVacationRequest extends CreateRecord
                 ->modalSubmitActionLabel('Si, Guardar')
                 ->color('gray')
                 ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
-                ->action(fn () => $this->saveAs(RequestStatus::Draft),
+                ->action(
+                    fn() => $this->saveAs(RequestStatus::Draft),
                 ),
 
             Action::make('pending')
@@ -44,7 +45,9 @@ class CreateVacationRequest extends CreateRecord
                 ->modalIcon(Heroicon::OutlinedPaperAirplane)
                 ->color('send')
                 ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
-                ->action(fn () => $this->saveAs(RequestStatus::Pending),
+                ->action(
+                    fn() => $this->saveAs(RequestStatus::Pending),
+
                 ),
         ];
     }
@@ -54,17 +57,24 @@ class CreateVacationRequest extends CreateRecord
     {
         // Solo valida cuando es enviar
         if ($state === RequestStatus::Pending) {
-            $this->form->validate();
+            // Solo validar cuando es enviar
+            $this->form->validate([
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'total_business_days' => 'required|integer|min:1',
+            ]);
         }
+
 
         $data = $this->form->getState();
 
         $data['status'] = $state;
-        $data['user_id'] = Auth::id();
-
+        $data['employee_id'] = Auth::user()->employee?->first()?->id;
         $this->record = static::getModel()::create($data);
 
         $this->redirect($this->getRedirectUrl());
     }
     //-------------------------------------------------------------
+
+
 }
