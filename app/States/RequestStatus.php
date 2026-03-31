@@ -14,7 +14,8 @@ enum RequestStatus: string implements HasLabel, HasColor
     case Draft = 'draft';
     case Pending = 'pending';
     case Rejected = 'rejected';
-    case Published = 'published';
+    case ApprovedByManager = 'approved_by_manager';
+    case ApprovedByRRHH = 'approved_by_rrhh';
 
 
     public function getLabel(): string|Htmlable|null
@@ -24,7 +25,8 @@ enum RequestStatus: string implements HasLabel, HasColor
             self::Draft => 'Borrador',
             self::Pending => 'Pendiente',
             self::Rejected => 'Rechazadas',
-            self::Published => 'Publicado'
+            self::ApprovedByManager => 'Aprobadas por el Jefe',
+            self::ApprovedByRRHH => 'Aprobadas por RRHH',
         };
     }
 
@@ -35,7 +37,8 @@ enum RequestStatus: string implements HasLabel, HasColor
             self::Approved => 'success',
             self::Pending => 'primary',
             self::Rejected => 'danger',
-            self::Published => 'info'
+            self::ApprovedByManager => 'info',
+            self::ApprovedByRRHH => 'info'
         };
     }
 
@@ -46,7 +49,8 @@ enum RequestStatus: string implements HasLabel, HasColor
             self::Approved => Heroicon::OutlinedCheckCircle,
             self::Pending => Heroicon::OutlinedClock,
             self::Rejected => Heroicon::OutlinedXCircle,
-            self::Published => Heroicon::OutlinedPaperAirplane
+            self::ApprovedByManager => Heroicon::OutlinedPaperAirplane,
+            self::ApprovedByRRHH => Heroicon::OutlinedPaperAirplane
         };
     }
 }

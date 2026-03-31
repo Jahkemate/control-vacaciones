@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class BalanceVacationsTable
 {
@@ -63,6 +64,39 @@ class BalanceVacationsTable
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->modifyQueryUsing(function ($query) {
+                $user = Auth::user();
+
+                // 1️ Admin → ve todos
+                if ($user->role === 'admin') {
+                    return $query->orderBy('created_at', 'desc');
+                }
+
+                // 2️ Empleado normal → su propio balance
+                if ($user->role === 'employee' && $user->employee) {
+                    return $query->where('employee_id', $user->employee->first()->id)
+                        ->orderBy('created_at', 'desc');
+                }
+
+                // 3️ Manager → su balance + balances de su departamento
+                if ($user->role === 'manager' && $user->employee) {
+                    $managerEmployee = $user->employee;
+
+                    return $query->where(function ($q) use ($managerEmployee) {
+                        // a) su propio balance
+                        $q->where('employee_id', $managerEmployee->first()->id)
+
+                            // b) balances de empleados de su departamento
+                            ->orWhereHas('employee', function ($emp) use ($managerEmployee) {
+                                $emp->where('department_id', $managerEmployee->first()->department_id);
+                            });
+                    })
+                        ->orderBy('created_at', 'desc');
+                }
+
+                // 4️ Por seguridad, si no coincide ningún rol → no mostrar nada
+                return $query->whereRaw('1 = 0');
+            })
             ->filters([
                 TrashedFilter::make(),
             ])

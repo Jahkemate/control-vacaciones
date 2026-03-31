@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\VacationRequests\Tables;
 
+use App\Models\Employee;
 use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
@@ -34,7 +35,7 @@ class VacationRequestsTable
                     ->date(),
                 TextColumn::make('end_date')
                     ->searchable()
-                    ->label('Fecha de Inicio')
+                    ->label('Fecha Final')
                     ->date(),
                 TextColumn::make('total_business_days')
                     ->alignCenter()
@@ -55,17 +56,55 @@ class VacationRequestsTable
                 TextColumn::make('comment')
                     ->searchable()
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->comment) //muestra el texto complteo al pasar el mouse
+                    ->tooltip(fn($record) => $record->comment) //muestra el texto completo al pasar el mouse
                     ->label('Comentario'),
                 TextColumn::make('observation')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->comment) //muestra el texto complteo al pasar el mouse
+                    ->tooltip(fn($record) => $record->observation) //muestra el texto completo al pasar el mouse
                     ->label('Motivo de Rechazo')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->modifyQueryUsing(function ($query) {
+                $user = Auth::user();
+
+                 // Empleado actual (registro en employees)
+                $employee = $user->employee;
+
+                // Admin → ve todo
+                if ($user->role === 'admin') {
+                    return $query
+                        ->where(function ($q) use ($employee) {
+                            $q->where('status', '!=', RequestStatus::Draft) // todas las solicitudes enviadas
+                                ->orWhere('employee_id', $employee?->first()?->id); // sus borradores
+                        })
+                        ->orderBy('created_at', 'desc');
+                }
+                // Jefe → ve su departamento
+                if ($user->role === 'manager' && $employee) {
+                    return $query
+                        ->where(function ($q) use ($employee) {
+
+                            // 1. Jefe puede ver sus propias solicitudes (incluye borradores)
+                            $q->where('employee_id', $employee->first()->id)
+
+                                // 2. Puede ver solicitudes del departamento SIN borradores
+                                ->orWhere(function ($sub) use ($employee) {
+                                    $sub->whereHas('employee', function ($emp) use ($employee) {
+                                        $emp->where('department_id', $employee->first()->department_id);
+                                    })
+                                        ->where('status', '!=', RequestStatus::Draft);
+                                });
+                        })
+                        ->orderBy('created_at', 'desc');
+                }
+
+                // Empleado normal → solo sus solicitudes
+                return $query
+                    ->where('employee_id', $employee?->first()?->id)
+                    ->orderBy('created_at', 'desc');
+            })
             ->filters([
-                TrashedFilter::make(),
                 SelectFilter::make('status')
                     ->label('Filtrar por Estado')
                     ->options(RequestStatus::class),
@@ -82,8 +121,26 @@ class VacationRequestsTable
                         'comments' => $record->comment
                     ]))
                     ->modalSubmitAction(false),
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    // Si la solicitud esta rechazada o aprobada o pendiente no la puede editar
+                    ->disabled(fn($record) => $record
+                        ->status === RequestStatus::Rejected ||
+                        $record->status === RequestStatus::Approved ||
+                        $record->status === RequestStatus::Pending)
+                    ->visible(
+                        fn($record) =>
+                        $record->employee?->user_id === Auth::id() //Solo el empleado que creo la solicitud puede editar 
+                    ),
+                DeleteAction::make()
+                    // Si la solicitud esta rechazada o aprobada o pendiente no la puede eliminar
+                    ->disabled(fn($record) => $record
+                        ->status === RequestStatus::Rejected ||
+                        $record->status === RequestStatus::Approved ||
+                        $record->status === RequestStatus::Pending)
+                    ->visible(
+                        fn($record) =>
+                        $record->employee?->user_id === Auth::id() //Solo el empleado que creo la solicitud puede eliminar
+                    ),
             ])
             ->defaultSort('created_at', 'desc')
             ->toolbarActions([
