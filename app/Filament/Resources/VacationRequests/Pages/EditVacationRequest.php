@@ -160,6 +160,19 @@ class EditVacationRequest extends EditRecord
                 ]))
                 ->action(fn() => $this->saveAs(RequestStatus::Pending)),
             //---------------------------------------------------------------------------
+
+            //--------------------Boton de Imprimir Solicitud----------------------------------------
+            Action::make('print')
+                ->label('Imprimir Solicitud')
+                ->icon(Heroicon::OutlinedPrinter)
+                ->color('primary')
+                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
+                   ! in_array($this->record->status, [
+                        RequestStatus::Pending,
+                        RequestStatus::ApprovedByManager,
+                        RequestStatus::ApprovedByRRHH,
+                        RequestStatus::Draft,
+                    ]))
         ];
     }
 

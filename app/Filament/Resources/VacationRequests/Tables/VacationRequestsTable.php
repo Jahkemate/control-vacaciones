@@ -12,6 +12,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -141,6 +143,21 @@ class VacationRequestsTable
                         fn($record) =>
                         $record->employee?->user_id === Auth::id() //Solo el empleado que creo la solicitud puede eliminar
                     ),
+               /*  ViewAction::make()
+                    // 
+                    ->label('Ver Detalles')
+                    ->icon(Heroicon::OutlinedInformationCircle)
+                    ->modalHeading('Detalles de la Solicitud')
+                    ->modalWidth('md')
+                    ->modalContent(fn($record) => view('filament.modals.vacation-request-details' , [
+                        'request' => $record,
+                        'employee' => $record->employee_id,
+                        'user' => User::find(Employee::find($record->employee_id)->user_id)
+                    ]))
+                    ->visible(fn($record) => $record->status === RequestStatus::Approved || $record->status === RequestStatus::Rejected)
+                    ->color('secondary')
+                    ->infolist([])
+                    ->modalSubmitAction(false), */
             ])
             ->defaultSort('created_at', 'desc')
             ->toolbarActions([
