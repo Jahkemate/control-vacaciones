@@ -18,6 +18,11 @@
             font-size: 11pt;
         }
 
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
         .center {
             text-align: center;
         }
@@ -57,8 +62,6 @@
         }
 
         .proceso {
-            margin-top: 40px;
-            text-align: right;
             font-size: 10pt;
             color: cornflowerblue
         }
@@ -72,9 +75,15 @@
             width: 250px;
         }
 
+        .footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .logo_fundahrse {
-            text-align: left;
-            width: 50px;
+            width: 60px;
         }
 
         table {
@@ -102,123 +111,132 @@
     </style>
 </head>
 
-<body onload="window.print()">
-    <div class="center">
-        <img src="{{ url('images/LOGO HVD.jpeg') }}" class="logo">
-        <p>Sirviendo sin fines de lucro desde el 3 de febrero de 1924</p>
+<body>
+    <div class="content">
+        <div class="center">
+            <img src="{{ url('images/HVD LOGOTIPO.jpeg') }}" class="logo">
+            <p>Sirviendo sin fines de lucro desde el 3 de febrero de 1924</p>
 
-        <div class="title" style="text-align: center;">
-            <h2>SOLICITUD DE VACACIONES</h2>
+            <div class="title" style="text-align: center;">
+                <h2>SOLICITUD DE VACACIONES</h2>
+            </div>
         </div>
-    </div>
 
-    <br>
+        <br>
 
-    <div class="table">
+        <div class="table">
+            <table border="1">
+                <tr>
+                    <td><strong>Nombre del empleado:</strong></td>
+                    <td>{{ $employee->first_name }} {{ $employee->last_name }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Puesto:</strong></td>
+                    <td>{{ $employee->user->role ?? '' }} de {{ $employee->department->name ?? '' }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Departamento:</strong></td>
+                    <td>{{ $employee->department->name ?? '' }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Fecha de ingreso:</strong></td>
+                    <td>{{  \Carbon\Carbon::parse($employee->hiring_date ?? '')->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</td>
+                </tr>
+            </table>
+        </div>
+        <br>
+
+        <div class="line">
+            Solicito mis vacaciones correspondientes al año:
+            __________________,
+            las cuales deseo tomar a partir del
+            <u>{{ \Carbon\Carbon::parse($employee->start_date)->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}</u>,
+            regresando a mis labores el
+            <u>{{ \Carbon\Carbon::parse($employee->end_date)->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}.</u>
+        </div>
+
+        <br>
+
         <table border="1">
             <tr>
-                <td><strong>Nombre del empleado:</strong></td>
-                <td>{{ $data['employee_id'] }}</td>
+                <td><strong>Vacaciones pendientes a la fecha:</strong></td>
+                <td> </td>
             </tr>
             <tr>
-                <td><strong>Puesto:</strong></td>
-                <td>{{ $data['role.name'] }}</td>
+                <td><strong>( - ) Días solicitados:</strong></td>
+                <td>{{ $employee->total_business_days ?? '' }}</td>
             </tr>
             <tr>
-                <td><strong>Departamento:</strong></td>
-                <td>{{ $data['department'] }}</td>
-            </tr>
-            <tr>
-                <td><strong>Fecha de ingreso:</strong></td>
-                <td>{{ $data['hiring_date'] }}</td>
+                <td><strong>Pendientes de Gozar:</strong></td>
+                <td> </td>
             </tr>
         </table>
-    </div>
-    <br>
+        <br>
+        <br>
 
-    <div class="line">
-        Solicito mis vacaciones correspondientes al año:
-        ---
-        las cuales deseo tomar a partir del
-        <u>{{ $data['start_date'] }}</u>,
-        regresando a mis labores el
-        <u>{{ $data['end_date'] }}.</u>
-    </div>
-
-    <br>
-
-    <table border="1">
-        <tr>
-            <td><strong>Vacaciones pendientes a la fecha:</strong></td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td><strong>( - ) Días solicitados:</strong></td>
-            <td>{{ $data['total_business_days'] }}</td>
-        </tr>
-        <tr>
-            <td><strong>Pendientes de Gozar:</strong></td>
-            <td> </td>
-        </tr>
-    </table>
-    <br>
-
-    <div class="line">
-        <strong>Lugar y Fecha:</strong> <u>La Ceiba, Atlántida, Honduras,
-            {{ now()->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}</u>
-    </div>
-
-    <div class="firma">
-        <div>
-            ____________________________<br>
-            Firma del empleado <br>
-            <span class="address_number"> No. Empleado: {{ $data['address_number'] }}</span>
-        </div>
-
-        <div>
-            ____________________________<br>
-            Vo. Bo. Jefe inmediato
-        </div>
-    </div>
-
-    <div class="hr"></div>
-    <div class="informacion_rrhh">
-        <div class="center">
-            <strong>USO EXCLUSIVO DE RECURSOS HUMANOS</strong>
+        <div class="line">
+            <strong>Lugar y Fecha:</strong> <u>La Ceiba, Atlántida, Honduras,
+                {{ now()->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}</u>
         </div>
 
         <br>
 
-        <div class="anotaciones">
-            <span>Anotaciones relevantes:</span>____________________________________________________ <br>
+        <div class="firma">
+            <div>
+                ____________________________<br>
+                Firma del empleado <br>
+                <span class="address_number"> No. Empleado: No. Empleado: {{ $employee->address_number ?? ''}}</span>
+            </div>
+
+            <div>
+                ____________________________<br>
+                Vo. Bo. Jefe inmediato
+            </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="informacion_rrhh">
+            <div class="center">
+                <strong>USO EXCLUSIVO DE RECURSOS HUMANOS</strong>
+            </div>
+
             <br>
-            _____________________________________________________________________ <br>
+
+            <div class="anotaciones">
+                <span>Anotaciones relevantes:</span>____________________________________________________ <br>
+                <br>
+                _____________________________________________________________________ <br>
+            </div>
+
+            <br>
+            <br>
+            <br>
+
+            <div class="firma-rrhh">
+                ____________________________<br>
+                <strong>Autorización Recursos Humanos</strong>
+            </div>
+            <br>
+            <br>
+
+            <div class="informacion">
+                <span>Original: RRHH</span> <br>
+                <span>CC: Empleado</span>
+            </div>
         </div>
+        <div class="footer">
+            <img src="{{ url('images/FUNDAHRSE1.jpeg') }}" class="logo_fundahrse">
 
-        <br>
-        <br>
-        <br>
-
-        <div class="firma-rrhh">
-            ____________________________<br>
-            <strong>Autorización Recursos Humanos</strong>
-        </div>
-        <br>
-        <br>
-
-        <div class="informacion">
-            <span>Original: RRHH</span> <br>
-            <span>CC: Empleado</span>
+            <div class="proceso">
+                <strong>Proceso de Recursos Humanos</strong>
+            </div>
         </div>
     </div>
-
-    <div class="logo_fundahrse">
-        <img src="{{ url('images/FUNDAHRSE.jpeg') }}" class="logo_fundahrse">
-    </div>
-
-    <div class="proceso">
-        <strong>Proceso de Recursos Humanos</strong>
-    </div>
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </body>
 
 </html>

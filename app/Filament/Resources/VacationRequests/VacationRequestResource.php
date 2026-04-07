@@ -22,6 +22,27 @@ class VacationRequestResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    // CONFIGURACIONES DEL BADGE
+     //para mostrar el numero de empleados
+            public static function getNavigationBadge(): ?string
+                {
+
+                    return VacationRequest::count();
+                }
+
+     //para cambiar el color del numero
+            public static function getNavigationBadgeColor(): ?string
+                {
+                    return 'info';
+                }
+
+     //para mostra un mensaje al pasar por el numero de empleados
+            public static function getNavigationBadgeTooltip(): ?string
+                    {
+                        return 'Total de Solicitudes';
+                    }
+    //CIERRE CONFIGURACIONES DEL BADGE
+
     protected static ?string $recordTitleAttribute = 'VacationRequest';
 
     public static function form(Schema $schema): Schema
