@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class VacationRequestResource extends Resource
 {
@@ -23,24 +24,32 @@ class VacationRequestResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     // CONFIGURACIONES DEL BADGE
-     //para mostrar el numero de empleados
-            public static function getNavigationBadge(): ?string
-                {
+    //para mostrar el numero de solicitudes
+    public static function getNavigationBadge(): ?string
+    {
+        $user = Auth::user();
 
-                    return VacationRequest::count();
-                }
+        // Obtener el empleado relacionado al usuario
+        $employee = $user->employee;
 
-     //para cambiar el color del numero
-            public static function getNavigationBadgeColor(): ?string
-                {
-                    return 'info';
-                }
+        if (! $employee) {
+            return null;
+        }
 
-     //para mostra un mensaje al pasar por el numero de empleados
-            public static function getNavigationBadgeTooltip(): ?string
-                    {
-                        return 'Total de Solicitudes';
-                    }
+        return VacationRequest::where('employee_id', $employee->first()->id)->count();
+    }
+
+    //para cambiar el color del numero
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
+    //para mostra un mensaje al pasar por el numero de empleados
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Total de Solicitudes';
+    }
     //CIERRE CONFIGURACIONES DEL BADGE
 
     protected static ?string $recordTitleAttribute = 'VacationRequest';

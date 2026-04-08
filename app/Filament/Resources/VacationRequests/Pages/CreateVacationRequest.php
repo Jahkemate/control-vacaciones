@@ -18,11 +18,11 @@ class CreateVacationRequest extends CreateRecord
 
     public ?RequestStatus $currentAction = null;
 
-    protected function getRedirectUrl(): string
+    /* protected function getRedirectUrl(): string
     {
         // Redirige a la página de lista de la tabla
         return $this->getResource()::getUrl('index');
-    }
+    } */
 
 
     //---------Botones en el formulario en el create------------
@@ -34,7 +34,7 @@ class CreateVacationRequest extends CreateRecord
                 ->requiresConfirmation()
                 ->modalDescription('¿ Desea guardar como Borrador ?')
                 ->modalSubmitActionLabel('Si, Guardar')
-                ->color('gray')
+                ->color('save')
                 ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
                 ->action(
                     fn() => $this->saveAs(RequestStatus::Draft),
@@ -52,21 +52,11 @@ class CreateVacationRequest extends CreateRecord
                     fn() => $this->saveAs(RequestStatus::Pending),
 
                 ),
-            //--------------------Boton de Imprimir Solicitud----------------------------------------
-            Action::make('print')
-                ->label('Imprimir Solicitud')
-                ->color('primary')
-                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee']))
-                ->url(fn() => route('print.vacation', [
-                    'id' => Auth::user()->employee?->first()?->id
-                ]))
-                ->openUrlInNewTab(),
-            //--------------------Fin Boton de Imprimir Solicitud----------------------------------------
             //--------------------Boton de cancelar solicitud--------------------------------------------
             Action::make('cancel')
                 ->label('Cancelar')
                 ->url($this->getResource()::getUrl('index')) // redirige al listado
-                ->color('danger'),
+                ->color('gray'),
         ];
     }
 

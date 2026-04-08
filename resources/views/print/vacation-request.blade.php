@@ -2,14 +2,12 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
     <title>Solicitud de Vacaciones</title>
     <style>
         @page {
             size: letter;
-            margin-left: 2.54cm;
-            margin-right: 2.54cm;
-            margin-top: 1.27cm;
-            margin-bottom: 1.27cm;
+            margin: 1.5cm;
         }
 
         body {
@@ -31,11 +29,9 @@
             margin-bottom: 8px;
         }
 
-        .firma {
+        .VoBo {
+            text-align: left;
             font-size: 10pt;
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
         }
 
         .address_number {
@@ -45,7 +41,10 @@
 
         .firma div {
             text-align: left;
-            width: 40%;
+            width: 30%;
+            font-size: 10pt;
+            margin-top: 40px;
+            justify-content: space-between;
         }
 
         .firma-rrhh {
@@ -59,6 +58,7 @@
 
         .informacion {
             font-size: 10pt;
+            margin-bottom: 35px;
         }
 
         .proceso {
@@ -73,29 +73,40 @@
 
         .logo {
             width: 250px;
-        }
-
-        .footer {
-            margin-top: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-top: 0%;
         }
 
         .logo_fundahrse {
             width: 60px;
         }
 
+        .section {
+            margin-top: 15px;
+        }
+
+        .spacer {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        header {
+            top: -50px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            text-align: center;
+            font-size: 14px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #e6e6e6;
             font-size: 10pt;
         }
 
         td {
             border: 1px solid #666;
-            padding: 6px;
+            padding: 4px;
         }
 
         td:first-child {
@@ -104,9 +115,9 @@
 
         p {
             font-family: 'Times New Roman', Times, serif;
+            margin-top: 15px;
             font-size: 10pt;
             font-style: italic;
-
         }
     </style>
 </head>
@@ -114,7 +125,7 @@
 <body>
     <div class="content">
         <div class="center">
-            <img src="{{ url('images/HVD LOGOTIPO.jpeg') }}" class="logo">
+            <img src="data:image/jpeg;base64,{{ $logo }}" class="logo">
             <p>Sirviendo sin fines de lucro desde el 3 de febrero de 1924</p>
 
             <div class="title" style="text-align: center;">
@@ -132,7 +143,7 @@
                 </tr>
                 <tr>
                     <td><strong>Puesto:</strong></td>
-                    <td>{{ $employee->user->role ?? '' }} de {{ $employee->department->name ?? '' }}</td>
+                    <td>{{ $employee->user->role_label ?? '' }} de {{ $employee->department->name ?? '' }}</td>
                 </tr>
                 <tr>
                     <td><strong>Departamento:</strong></td>
@@ -140,22 +151,23 @@
                 </tr>
                 <tr>
                     <td><strong>Fecha de ingreso:</strong></td>
-                    <td>{{  \Carbon\Carbon::parse($employee->hiring_date ?? '')->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</td>
+                    <td>{{ $hiring_date }}
+                    </td>
                 </tr>
             </table>
         </div>
-        <br>
 
-        <div class="line">
+
+        <div class="spacer">
             Solicito mis vacaciones correspondientes al año:
             __________________,
             las cuales deseo tomar a partir del
-            <u>{{ \Carbon\Carbon::parse($employee->start_date)->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}</u>,
+            <u>{{ $start_date }}</u>,
             regresando a mis labores el
-            <u>{{ \Carbon\Carbon::parse($employee->end_date)->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}.</u>
+            <u>{{ $end_date }}</u>.
         </div>
 
-        <br>
+
 
         <table border="1">
             <tr>
@@ -164,7 +176,7 @@
             </tr>
             <tr>
                 <td><strong>( - ) Días solicitados:</strong></td>
-                <td>{{ $employee->total_business_days ?? '' }}</td>
+                <td>{{  $vacationRequest->total_business_days ?? ''  }}</td>
             </tr>
             <tr>
                 <td><strong>Pendientes de Gozar:</strong></td>
@@ -172,28 +184,30 @@
             </tr>
         </table>
         <br>
-        <br>
 
         <div class="line">
             <strong>Lugar y Fecha:</strong> <u>La Ceiba, Atlántida, Honduras,
                 {{ now()->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}</u>
         </div>
 
-        <br>
+        <div class="section">
+            <table style="width:100%; margin-top:40px;">
+                <tr>
+                    <td style="border:none; width:50%; text-align:left; vertical-align:top;">
+                        ____________________________<br>
+                        Firma del empleado <br>
+                        <span class="address_number">
+                            No. Empleado: {{ $employee->address_number ?? '' }}
+                        </span>
+                    </td>
 
-        <div class="firma">
-            <div>
-                ____________________________<br>
-                Firma del empleado <br>
-                <span class="address_number"> No. Empleado: No. Empleado: {{ $employee->address_number ?? ''}}</span>
-            </div>
-
-            <div>
-                ____________________________<br>
-                Vo. Bo. Jefe inmediato
-            </div>
+                    <td style="border:none; width:50%; text-align:left; vertical-align:top;">
+                        ____________________________<br>
+                        Vo. Bo. Jefe inmediato
+                    </td>
+                </tr>
+            </table>
         </div>
-
         <div class="hr"></div>
         <div class="informacion_rrhh">
             <div class="center">
@@ -203,34 +217,34 @@
             <br>
 
             <div class="anotaciones">
-                <span>Anotaciones relevantes:</span>____________________________________________________ <br>
+                <span>Anotaciones relevantes:</span>_________________________________________________________ <br>
                 <br>
                 _____________________________________________________________________ <br>
             </div>
 
-            <br>
-            <br>
-            <br>
+            <div class="spacer" style="margin-bottom: 0px"></div>
 
             <div class="firma-rrhh">
                 ____________________________<br>
                 <strong>Autorización Recursos Humanos</strong>
             </div>
             <br>
-            <br>
-
             <div class="informacion">
                 <span>Original: RRHH</span> <br>
                 <span>CC: Empleado</span>
             </div>
         </div>
-        <div class="footer">
-            <img src="{{ url('images/FUNDAHRSE1.jpeg') }}" class="logo_fundahrse">
+        <table style="width:100%; ">
+            <tr>
+                <td style="border:none; text-align:left;">
+                    <img src="data:image/jpeg;base64,{{ $logo2 }}" class="logo_fundahrse">
+                </td>
 
-            <div class="proceso">
-                <strong>Proceso de Recursos Humanos</strong>
-            </div>
-        </div>
+                <td style="border:none; text-align:right;">
+                    <strong class="proceso">Proceso de Recursos Humanos</strong>
+                </td>
+            </tr>
+        </table>
     </div>
     <script>
         window.onload = function() {

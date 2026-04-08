@@ -16,31 +16,37 @@ class PayrollSeeder extends Seeder
         $payroll = new Payroll();
         $payroll->payroll_type = '1er. Año Legal';
         $payroll->vacations_days = '10';
-        $payroll->vacations_bonus = 'no';
+        $payroll->vacations_bonus = 'No';
         $payroll->save();
 
         $payroll = new Payroll();
         $payroll->payroll_type = '2do. Año Legal';
         $payroll->vacations_days = '12';
-        $payroll->vacations_bonus = 'no';
+        $payroll->vacations_bonus = 'No';
         $payroll->save();
 
         $payroll = new Payroll();
         $payroll->payroll_type = '3er. Año Legal';
         $payroll->vacations_days = '18';
-        $payroll->vacations_bonus = 'no';
+        $payroll->vacations_bonus = 'No';
         $payroll->save();
 
         $payroll = new Payroll();
         $payroll->payroll_type = '4to. Año Legal';
         $payroll->vacations_days = '20';
-        $payroll->vacations_bonus = 'no';
+        $payroll->vacations_bonus = 'No';
         $payroll->save();
 
         $payroll = new Payroll();
         $payroll->payroll_type = 'Confidencial';
         $payroll->vacations_days = '22';
-        $payroll->vacations_bonus = 'no';
+        $payroll->vacations_bonus = 'No';
+        $payroll->save();
+
+        $payroll = new Payroll();
+        $payroll->payroll_type = 'Enfermeria';
+        $payroll->vacations_days = '30';
+        $payroll->vacations_bonus = 'No';
         $payroll->save();
     }
 }

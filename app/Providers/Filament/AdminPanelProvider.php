@@ -32,7 +32,8 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
                 'secondary' => Color::Indigo,
                 'danger' => Color::Rose,
-                'send' => Color::Cyan
+                'send' => Color::Cyan,
+                'save' => Color::Neutral,
                 //'gray' => Color::Gray,
                 //'info' => Color::Blue,
                 //'secondary' => Color::Purple,

@@ -28,18 +28,27 @@ class EditVacationRequest extends EditRecord
                 ->modalDescription('¿Desea aprobar esta solicitud?')
                 ->modalSubmitActionLabel('Si, Aprobar')
                 ->color('secondary')
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager']) &&
+                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager']) && //
                     ! in_array($this->record->status, [
                         RequestStatus::Approved,
                         RequestStatus::Rejected,
                         RequestStatus::Draft
                     ]))
-                ->disabled(fn() =>
-                in_array($this->record->status, [
-                    RequestStatus::Approved,
-                    RequestStatus::Rejected,
-                ]))
+                ->disabled(function () {
+                    $user = Auth::user();
 
+                    // Si es admin, solo puede aprobar cuando manager ya aprobó
+                    if ($user->role === 'admin') {
+                        return $this->record->status !== RequestStatus::ApprovedByManager;
+                    }
+
+                    // Manager puede aprobar cuando está pendiente
+                    if ($user->role === 'manager') {
+                        return $this->record->status !== RequestStatus::Pending;
+                    }
+
+                    return true;
+                })
                 ->action(function () {
                     $user = Auth::user();
                     $currentStatus = $this->record->status;
@@ -118,7 +127,7 @@ class EditVacationRequest extends EditRecord
                 ->modalDescription('¿ Desea guardar como Borrador ?')
                 ->modalSubmitActionLabel('Si, Guardar')
                 ->modalIcon(Heroicon::OutlinedPencil)
-                ->color('gray')
+                ->color('save')
                 ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
@@ -126,6 +135,7 @@ class EditVacationRequest extends EditRecord
                         RequestStatus::Approved,
                         RequestStatus::ApprovedByManager,
                         RequestStatus::ApprovedByRRHH,
+                        RequestStatus::Draft,
                     ]))
                 ->disabled(fn() =>
                 in_array($this->record->status, [
@@ -162,18 +172,29 @@ class EditVacationRequest extends EditRecord
             //---------------------------------------------------------------------------
 
             //--------------------Boton de Imprimir Solicitud----------------------------------------
+            //--------------------Boton de Imprimir Solicitud----------------------------------------
             Action::make('print')
                 ->label('Imprimir Solicitud')
-                ->icon(Heroicon::OutlinedPrinter)
                 ->color('primary')
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
-                   ! in_array($this->record->status, [
+                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee']) &&
+                    ! in_array($this->record->status, [
                         RequestStatus::Pending,
-                        RequestStatus::ApprovedByManager,
-                        RequestStatus::ApprovedByRRHH,
-                        RequestStatus::Draft,
                     ]))
+                ->url(fn($record) => route('print.vacation', [
+                    'id' => $record->id
+                ]))
+                ->openUrlInNewTab(),
+            //--------------------Fin Boton de Imprimir Solicitud----------------------------------------
+            //--------------------Boton de cancelar solicitud--------------------------------------------
+            Action::make('cancel')
+                ->label('Cancelar')
+                ->url($this->getResource()::getUrl('index')) // redirige al listado
+                ->color('gray'),
         ];
+    }
+    protected function getFormActions(): array
+    {
+        return [];
     }
 
     //Garda el estado de la solicitud

@@ -70,7 +70,7 @@ class VacationRequestsTable
             ->modifyQueryUsing(function ($query) {
                 $user = Auth::user();
 
-                 // Empleado actual (registro en employees)
+                // Empleado actual (registro en employees)
                 $employee = $user->employee;
 
                 // Admin → ve todo
@@ -131,7 +131,13 @@ class VacationRequestsTable
                         $record->status === RequestStatus::Pending)
                     ->visible(
                         fn($record) =>
-                        $record->employee?->user_id === Auth::id() //Solo el empleado que creo la solicitud puede editar 
+                        $record->employee?->user_id === Auth::id() &&  //Solo el empleado que creo la solicitud puede editar 
+                            // Solo si la solicitud no esta en estado Rechazada o Aprobada o Pendiente
+                            ! in_array($record->status, [
+                                RequestStatus::Rejected,
+                                RequestStatus::Approved,
+                                RequestStatus::Pending,
+                            ])
                     ),
                 DeleteAction::make()
                     // Si la solicitud esta rechazada o aprobada o pendiente no la puede eliminar
@@ -141,9 +147,14 @@ class VacationRequestsTable
                         $record->status === RequestStatus::Pending)
                     ->visible(
                         fn($record) =>
-                        $record->employee?->user_id === Auth::id() //Solo el empleado que creo la solicitud puede eliminar
+                        $record->employee?->user_id === Auth::id() && //Solo el empleado que creo la solicitud puede eliminar
+                            ! in_array($record->status, [
+                                RequestStatus::Rejected,
+                                RequestStatus::Approved,
+                                RequestStatus::Pending,
+                            ])
                     ),
-               /*  ViewAction::make()
+                /*  ViewAction::make()
                     // 
                     ->label('Ver Detalles')
                     ->icon(Heroicon::OutlinedInformationCircle)

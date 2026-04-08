@@ -49,9 +49,21 @@ class User extends Authenticatable
 
     //Relaciones de la tabla de usuarios
 
-    public function employee(){
+    public function employee()
+    {
         return $this->hasMany(Employee::class); // Se hace relacion con la tabla de empleados
     }
 
 
+
+// Atributo para mostrar el rol en español
+    public function getRoleLabelAttribute()
+    {
+        return match ($this->role) {
+            'admin' => 'Administrador',
+            'manager' => 'Jefe',
+            'employee' => 'Empleado',
+            default => $this->role,
+        };
+    }
 }
