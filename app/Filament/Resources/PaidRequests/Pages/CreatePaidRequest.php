@@ -3,9 +3,76 @@
 namespace App\Filament\Resources\PaidRequests\Pages;
 
 use App\Filament\Resources\PaidRequests\PaidRequestResource;
+use App\States\RequestStatus;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 
 class CreatePaidRequest extends CreateRecord
 {
     protected static string $resource = PaidRequestResource::class;
+    
+    public ?RequestStatus $currentAction = null; 
+
+     protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('draft')
+                ->label('Guardar como borrador')
+                ->requiresConfirmation()
+                ->modalDescription('¿ Desea guardar como Borrador ?')
+                ->modalSubmitActionLabel('Si, Guardar')
+                ->color('save')
+                ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
+                ->action(
+                    fn() => $this->saveAs(RequestStatus::Draft),
+                ),
+
+            Action::make('pending')
+                ->label('Enviar solicitud')
+                ->requiresConfirmation()
+                ->modalDescription('¿ Desea enviar esta Solicitud ?')
+                ->modalSubmitActionLabel('Si, Enviar')
+                ->modalIcon(Heroicon::OutlinedPaperAirplane)
+                ->color('send')
+                ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
+                ->action(
+                    fn() => $this->saveAs(RequestStatus::Pending),
+
+                ),
+            //--------------------Boton de cancelar solicitud--------------------------------------------
+            Action::make('cancel')
+                ->label('Cancelar')
+                ->url($this->getResource()::getUrl('index')) // redirige al listado
+                ->color('gray'),
+        ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
+    }
+
+    //Guarda el estado de la solicitud
+    protected function saveAs(RequestStatus $state)
+    {
+        // Solo valida cuando es enviar
+        if ($state === RequestStatus::Pending) {
+            // Solo validar cuando es enviar
+            $this->form->validate([
+                'total_days' => 'required|date',
+                'request_date' => 'required|date',
+            ]);
+        }
+
+
+        $data = $this->form->getState();
+
+        $data['status'] = $state;
+        $data['employee_id'] = Auth::user()->employee?->first()?->id;
+        $this->record = static::getModel()::create($data);
+
+        $this->redirect($this->getRedirectUrl());
+    }
 }

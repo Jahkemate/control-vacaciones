@@ -97,7 +97,7 @@ class EditVacationRequest extends EditRecord
                 ->color('danger')
                 ->requiresConfirmation()
                 ->schema([
-                    Textarea::make('observation')
+                    Textarea::make('additional_comment')
                         ->label('Comentario')
                         ->required(),
                 ])
@@ -116,7 +116,7 @@ class EditVacationRequest extends EditRecord
                     //RequestStatus::ApprovedByManager,
                 ]))
                 ->action(function (array $data) {
-                    $this->saveAs(RequestStatus::Rejected, $data['observation']);
+                    $this->saveAs(RequestStatus::Rejected, $data['additional_comment'], $data['user_id'],$data['vacation_request_id']);
                 }),
             //--------------------------------------------------------------------------
 
@@ -176,7 +176,7 @@ class EditVacationRequest extends EditRecord
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
-                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee']) &&
+                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee','admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                     ]))
@@ -204,7 +204,7 @@ class EditVacationRequest extends EditRecord
 
         $this->record->update([
             'status' => $status,
-            'comment' => $observation,
+            'additional_comment' => $observation,
         ]);
 
         $this->redirect($this->getRedirectUrl());

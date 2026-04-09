@@ -54,9 +54,7 @@ class User extends Authenticatable
         return $this->hasMany(Employee::class); // Se hace relacion con la tabla de empleados
     }
 
-
-
-// Atributo para mostrar el rol en español
+    // Atributo para mostrar el rol en español
     public function getRoleLabelAttribute()
     {
         return match ($this->role) {
@@ -65,5 +63,10 @@ class User extends Authenticatable
             'employee' => 'Empleado',
             default => $this->role,
         };
+    }
+
+    public function commentsAdditional()
+    {
+        return $this->hasMany(RequestComments::class);
     }
 }

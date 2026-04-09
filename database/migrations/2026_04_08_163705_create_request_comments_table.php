@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('vacation_request_id');
             $table->foreignId('user_id');
-            $table->text('comment');
+            $table->text('additional_comment')->nullable();
             $table->string('type_comment');
             $table->softDeletes();
             $table->timestamps();

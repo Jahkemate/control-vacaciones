@@ -34,4 +34,10 @@ class VacationRequest extends Model
     protected $casts = [
         'status' => RequestStatus::class,
     ];
+
+    // Relacion con la tabla de RequestComments
+    public function commentsAdditional()
+    {
+        return $this->hasMany(RequestComments::class);
+    }
 }

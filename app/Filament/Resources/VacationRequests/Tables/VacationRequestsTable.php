@@ -1,9 +1,6 @@
 <?php
 
 namespace App\Filament\Resources\VacationRequests\Tables;
-
-use App\Models\Employee;
-use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -12,14 +9,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ViewAction;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Support\Facades\Auth;
 
 class VacationRequestsTable
@@ -60,9 +52,9 @@ class VacationRequestsTable
                     ->limit(10)
                     ->tooltip(fn($record) => $record->comment) //muestra el texto completo al pasar el mouse
                     ->label('Comentario'),
-                TextColumn::make('observation')
+                TextColumn::make('additional_comment')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->observation) //muestra el texto completo al pasar el mouse
+                    ->tooltip(fn($record) => $record->additional_comment) //muestra el texto completo al pasar el mouse
                     ->label('Motivo de Rechazo')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),

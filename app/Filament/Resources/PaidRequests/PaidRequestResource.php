@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class PaidRequestResource extends Resource
 {
     protected static ?string $model = PaidRequest::class;
+    protected static ?string $navigationLabel = 'Solicitudes Pagadas';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 

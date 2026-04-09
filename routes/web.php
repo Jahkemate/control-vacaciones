@@ -7,7 +7,7 @@ Route::get('/', function () {
     return redirect('/admin');
 });
 
-// Rutas para imprimir solicitudes de vacaciones
+// Rutas para imprimir solicitudes de vacaciones (vacation_request)
 Route::get('/print-vacation/{id}', function ($id) {
 
     $logo = base64_encode(file_get_contents(public_path('images/HVD LOGOTIPO.jpeg')));

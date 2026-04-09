@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 class VacationRequestResource extends Resource
 {
     protected static ?string $model = VacationRequest::class;
+    protected static ?string $navigationLabel = 'Solicitudes de Vacaciones';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -31,12 +32,19 @@ class VacationRequestResource extends Resource
 
         // Obtener el empleado relacionado al usuario
         $employee = $user->employee;
+        $manager = $user->employee;
 
         if (! $employee) {
             return null;
+        } elseif ($user->role === 'manager') {
+            return VacationRequest::whereHas('employee', function ($query) use ($manager) {
+                $query->where('manager_id', $manager->first()->id);
+            })->count();
+        } elseif ($user->role === 'admin') {
+            return VacationRequest::count();
+        } else {
+            return VacationRequest::where('employee_id', $employee->first()->id)->count();
         }
-
-        return VacationRequest::where('employee_id', $employee->first()->id)->count();
     }
 
     //para cambiar el color del numero

@@ -34,7 +34,6 @@ class VacationRequestForm
                                 $record->first_name . ' ' . $record->last_name
                             )
                             ->reactive(),
-
                         Select::make('status')
                             ->disabled()
                             ->reactive()
