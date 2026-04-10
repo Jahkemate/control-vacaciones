@@ -17,8 +17,8 @@ return new class extends Migration
             $table->dateTime('date_creation');
             $table->integer('total_days');
             $table->string('status');
-            $table->date('approval_date');
-            $table->date('pending_date');
+            $table->date('approval_date')->nullable();
+            $table->date('pending_date')->nullable();
             $table->text('comment')->nullable();
             $table->softDeletes();
             $table->timestamps();

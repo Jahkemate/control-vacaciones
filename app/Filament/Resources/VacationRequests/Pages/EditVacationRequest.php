@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\VacationRequests\Pages;
 
 use App\Filament\Resources\VacationRequests\VacationRequestResource;
+use App\Models\RequestComments;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -116,7 +117,13 @@ class EditVacationRequest extends EditRecord
                     //RequestStatus::ApprovedByManager,
                 ]))
                 ->action(function (array $data) {
-                    $this->saveAs(RequestStatus::Rejected, $data['additional_comment'], $data['user_id'],$data['vacation_request_id']);
+                    $this->saveAs(RequestStatus::Rejected);
+                    RequestComments::create([
+                        'vacation_request_id' => $this->record->id,
+                        'user_id' => Auth::id(),
+                        'additional_comment' => $data['additional_comment'],
+                        'type_comment' => 'rejection',
+                    ]);
                 }),
             //--------------------------------------------------------------------------
 
@@ -198,13 +205,13 @@ class EditVacationRequest extends EditRecord
     }
 
     //Garda el estado de la solicitud
-    protected function saveAs(RequestStatus $status, $observation = null)
+    protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
         $this->save(); // guarda cambios del form
 
         $this->record->update([
             'status' => $status,
-            'additional_comment' => $observation,
+            'additional_comment' => $additional_comment,
         ]);
 
         $this->redirect($this->getRedirectUrl());

@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Filament\Resources\VacationRequests\Tables;
+
+use App\Models\Employee;
+use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -9,6 +12,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -52,11 +57,23 @@ class VacationRequestsTable
                     ->limit(10)
                     ->tooltip(fn($record) => $record->comment) //muestra el texto completo al pasar el mouse
                     ->label('Comentario'),
-                TextColumn::make('additional_comment')
-                    ->limit(10)
-                    ->tooltip(fn($record) => $record->additional_comment) //muestra el texto completo al pasar el mouse
+                TextColumn::make('rejection_comment')
                     ->label('Motivo de Rechazo')
-                    ->dateTime()
+                    ->limit(20)
+                    ->tooltip(
+                        fn($record) =>
+                        $record->commentsAdditional()
+                            ->where('type_comment', 'rejection')
+                            ->latest()
+                            ->value('additional_comment')
+                    )
+                    ->getStateUsing(
+                        fn($record) =>
+                        $record->commentsAdditional()
+                            ->where('type_comment', 'rejection')
+                            ->latest()
+                            ->value('additional_comment')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->modifyQueryUsing(function ($query) {
@@ -107,6 +124,8 @@ class VacationRequestsTable
                 Action::make('viewComments')
                     ->color(fn($record) =>
                     $record->comment ? 'success' : 'gray') // hace el color dinamico
+                    ->disabled(fn($record) => !$record->comment)
+                    ->tooltip(fn($record) => $record->comment? 'Ver Comentario' : 'Sin Comentario') //muestra un tooltip indicando si hay o no un comentario
                     ->label('Ver Comentario')
                     ->icon('heroicon-o-eye')
                     ->modalHeading('Comentarios')
@@ -146,21 +165,22 @@ class VacationRequestsTable
                                 RequestStatus::Pending,
                             ])
                     ),
-                /*  ViewAction::make()
+                 ViewAction::make()
                     // 
                     ->label('Ver Detalles')
                     ->icon(Heroicon::OutlinedInformationCircle)
                     ->modalHeading('Detalles de la Solicitud')
-                    ->modalWidth('md')
+                    ->modalWidth('2xl')
                     ->modalContent(fn($record) => view('filament.modals.vacation-request-details' , [
                         'request' => $record,
-                        'employee' => $record->employee_id,
-                        'user' => User::find(Employee::find($record->employee_id)->user_id)
+                        'employee' => $record->employee,
+                        'user' =>$record->employee?->user,
                     ]))
-                    ->visible(fn($record) => $record->status === RequestStatus::Approved || $record->status === RequestStatus::Rejected)
+                    ->visible(fn($record) => $record->status === RequestStatus::Rejected) //
                     ->color('secondary')
                     ->infolist([])
-                    ->modalSubmitAction(false), */
+                    ->modalSubmitAction(false)
+                    ->modalSubmitActionLabel('Cerrar'),
             ])
             ->defaultSort('created_at', 'desc')
             ->toolbarActions([

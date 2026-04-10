@@ -38,7 +38,7 @@ class VacationRequestResource extends Resource
             return null;
         } elseif ($user->role === 'manager') {
             return VacationRequest::whereHas('employee', function ($query) use ($manager) {
-                $query->where('manager_id', $manager->first()->id);
+                $query->where('employee_id', $manager->first()->id);
             })->count();
         } elseif ($user->role === 'admin') {
             return VacationRequest::count();

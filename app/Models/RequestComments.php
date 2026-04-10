@@ -23,7 +23,7 @@ class RequestComments extends Model
 
     public function vacationRequest()
     {
-        return $this->belongsTo(VacationRequest::class);
+        return $this->belongsTo(VacationRequest::class, 'vacation_request_id');
     }
 
     public function user()

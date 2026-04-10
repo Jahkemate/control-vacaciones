@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PaidRequests\Pages;
 
 use App\Filament\Resources\PaidRequests\PaidRequestResource;
+use App\Models\RequestComments;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class EditPaidRequest extends EditRecord
 {
     protected static string $resource = PaidRequestResource::class;
- protected function getHeaderActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             //------------------Boton de Aprobar----------------------------------------
@@ -112,7 +113,19 @@ class EditPaidRequest extends EditRecord
                     //RequestStatus::ApprovedByManager,
                 ]))
                 ->action(function (array $data) {
-                    $this->saveAs(RequestStatus::Rejected, $data['observation']);
+                    $this->saveAs(
+                        RequestStatus::Rejected,
+                        $data['additional_comment']
+                    );
+
+                    RequestComments::create([
+                        'vacation_request_id' => $this->record->id,
+                        'user_id' => Auth::id(),
+                        'additional_comment' => $data['additional_comment'],
+                        'type_comment' => 'rejection',
+                    ]);
+
+                    $this->redirect($this->getRedirectUrl());
                 }),
             //--------------------------------------------------------------------------
 
@@ -171,7 +184,7 @@ class EditPaidRequest extends EditRecord
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
-                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee','admin']) &&
+                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                     ]))
@@ -199,10 +212,8 @@ class EditPaidRequest extends EditRecord
 
         $this->record->update([
             'status' => $status,
-            'comment' => $observation,
-        ]);
-
-        $this->redirect($this->getRedirectUrl());
+            'additional_comment' => $observation,
+        ]); 
     }
     //------------------------------------------------------
 

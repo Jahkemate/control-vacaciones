@@ -45,11 +45,9 @@ class PaidRequestForm
                                     ->label('Estado de la Solicitud')
                                     ->options(RequestStatus::class)
                                     ->default(RequestStatus::Draft),
-
                                 DatePicker::make('request_date')
                                     ->label('Fecha de Creacion')
                                     ->required(),
-
                                 Textarea::make('comment')
                                     ->label('Descripcion')
                                     ->maxLength(255),
