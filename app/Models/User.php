@@ -51,7 +51,7 @@ class User extends Authenticatable
 
     public function employee()
     {
-        return $this->hasMany(Employee::class); // Se hace relacion con la tabla de empleados
+        return $this->hasOne(Employee::class); // Se hace relacion con la tabla de empleados
     }
 
     // Atributo para mostrar el rol en español

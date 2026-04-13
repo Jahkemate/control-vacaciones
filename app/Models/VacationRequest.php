@@ -38,6 +38,6 @@ class VacationRequest extends Model
     // Relacion con la tabla de RequestComments
     public function commentsAdditional()
     {
-        return $this->hasMany(RequestComments::class);
+        return $this->morphMany(RequestComments::class, 'commentable');
     }
 }

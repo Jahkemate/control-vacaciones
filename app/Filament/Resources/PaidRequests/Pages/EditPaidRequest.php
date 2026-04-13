@@ -94,7 +94,7 @@ class EditPaidRequest extends EditRecord
                 ->color('danger')
                 ->requiresConfirmation()
                 ->schema([
-                    Textarea::make('observation')
+                    Textarea::make('additional_comment')
                         ->label('Comentario')
                         ->required(),
                 ])
@@ -112,14 +112,9 @@ class EditPaidRequest extends EditRecord
                     RequestStatus::Rejected,
                     //RequestStatus::ApprovedByManager,
                 ]))
-                ->action(function (array $data) {
-                    $this->saveAs(
-                        RequestStatus::Rejected,
-                        $data['additional_comment']
-                    );
-
-                    RequestComments::create([
-                        'vacation_request_id' => $this->record->id,
+                ->action(function (array $data, $record) {
+                    $this->saveAs(RequestStatus::Rejected);
+                    $record->commentsAdditional()->create([
                         'user_id' => Auth::id(),
                         'additional_comment' => $data['additional_comment'],
                         'type_comment' => 'rejection',
@@ -206,13 +201,13 @@ class EditPaidRequest extends EditRecord
     }
 
     //Garda el estado de la solicitud
-    protected function saveAs(RequestStatus $status, $observation = null)
+    protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
         $this->save(); // guarda cambios del form
 
         $this->record->update([
             'status' => $status,
-            'additional_comment' => $observation,
+            'additional_comment' => $additional_comment,
         ]); 
     }
     //------------------------------------------------------
@@ -250,7 +245,7 @@ class EditPaidRequest extends EditRecord
                     ->color('success')
                     ->icon(Heroicon::OutlinedCheckCircle)
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                $this->redirect($this->getRedirectView());
                 break;
 
             default:
@@ -273,4 +268,6 @@ class EditPaidRequest extends EditRecord
         // Redirige a la página de lista de la tabla
         return $this->getResource()::getUrl('index');
     }
+    //-----------------------------------------------------------------
+    
 }

@@ -26,7 +26,7 @@ class VacationRequestResource extends Resource
 
     // CONFIGURACIONES DEL BADGE
     //para mostrar el numero de solicitudes
-    public static function getNavigationBadge(): ?string
+   /*  public static function getNavigationBadge(): ?string
     {
         $user = Auth::user();
 
@@ -45,7 +45,7 @@ class VacationRequestResource extends Resource
         } else {
             return VacationRequest::where('employee_id', $employee->first()->id)->count();
         }
-    }
+    } */
 
     //para cambiar el color del numero
     public static function getNavigationBadgeColor(): ?string

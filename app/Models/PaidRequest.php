@@ -30,4 +30,10 @@ class PaidRequest extends Model
     {
         return $this->belongsTo(Employee::class, 'employee_id'); //relacion con la tabla de Employees
     }
+
+     // Relacion con la tabla de RequestComments
+    public function commentsAdditional()
+    {
+        return $this->morphMany(RequestComments::class, 'commentable');
+    }
 }

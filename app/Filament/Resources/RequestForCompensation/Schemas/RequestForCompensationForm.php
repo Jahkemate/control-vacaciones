@@ -35,7 +35,8 @@ class RequestForCompensationForm
                         DateTimePicker::make('date_creation')
                             ->label('Fecha de Creacion')
                             ->readOnly()
-                            ->default(now()),
+                            ->default(now())
+                            ->required(),
                         TextInput::make('total_days')
                             ->label('Dias Totales')
                             ->numeric()
@@ -45,10 +46,16 @@ class RequestForCompensationForm
                             ->reactive()
                             ->label('Estado de la Solicitud')
                             ->options(RequestStatus::class)
-                            ->default(RequestStatus::Draft),
+                            ->default(RequestStatus::Draft)
+                            ->afterStateUpdated(function ($state, callable $set){
+                                if ($state === RequestStatus::Approved) {
+                                    $set('approval_date', now());
+                                }
+                            }),
                         DatePicker::make('approval_date')
                             ->label('Fecha de Aprobacion')
-                            ->required(),
+                            ->disabled(),
+                            //->required(),
                         DatePicker::make('pending_date')
                             ->label('Fecha de Pendiente')
                             ->required(),

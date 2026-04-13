@@ -75,45 +75,70 @@ class VacationRequestsTable
                             ->value('additional_comment')
                     )
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->label('Fecha de Aprobacion/Rechazo')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->modifyQueryUsing(function ($query) {
                 $user = Auth::user();
-
-                // Empleado actual (registro en employees)
                 $employee = $user->employee;
 
-                // Admin → ve todo
+                $employeeId = $employee?->id;
+                $departmentId = $employee?->department_id;
+
+                // ADMIN → todo menos drafts de otros 
                 if ($user->role === 'admin') {
                     return $query
-                        ->where(function ($q) use ($employee) {
-                            $q->where('status', '!=', RequestStatus::Draft) // todas las solicitudes enviadas
-                                ->orWhere('employee_id', $employee?->first()?->id); // sus borradores
+                        ->where(function ($q) use ($employeeId) {
+
+                            // 1. Todo lo que NO es draft
+                            $q->where('status', '!=', RequestStatus::Draft);
+
+                            // 2. Sus propios drafts (si tiene employee)
+                            if ($employeeId) {
+                                $q->orWhere(function ($sub) use ($employeeId) {
+                                    $sub->where('employee_id', $employeeId)
+                                        ->where('status', RequestStatus::Draft);
+                                });
+                            }
                         })
                         ->orderBy('created_at', 'desc');
                 }
-                // Jefe → ve su departamento
+
+                //  MANAGER → su departamento + lo suyo
                 if ($user->role === 'manager' && $employee) {
                     return $query
-                        ->where(function ($q) use ($employee) {
+                        ->where(function ($q) use ($employeeId, $departmentId) {
 
-                            // 1. Jefe puede ver sus propias solicitudes (incluye borradores)
-                            $q->where('employee_id', $employee->first()->id)
+                            // 1. Sus propias solicitudes (incluye drafts)
+                            if ($employeeId) {
+                                $q->where('employee_id', $employeeId);
+                            }
 
-                                // 2. Puede ver solicitudes del departamento SIN borradores
-                                ->orWhere(function ($sub) use ($employee) {
-                                    $sub->whereHas('employee', function ($emp) use ($employee) {
-                                        $emp->where('department_id', $employee->first()->department_id);
+                            // 2. Departamento (sin drafts)
+                            if ($departmentId) {
+                                $q->orWhere(function ($sub) use ($departmentId) {
+                                    $sub->whereHas('employee', function ($emp) use ($departmentId) {
+                                        $emp->where('department_id', $departmentId);
                                     })
                                         ->where('status', '!=', RequestStatus::Draft);
                                 });
+                            }
                         })
                         ->orderBy('created_at', 'desc');
                 }
 
-                // Empleado normal → solo sus solicitudes
-                return $query
-                    ->where('employee_id', $employee?->first()?->id)
-                    ->orderBy('created_at', 'desc');
+                // EMPLEADO → solo lo suyo
+                if ($employeeId) {
+                    return $query
+                        ->where('employee_id', $employeeId)
+                        ->orderBy('created_at', 'desc');
+                }
+
+                // fallback 
+                return $query->whereRaw('1 = 0');
             })
             ->filters([
                 SelectFilter::make('status')
@@ -125,7 +150,7 @@ class VacationRequestsTable
                     ->color(fn($record) =>
                     $record->comment ? 'success' : 'gray') // hace el color dinamico
                     ->disabled(fn($record) => !$record->comment)
-                    ->tooltip(fn($record) => $record->comment? 'Ver Comentario' : 'Sin Comentario') //muestra un tooltip indicando si hay o no un comentario
+                    ->tooltip(fn($record) => $record->comment ? 'Ver Comentario' : 'Sin Comentario') //muestra un tooltip indicando si hay o no un comentario
                     ->label('Ver Comentario')
                     ->icon('heroicon-o-eye')
                     ->modalHeading('Comentarios')
@@ -165,16 +190,16 @@ class VacationRequestsTable
                                 RequestStatus::Pending,
                             ])
                     ),
-                 ViewAction::make()
+                ViewAction::make()
                     // 
                     ->label('Ver Detalles')
                     ->icon(Heroicon::OutlinedInformationCircle)
                     ->modalHeading('Detalles de la Solicitud')
                     ->modalWidth('2xl')
-                    ->modalContent(fn($record) => view('filament.modals.vacation-request-details' , [
+                    ->modalContent(fn($record) => view('filament.modals.vacation-request-details', [
                         'request' => $record,
                         'employee' => $record->employee,
-                        'user' =>$record->employee?->user,
+                        'user' => $record->employee?->user,
                     ]))
                     ->visible(fn($record) => $record->status === RequestStatus::Rejected) //
                     ->color('secondary')

@@ -116,10 +116,9 @@ class EditVacationRequest extends EditRecord
                     RequestStatus::Rejected,
                     //RequestStatus::ApprovedByManager,
                 ]))
-                ->action(function (array $data) {
+                ->action(function (array $data, $record) {
                     $this->saveAs(RequestStatus::Rejected);
-                    RequestComments::create([
-                        'vacation_request_id' => $this->record->id,
+                    $record->commentsAdditional()->create([
                         'user_id' => Auth::id(),
                         'additional_comment' => $data['additional_comment'],
                         'type_comment' => 'rejection',

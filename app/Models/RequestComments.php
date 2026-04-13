@@ -13,21 +13,25 @@ class RequestComments extends Model
 
     protected $table = 'request_comments'; // nombre real de la tabla
     protected $fillable = [
-        'vacation_request_id',
+        'commentable_id',
+        'commentable_type',
         'user_id',
         'additional_comment',
         'type_comment',
     ];
 
-    // Relaciones de la tabla de RequestComments
+    //--------------------Relaciones de la tabla de RequestComments---------------
 
-    public function vacationRequest()
-    {
-        return $this->belongsTo(VacationRequest::class, 'vacation_request_id');
-    }
-
+    // relacion con la tabla de usuarios
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+     //  RELACIÓN POLIMÓRFICA
+    public function commentable()
+    {
+        return $this->morphTo();
+    }
+    //-----------------------------------------------------------------------------
 }

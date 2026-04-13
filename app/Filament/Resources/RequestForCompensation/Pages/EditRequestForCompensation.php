@@ -71,6 +71,11 @@ class EditRequestForCompensation extends EditRecord
                         }
                     }
 
+                    // Si la solicitud se aprueba completamente, se establece la fecha de aprobación
+                    if ($this->record->status === RequestStatus::Approved) {
+                        $this->record->approval_date = now();
+                    }
+
                     $this->record->save();
 
                     Notification::make()
@@ -97,7 +102,7 @@ class EditRequestForCompensation extends EditRecord
                 ->color('danger')
                 ->requiresConfirmation()
                 ->schema([
-                    Textarea::make('observation')
+                    Textarea::make('additional_comment')
                         ->label('Comentario')
                         ->required(),
                 ])
@@ -115,20 +120,13 @@ class EditRequestForCompensation extends EditRecord
                     RequestStatus::Rejected,
                     //RequestStatus::ApprovedByManager,
                 ]))
-                ->action(function (array $data) {
-                    $this->saveAs(
-                        RequestStatus::Rejected,
-                        $data['additional_comment']
-                    );
-
-                    RequestComments::create([
-                        'vacation_request_id' => $this->record->id,
+               ->action(function (array $data, $record) {
+                    $this->saveAs(RequestStatus::Rejected);
+                    $record->commentsAdditional()->create([
                         'user_id' => Auth::id(),
                         'additional_comment' => $data['additional_comment'],
                         'type_comment' => 'rejection',
                     ]);
-
-                    $this->redirect($this->getRedirectUrl());
                 }),
             //--------------------------------------------------------------------------
 
@@ -209,13 +207,13 @@ class EditRequestForCompensation extends EditRecord
     }
 
     //Garda el estado de la solicitud
-    protected function saveAs(RequestStatus $status, $observation = null)
+    protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
         $this->save(); // guarda cambios del form
 
         $this->record->update([
             'status' => $status,
-            'additional_comment' => $observation,
+            'additional_comment' => $additional_comment,
         ]); 
     }
     //------------------------------------------------------
