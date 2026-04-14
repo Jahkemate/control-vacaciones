@@ -125,7 +125,7 @@
 <body>
     <div class="content">
         <div class="center">
-            <img src="data:image/jpeg;base64,{{ $logo }}" class="logo">
+            <img src="{{ public_path('images/HVD LOGOTIPO.jpeg') }}" class="logo">
             <p>Sirviendo sin fines de lucro desde el 3 de febrero de 1924</p>
 
             <div class="title" style="text-align: center;">
@@ -237,7 +237,7 @@
         <table style="width:100%; ">
             <tr>
                 <td style="border:none; text-align:left;">
-                    <img src="data:image/jpeg;base64,{{ $logo2 }}" class="logo_fundahrse">
+                    <img src="{{ public_path('images/FUNDAHRSE1.jpeg') }}" class="logo_fundahrse">
                 </td>
 
                 <td style="border:none; text-align:right;">

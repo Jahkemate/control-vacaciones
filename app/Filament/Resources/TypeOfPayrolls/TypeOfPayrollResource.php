@@ -26,7 +26,7 @@ class TypeOfPayrollResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Gestion de Vacaciones';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
     protected static ?string $recordTitleAttribute = 'Payroll';
     

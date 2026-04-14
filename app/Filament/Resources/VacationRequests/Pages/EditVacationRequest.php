@@ -4,6 +4,8 @@ namespace App\Filament\Resources\VacationRequests\Pages;
 
 use App\Filament\Resources\VacationRequests\VacationRequestResource;
 use App\Models\RequestComments;
+use App\Models\User;
+use App\Notifications\Notifications;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -182,7 +184,7 @@ class EditVacationRequest extends EditRecord
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
-                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee','admin']) &&
+                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                     ]))
@@ -212,6 +214,17 @@ class EditVacationRequest extends EditRecord
             'status' => $status,
             'additional_comment' => $additional_comment,
         ]);
+
+        // ENVIAR NOTIFICACIÓN CUANDO SE ENVÍA
+        if ($status === RequestStatus::Pending) {
+
+            // traer managers (o quien quieras notificar)
+            $users = User::where('role', 'manager')->get();
+
+            foreach ($users as $user) {
+                $user->notify(new Notifications($this->record));
+            }
+        }
 
         $this->redirect($this->getRedirectUrl());
     }
