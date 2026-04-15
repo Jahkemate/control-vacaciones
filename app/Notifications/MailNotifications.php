@@ -7,16 +7,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Notifications extends Notification
+class MailNotifications extends Notification
 {
     use Queueable;
+
+
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user)
-    {
-        //$user->notify(new Notifications($this->record));
+    public function __construct(
+        public $request
+    ) {
+        $this->request = $request;
     }
 
     /**
@@ -35,9 +38,11 @@ class Notifications extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Nueva Solicitud')
-            ->line('El Empleado te ha enviado una nueva solicitud.')
-            ->action('Notification Action', url('/admin/vacation-request'))
+            ->subject('Nueva Solicitud de Vacaciones')
+            ->greeting('Hola ' . $notifiable->name)
+            ->line('El empleado ha enviado una nueva solicitud.')
+            ->line('Estado: Pendiente')
+            ->action('Ver solicitud', url('/admin/vacation-requests/' . $this->request->id))
             ->line('Gracias!');
     }
 

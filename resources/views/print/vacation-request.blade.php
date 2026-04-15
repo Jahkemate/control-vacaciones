@@ -5,11 +5,6 @@
     <meta charset="UTF-8">
     <title>Solicitud de Vacaciones</title>
     <style>
-        @page {
-            size: letter;
-            margin: 1.5cm;
-        }
-
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -124,8 +119,13 @@
 
 <body>
     <div class="content">
+        @php
+            $logo= public_path('images/hvdlogotipo.png');
+            $logo2= public_path('images/FUNDARHSE1.png');
+        @endphp
+
         <div class="center">
-            <img src="{{ public_path('images/HVD LOGOTIPO.jpeg') }}" class="logo">
+            <img src="{{ $logo }}" class="logo">
             <p>Sirviendo sin fines de lucro desde el 3 de febrero de 1924</p>
 
             <div class="title" style="text-align: center;">
@@ -237,7 +237,7 @@
         <table style="width:100%; ">
             <tr>
                 <td style="border:none; text-align:left;">
-                    <img src="{{ public_path('images/FUNDAHRSE1.jpeg') }}" class="logo_fundahrse">
+                    <img src="{{ $logo2 }}" class="logo_fundahrse">
                 </td>
 
                 <td style="border:none; text-align:right;">
@@ -246,11 +246,6 @@
             </tr>
         </table>
     </div>
-    <script>
-        window.onload = function() {
-            window.print();
-        };
-    </script>
 </body>
 
 </html>

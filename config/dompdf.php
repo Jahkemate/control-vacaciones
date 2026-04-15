@@ -216,6 +216,9 @@ return [
          */
         'dpi' => 96,
 
+        /* 'isRemoteEnabled' => false,
+        'enable_font_subsetting' => true,
+ */
         /**
          * Enable embedded PHP
          *

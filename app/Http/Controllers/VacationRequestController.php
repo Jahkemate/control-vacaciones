@@ -10,14 +10,7 @@ class VacationRequestController extends Controller
 {
     public function print($id)
     {
-        $logo = cache()->rememberForever('logo_hvd', function () {
-            return base64_encode(file_get_contents(public_path('images/HVD LOGOTIPO.jpeg')));
-        });
-
-        $logo2 = cache()->rememberForever('logo_fundahrse', function () {
-            return base64_encode(file_get_contents(public_path('images/FUNDAHRSE1.jpeg')));
-        });
-
+       
         $vacationRequest = VacationRequest::with('employee.user', 'employee.department')
             ->findOrFail($id);
 
@@ -37,8 +30,6 @@ class VacationRequestController extends Controller
             'start_date' => $start_date,
             'end_date' => $end_date,
             'vacationRequest' => $vacationRequest,
-            'logo' => $logo,
-            'logo2' => $logo2,
             'hiring_date' => $hiring_date,
         ]);
 

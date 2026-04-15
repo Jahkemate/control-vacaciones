@@ -3,19 +3,18 @@
 namespace App\Filament\Resources\VacationRequests\Pages;
 
 use App\Filament\Resources\VacationRequests\VacationRequestResource;
-use App\Models\RequestComments;
+use App\Mail\ApprovedRequest;
+use App\Mail\PendingRequest;
 use App\Models\User;
-use App\Notifications\Notifications;
+use App\Notifications\MailNotifications;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class EditVacationRequest extends EditRecord
 {
@@ -82,10 +81,12 @@ class EditVacationRequest extends EditRecord
                         ->body(match ($this->record->status) {
                             RequestStatus::Approved => 'La solicitud ha sido aprobada por ambos.',
                             RequestStatus::ApprovedByManager => 'Aprobada por jefe, esperando admin.',
-                            RequestStatus::ApprovedByRRHH => 'Aprobada por RRHH, esperando jefe.',
+                            RequestStatus::ApprovedByRRHH => 'Aprobada por RRHH.',
                             default => ''
                         })
                         ->send();
+
+
 
                     $this->redirect($this->getRedirectUrl());
                 }),
@@ -176,10 +177,11 @@ class EditVacationRequest extends EditRecord
                     RequestStatus::Approved,
                     RequestStatus::Rejected,
                 ]))
-                ->action(fn() => $this->saveAs(RequestStatus::Pending)),
+                ->action(
+                    fn() => $this->saveAs(RequestStatus::Pending)
+                ),
             //---------------------------------------------------------------------------
 
-            //--------------------Boton de Imprimir Solicitud----------------------------------------
             //--------------------Boton de Imprimir Solicitud----------------------------------------
             Action::make('print')
                 ->label('Imprimir Solicitud')
@@ -210,19 +212,24 @@ class EditVacationRequest extends EditRecord
     {
         $this->save(); // guarda cambios del form
 
+        $oldStatus = $this->record->getOriginal('status');
+
         $this->record->update([
             'status' => $status,
             'additional_comment' => $additional_comment,
         ]);
 
-        // ENVIAR NOTIFICACIÓN CUANDO SE ENVÍA
-        if ($status === RequestStatus::Pending) {
+        // SOLO si cambió el estado
+        if ($oldStatus !== $status) {
 
-            // traer managers (o quien quieras notificar)
-            $users = User::where('role', 'manager')->get();
+            if ($status === RequestStatus::Pending) {
+                Mail::to($this->record->user->email)
+                    ->send(new PendingRequest($this->record, Auth::user()));
+            }
 
-            foreach ($users as $user) {
-                $user->notify(new Notifications($this->record));
+            if ($status === RequestStatus::Approved) {
+                Mail::to($this->record->user->email)
+                    ->send(new ApprovedRequest($this->record, Auth::user()));
             }
         }
 
@@ -243,7 +250,7 @@ class EditVacationRequest extends EditRecord
         // Comprobamos el estado de la solicitud
         switch ($this->record->status) {
             case RequestStatus::Draft:
-                // Si es borrador, no hacemos nada
+                // Si es borrador, entra al edit.
                 break;
 
             case RequestStatus::Rejected: // Rechazada
