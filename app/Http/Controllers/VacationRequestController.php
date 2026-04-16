@@ -31,7 +31,8 @@ class VacationRequestController extends Controller
             'end_date' => $end_date,
             'vacationRequest' => $vacationRequest,
             'hiring_date' => $hiring_date,
-        ]);
+        ])
+        ->setPaper('letter');
 
         return $pdf->stream('solicitud_vacaciones.pdf');
     }

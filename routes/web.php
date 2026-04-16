@@ -12,7 +12,10 @@ Route::get('/', function () {
 Route::get('/print-vacation/{id}', [VacationRequestController::class, 'print'])->name('print.vacation');
 
 
-Route::get('/test-mail', function () {
+
+
+
+/* Route::get('/test-mail', function () {
     Mail::raw('Este es un correo de prueba desde Laravel', function ($message) {
         $message->to('test@example.com')
             ->subject('Prueba Mailtrap');
@@ -21,3 +24,4 @@ Route::get('/test-mail', function () {
     return 'Correo enviado (revisa Mailtrap)';
     
 });
+ */

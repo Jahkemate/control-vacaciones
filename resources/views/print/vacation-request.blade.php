@@ -62,7 +62,7 @@
         }
 
         .title h2 {
-            font-size: 12pt;
+            font-size: 15pt;
             margin: 5px 0;
         }
 
@@ -120,15 +120,15 @@
 <body>
     <div class="content">
         @php
-            $logo= public_path('images/hvdlogotipo.png');
-            $logo2= public_path('images/FUNDARHSE1.png');
+            $logo= public_path('images/HVD LOGOTIPO.webp');
+            $logo2= public_path('images/FUNDAHRSE1.webp');
         @endphp
 
         <div class="center">
             <img src="{{ $logo }}" class="logo">
             <p>Sirviendo sin fines de lucro desde el 3 de febrero de 1924</p>
 
-            <div class="title" style="text-align: center;">
+            <div class="title" style="text-align: center; margin-top: 40px;">
                 <h2>SOLICITUD DE VACACIONES</h2>
             </div>
         </div>
@@ -234,7 +234,7 @@
                 <span>CC: Empleado</span>
             </div>
         </div>
-        <table style="width:100%; ">
+        <table style="width:100%; margin-top: 30px">
             <tr>
                 <td style="border:none; text-align:left;">
                     <img src="{{ $logo2 }}" class="logo_fundahrse">

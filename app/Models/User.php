@@ -54,7 +54,7 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class); // Se hace relacion con la tabla de empleados
     }
 
-    // Atributo para mostrar el rol en español
+    // Atributo para mostrar el rol en español en el puesto a ala hora de imprimir la solicitud
     public function getRoleLabelAttribute()
     {
         return match ($this->role) {

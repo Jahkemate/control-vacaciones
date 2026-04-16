@@ -10,9 +10,6 @@ use Illuminate\Notifications\Notification;
 class MailNotifications extends Notification
 {
     use Queueable;
-
-
-
     /**
      * Create a new notification instance.
      */

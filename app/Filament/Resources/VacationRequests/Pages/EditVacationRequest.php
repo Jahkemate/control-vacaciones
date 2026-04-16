@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\VacationRequests\Pages;
 
 use App\Filament\Resources\VacationRequests\VacationRequestResource;
+use App\Mail\ApprovedManagerRequest;
 use App\Mail\ApprovedRequest;
 use App\Mail\PendingRequest;
+use App\Mail\RejectedRequest;
 use App\Models\User;
 use App\Notifications\MailNotifications;
 use App\States\RequestStatus;
@@ -73,7 +75,7 @@ class EditVacationRequest extends EditRecord
                         }
                     }
 
-                    $this->record->save();
+                    $this->saveAs($this->record->status);
 
                     Notification::make()
                         ->title('Solicitud aprobada')
@@ -177,9 +179,9 @@ class EditVacationRequest extends EditRecord
                     RequestStatus::Approved,
                     RequestStatus::Rejected,
                 ]))
-                ->action(
-                    fn() => $this->saveAs(RequestStatus::Pending)
-                ),
+                ->action(function () {
+                    $this->saveAs(RequestStatus::Pending);
+                }),
             //---------------------------------------------------------------------------
 
             //--------------------Boton de Imprimir Solicitud----------------------------------------
@@ -189,6 +191,7 @@ class EditVacationRequest extends EditRecord
                 ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
+                        RequestStatus::Rejected
                     ]))
                 ->url(fn($record) => route('print.vacation', [
                     'id' => $record->id
@@ -210,9 +213,9 @@ class EditVacationRequest extends EditRecord
     //Garda el estado de la solicitud
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
-        $this->save(); // guarda cambios del form
-
         $oldStatus = $this->record->getOriginal('status');
+
+        //$this->save(); // guarda cambios del form
 
         $this->record->update([
             'status' => $status,
@@ -222,18 +225,35 @@ class EditVacationRequest extends EditRecord
         // SOLO si cambió el estado
         if ($oldStatus !== $status) {
 
+            $email = $this->record->employee?->user?->email;
+
+            if (!$email) {
+                logger('No email found for employee user');
+                return;
+            }
+
             if ($status === RequestStatus::Pending) {
-                Mail::to($this->record->user->email)
+                Mail::to($this->record->employee->user->email)
                     ->send(new PendingRequest($this->record, Auth::user()));
             }
 
             if ($status === RequestStatus::Approved) {
-                Mail::to($this->record->user->email)
+                Mail::to($this->record->employee->user->email)
                     ->send(new ApprovedRequest($this->record, Auth::user()));
+            }
+
+            if ($status === RequestStatus::ApprovedByManager) {
+                Mail::to($this->record->employee->user->email)
+                    ->send(new ApprovedManagerRequest($this->record, Auth::user()));
+            }
+
+            if ($status === RequestStatus::Rejected) {
+                Mail::to($this->record->employee->user->email)
+                    ->send(new RejectedRequest($this->record, Auth::user()));
             }
         }
 
-        $this->redirect($this->getRedirectUrl());
+        //$this->redirect($this->getRedirectUrl());
     }
     //------------------------------------------------------
 
@@ -260,7 +280,7 @@ class EditVacationRequest extends EditRecord
                     ->color('danger')
                     ->icon(Heroicon::OutlinedXCircle)
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                //$this->redirect($this->getRedirectUrl());
                 break;
 
             case RequestStatus::Approved: // Aprobada
@@ -270,7 +290,7 @@ class EditVacationRequest extends EditRecord
                     ->color('success')
                     ->icon(Heroicon::OutlinedCheckCircle)
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                //$this->redirect($this->getRedirectUrl());
                 break;
 
             default:
@@ -280,9 +300,8 @@ class EditVacationRequest extends EditRecord
                     ->body('Solo las solicitudes en estado de borrador pueden ser editadas.')
                     ->color('send')
                     ->icon(Heroicon::OutlinedExclamationCircle)
-
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                //$this->redirect($this->getRedirectUrl());
                 break;
         }
     }
