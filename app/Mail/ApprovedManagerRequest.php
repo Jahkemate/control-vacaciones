@@ -43,6 +43,12 @@ class ApprovedManagerRequest extends Mailable
     {
         return new Content(
             view: 'emails.approved_manager_request',
+            with: [
+                'request' => $this->request,
+                'user' => $this->user,
+                'url' => route('filament.admin.resources.vacation-requests.edit', $this->request),
+                'print' => route('print.vacation', $this->request->id)
+            ],
         );
     }
 

@@ -13,6 +13,7 @@ Route::get('/print-vacation/{id}', [VacationRequestController::class, 'print'])-
 
 
 
+Route::get('/vacation-request/{id}', [VacationRequestController::class, 'detailsRequest'])->name('detailsRejected');
 
 
 /* Route::get('/test-mail', function () {

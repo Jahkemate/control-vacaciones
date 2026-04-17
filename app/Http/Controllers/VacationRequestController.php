@@ -10,7 +10,7 @@ class VacationRequestController extends Controller
 {
     public function print($id)
     {
-       
+
         $vacationRequest = VacationRequest::with('employee.user', 'employee.department')
             ->findOrFail($id);
 
@@ -32,8 +32,16 @@ class VacationRequestController extends Controller
             'vacationRequest' => $vacationRequest,
             'hiring_date' => $hiring_date,
         ])
-        ->setPaper('letter');
+            ->setPaper('letter');
 
         return $pdf->stream('solicitud_vacaciones.pdf');
+    }
+
+    public function detailsRequest($id)
+    {
+        $request = \App\Models\VacationRequest::findOrFail($id);
+        return view('filament.modals.vacation-request-details', [
+            'request' => $request,
+        ]);
     }
 }

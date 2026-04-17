@@ -19,7 +19,7 @@ class RejectedRequest extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public VacationRequest $vacation_request,
+        public VacationRequest $request,
         public User $user,
     )
     {
@@ -43,6 +43,12 @@ class RejectedRequest extends Mailable
     {
         return new Content(
             view: 'emails.rejected_request',
+             with: [
+                'request' => $this->request,
+                'user' => $this->user,
+                'url' => route('detailsRejected', $this->request->id),
+                'app' => route('filament.admin.resources.vacation-requests.index', $this->request)
+            ],
         );
     }
 

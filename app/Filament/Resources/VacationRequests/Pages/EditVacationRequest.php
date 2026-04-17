@@ -115,13 +115,23 @@ class EditVacationRequest extends EditRecord
                         //RequestStatus::ApprovedByManager,
                         RequestStatus::Draft
                     ]))
-                ->disabled(fn() =>
-                in_array($this->record->status, [
-                    RequestStatus::Approved,
-                    RequestStatus::Rejected,
-                    //RequestStatus::ApprovedByManager,
-                ]))
+                ->disabled(function () {
+                    $user = Auth::user();
+
+                    // Si es admin, solo puede aprobar cuando manager ya aprobó
+                    if ($user->role === 'admin') {
+                        return $this->record->status !== RequestStatus::ApprovedByManager;
+                    }
+
+                    // Manager puede aprobar cuando está pendiente
+                    if ($user->role === 'manager') {
+                        return $this->record->status !== RequestStatus::Pending;
+                    }
+
+                    return true;
+                })
                 ->action(function (array $data, $record) {
+
                     $this->saveAs(RequestStatus::Rejected);
                     $record->commentsAdditional()->create([
                         'user_id' => Auth::id(),
@@ -210,19 +220,17 @@ class EditVacationRequest extends EditRecord
         return [];
     }
 
-    //Garda el estado de la solicitud
+    //Garda el estado de la solicitud y envia los correos correspondientes
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
         $oldStatus = $this->record->getOriginal('status');
-
-        //$this->save(); // guarda cambios del form
 
         $this->record->update([
             'status' => $status,
             'additional_comment' => $additional_comment,
         ]);
 
-        // SOLO si cambió el estado
+        // SOLO si cambió el estado, se manda correo a los diferentes destinatarios
         if ($oldStatus !== $status) {
 
             $email = $this->record->employee?->user?->email;
@@ -231,29 +239,46 @@ class EditVacationRequest extends EditRecord
                 logger('No email found for employee user');
                 return;
             }
-
+            //Envia correo al jefe del departamento
             if ($status === RequestStatus::Pending) {
-                Mail::to($this->record->employee->user->email)
-                    ->send(new PendingRequest($this->record, Auth::user()));
+
+                $manager = $this->record->employee?->user?->where('role', 'manager')?->first();
+
+                if ($manager?->email) {
+                    Mail::to($manager->email)
+                        ->send(new PendingRequest($this->record, Auth::user()));
+                }
             }
 
             if ($status === RequestStatus::Approved) {
-                Mail::to($this->record->employee->user->email)
-                    ->send(new ApprovedRequest($this->record, Auth::user()));
+
+                $employeeEmail = $this->record->employee?->user?->email;
+
+                if ($employeeEmail) {
+                    Mail::to($employeeEmail)
+                        ->send(new ApprovedRequest($this->record, Auth::user()));
+                }
             }
 
             if ($status === RequestStatus::ApprovedByManager) {
-                Mail::to($this->record->employee->user->email)
-                    ->send(new ApprovedManagerRequest($this->record, Auth::user()));
+
+                $admins = User::where('role', 'admin')->get();
+
+                foreach ($admins as $admin) {
+                    Mail::to($admin?->email)
+                        ->send(new ApprovedManagerRequest($this->record, Auth::user()));
+                }
             }
 
             if ($status === RequestStatus::Rejected) {
-                Mail::to($this->record->employee->user->email)
-                    ->send(new RejectedRequest($this->record, Auth::user()));
+                $rejectedEmail = $this->record->employee?->user?->email;
+
+                if ($rejectedEmail) {
+                    Mail::to($rejectedEmail)
+                        ->send(new RejectedRequest($this->record, Auth::user()));
+                }
             }
         }
-
-        //$this->redirect($this->getRedirectUrl());
     }
     //------------------------------------------------------
 
