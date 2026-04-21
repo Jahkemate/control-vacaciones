@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('paid_request', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id');
-            $table->integer('total_days');
+            $table->integer('total_days')->nullable();
             $table->string('status');
-            $table->date('request_date');
+            $table->date('request_date')->nullable();
             $table->text('comment')->nullable();
             $table->softDeletes();
             $table->timestamps();

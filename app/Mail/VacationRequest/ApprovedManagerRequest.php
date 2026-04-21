@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mail\VacationRequest;
 
 use App\Models\User;
 use App\Models\VacationRequest;
@@ -11,14 +11,14 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PendingRequest extends Mailable
+class ApprovedManagerRequest extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct( 
+    public function __construct(
         public VacationRequest $vacation_request,
         public User $user,
     )
@@ -32,7 +32,7 @@ class PendingRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Pending Request',
+            subject: 'Approved Manager Request #'. $this->vacation_request->id,
         );
     }
 
@@ -42,7 +42,13 @@ class PendingRequest extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.pending_request',
+            view: 'emails.VacationRequest.approved_manager_request',
+            with: [
+                'vacation_request' => $this->vacation_request,
+                'user' => $this->user,
+                'url' => route('filament.admin.resources.vacation-requests.edit', $this->vacation_request),
+                'print' => route('print.vacation', $this->vacation_request->id)
+            ],
         );
     }
 

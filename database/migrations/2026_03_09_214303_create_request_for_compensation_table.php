@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id');
             $table->dateTime('date_creation');
-            $table->integer('total_days');
+            $table->integer('total_days')->nullable();
             $table->string('status');
             $table->date('approval_date')->nullable();
             $table->date('pending_date')->nullable();

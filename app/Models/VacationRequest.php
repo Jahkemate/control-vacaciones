@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\States\RequestStatus;
+use App\Traits\HasRequestLogs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,6 +12,7 @@ class VacationRequest extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use HasRequestLogs;
 
     protected $table = 'vacation_request'; // nombre real de la tabla
     protected $fillable = [
@@ -39,5 +41,10 @@ class VacationRequest extends Model
     public function commentsAdditional()
     {
         return $this->morphMany(RequestComments::class, 'commentable');
+    }
+
+    public function logs()
+    {
+        return $this->morphMany(RequestLog::class, 'loggable');
     }
 }

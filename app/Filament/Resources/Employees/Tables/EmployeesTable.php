@@ -12,6 +12,8 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeesTable
 {
@@ -45,13 +47,13 @@ class EmployeesTable
                     ->label('Estado')
                     ->badge()
                     //Convierte los strings dinamicamente a Enum, para que filament pueda leer los metodos del Enum (getLabel, getColor, getIcon), hace esto porque el enum se hace directamente desde la logica des sistema.
-                    ->formatStateUsing(fn ($state) => EmployeeStatus::tryFrom($state)?->getLabel())
-                    ->color(fn ($state) => EmployeeStatus::tryFrom($state)?->getColor()) // tryFrom es un método de los Enums con valor respaldado (BackedEnum) en PHP, que sirve para convertir un string o número en un Enum de manera segura.
-                    ->icon(fn ($state) => EmployeeStatus::tryFrom($state)?->getIcon())
+                    ->formatStateUsing(fn($state) => EmployeeStatus::tryFrom($state)?->getLabel())
+                    ->color(fn($state) => EmployeeStatus::tryFrom($state)?->getColor()) // tryFrom es un método de los Enums con valor respaldado (BackedEnum) en PHP, que sirve para convertir un string o número en un Enum de manera segura.
+                    ->icon(fn($state) => EmployeeStatus::tryFrom($state)?->getIcon())
                     ->searchable(),
                 TextColumn::make('payroll.payroll_type')
                     ->label('Nomina')
-                    ->searchable(), 
+                    ->searchable(),
                 TextColumn::make('user.name')
                     ->label('Usario')
                     ->numeric()
@@ -66,17 +68,36 @@ class EmployeesTable
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+           /*  ->modifyQueryUsing(function (Builder $query) {
+
+                $user = Auth::user();
+
+                // Si es admin, no filtramos nada
+                if ($user->role === 'admin') {
+                    return $query;
+                }
+
+                // Si es jefe de departamento
+                if ($user->role === 'manager') {
+
+                    $departmentId = $user->employee->department_id;
+
+                    return $query->where('department_id', $departmentId);
+                }
+
+                return $query;
+            }) */
             ->filters([
                 TrashedFilter::make(),
             ])
             ->recordActions([
-               EditAction::make()
-                ->label('Editar'),
+                EditAction::make()
+                    ->label('Editar'),
                 DeleteAction::make()
-                ->label('Borrar')
-                ->modalHeading('Borrar Empleado')
-                ->modalDescription('Estas seguro/a que quieres borrar este Empleado')
-                ->modalSubmitActionLabel('Si, borralo'),
+                    ->label('Borrar')
+                    ->modalHeading('Borrar Empleado')
+                    ->modalDescription('Estas seguro/a que quieres borrar este Empleado')
+                    ->modalSubmitActionLabel('Si, borralo'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

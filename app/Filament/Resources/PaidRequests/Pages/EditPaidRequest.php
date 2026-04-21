@@ -3,7 +3,12 @@
 namespace App\Filament\Resources\PaidRequests\Pages;
 
 use App\Filament\Resources\PaidRequests\PaidRequestResource;
+use App\Mail\PaidRequest\ApprovedManagerPaidRequest;
+use App\Mail\PaidRequest\ApprovedPaidRequest;
+use App\Mail\PaidRequest\PendingPaidRequest;
+use App\Mail\PaidRequest\RejectedPaidRequest;
 use App\Models\RequestComments;
+use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
@@ -11,6 +16,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class EditPaidRequest extends EditRecord
 {
@@ -118,7 +124,7 @@ class EditPaidRequest extends EditRecord
                         'user_id' => Auth::id(),
                         'additional_comment' => $data['additional_comment'],
                         'type_comment' => 'rejection',
-                    ]);
+                    ]); 
 
                     $this->redirect($this->getRedirectUrl());
                 }),
@@ -203,12 +209,62 @@ class EditPaidRequest extends EditRecord
     //Garda el estado de la solicitud
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
-        $this->save(); // guarda cambios del form
+       $oldStatus = $this->record->getOriginal('status');
 
         $this->record->update([
             'status' => $status,
             'additional_comment' => $additional_comment,
-        ]); 
+        ]);
+
+        // SOLO si cambió el estado, se manda correo a los diferentes destinatarios
+        if ($oldStatus !== $status) {
+
+            $email = $this->record->employee?->user?->email;
+
+            if (!$email) {
+                logger('No email found for employee user');
+                return;
+            }
+            //Envia correo al jefe del departamento
+            if ($status === RequestStatus::Pending) {
+
+                $manager = $this->record->employee?->user?->where('role', 'manager')?->first();
+
+                if ($manager?->email) {
+                    Mail::to($manager->email)
+                        ->send(new PendingPaidRequest($this->record, Auth::user()));
+                }
+            }
+
+            if ($status === RequestStatus::Approved) {
+
+                $employeeEmail = $this->record->employee?->user?->email;
+
+                if ($employeeEmail) {
+                    Mail::to($employeeEmail)
+                        ->send(new ApprovedPaidRequest($this->record, Auth::user()));
+                }
+            }
+
+            if ($status === RequestStatus::ApprovedByManager) {
+
+                $admins = User::where('role', 'admin')->get();
+
+                foreach ($admins as $admin) {
+                    Mail::to($admin?->email)
+                        ->send(new ApprovedManagerPaidRequest($this->record, Auth::user()));
+                }
+            }
+
+            if ($status === RequestStatus::Rejected) {
+                $rejectedEmail = $this->record->employee?->user?->email;
+
+                if ($rejectedEmail) {
+                    Mail::to($rejectedEmail)
+                        ->send(new RejectedPaidRequest($this->record, Auth::user()));
+                }
+            }
+        }
     }
     //------------------------------------------------------
 

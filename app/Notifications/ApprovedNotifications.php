@@ -2,21 +2,22 @@
 
 namespace App\Notifications;
 
+use App\Mail\VacationRequest\ApprovedRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MailNotifications extends Notification
+class ApprovedNotifications extends Notification
 {
     use Queueable;
     /**
      * Create a new notification instance.
      */
     public function __construct(
-        public $request
+        public $request,
+        public $user
     ) {
-        $this->request = $request;
     }
 
     /**
@@ -26,21 +27,26 @@ class MailNotifications extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
-
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+     public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->subject('Nueva Solicitud de Vacaciones')
-            ->greeting('Hola ' . $notifiable->name)
-            ->line('El empleado ha enviado una nueva solicitud.')
-            ->line('Estado: Pendiente')
-            ->action('Ver solicitud', url('/admin/vacation-requests/' . $this->request->id))
-            ->line('Gracias!');
+        return new ApprovedRequest(
+            $this->request,
+            $this->user
+        )->to($notifiable->email);
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return [
+            'title' => 'Solicitud aprobada',
+            'message' => 'Tu solicitud de vacaciones fue aprobada',
+            'request_id' => $this->request->id,
+        ];
     }
 
     /**

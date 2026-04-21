@@ -120,7 +120,7 @@
 <body>
     <div class="content">
         @php
-            $logo= public_path('images/HVD LOGOTIPO.webp');
+            $logo= public_path('images/logotipohvd.webp');
             $logo2= public_path('images/FUNDAHRSE1.webp');
         @endphp
 

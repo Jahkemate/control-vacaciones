@@ -27,8 +27,8 @@
             </div>
 
             <div style="text-align:center; margin-top:20px;">
-                <h2 style="margin:0;">SOLICITUD DE VACACIONES</h2>
-                <h3 style="margin:5px 0;">Solicitud Rechazada</h3>
+                <h2 style="margin:0;">SOLICITUD POR COMPENSACIÓN</h2>
+                <h3 style="margin:5px 0;">Solicitud Aprobada por Jefe</h3>
             </div>
 
         </div>
@@ -39,12 +39,12 @@
 
             <p>
                 Estado actual de la Solicitud:
-                <strong style="color:darkred">{{ $request->status->getLabel() }}</strong>
+                <strong style="color:#2CABFF">{{ $compensation_request->status->getLabel() }}</strong>
             </p>
 
             <p>
                 Nombre del Empleado Solicitante:
-                <strong>{{ $request->employee->full_name }}</strong>
+                <strong>{{ $compensation_request->employee->full_name }}</strong>
             </p>
 
         </div>
@@ -53,7 +53,7 @@
         <div style="margin-top:20px; text-align:center;">
 
             <p style="font-style:italic; color:#D1003F;">
-                "Esta notificación puede verla también dentro de la aplicación."
+                "Esta notificación tambien puede verse dentro de la aplicación."
             </p>
 
             <a href="{{ $url }}"
@@ -61,11 +61,11 @@
                 Ver detalles de la solicitud
             </a>
 
-            <a href="{{ $app }}"
+            <a href="{{ $print }}"
                 style="background:#C6F5C9; color:black; padding:12px 20px; text-decoration:none; border-radius:6px; border:1px solid darkgreen; display:inline-block; margin:12px 10px;">
-                Ver en la App
+                Imprimir solicitud
             </a>
-            
+
         </div>
 
     </div>

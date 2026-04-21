@@ -1,19 +1,17 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mail\PaidRequest;
 
+use App\Models\PaidRequest;
 use App\Models\User;
-use App\Models\VacationRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Symfony\Component\Mime\Address;
 
-class ApprovedRequest extends Mailable
+class ApprovedPaidRequest extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -21,9 +19,10 @@ class ApprovedRequest extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public VacationRequest $request,
-        public User $user,
-    ) {
+        public PaidRequest $paid_request,
+        public User $user
+    )
+    {
         //
     }
 
@@ -33,7 +32,7 @@ class ApprovedRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Solicitud Aprobada #' . $this->request->id,
+            subject: 'Approved Paid Request #'. $this->paid_request->id,
         );
     }
 
@@ -43,12 +42,12 @@ class ApprovedRequest extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.approved_request',
+          view: 'emails.PaidRequest.approved_request',
             with: [
-                'request' => $this->request,
+                'paid_request' => $this->paid_request,
                 'user' => $this->user,
-                'url' => route('filament.admin.resources.vacation-requests.edit', $this->request),
-                'print' => route('print.vacation', $this->request->id)
+                'url' => route('filament.admin.resources.paid-requests.edit', $this->paid_request),
+                'print' => route('print.vacation', $this->paid_request->id)
             ],
         );
     }

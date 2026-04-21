@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Solicitud enviada por Empleado</title>
+    <title>Solicitud Aprobada por Jefe</title>
 </head>
 
 <body style="font-family: Arial; margin:0; padding:0;">
@@ -27,8 +27,8 @@
             </div>
 
             <div style="text-align:center; margin-top:20px;">
-                <h2 style="margin:0;">SOLICITUD DE VACACIONES</h2>
-                <h3 style="margin:5px 0;"> Solicitud Pendiente </h3>
+                <h2 style="margin:0;">SOLICITUD PAGADA</h2>
+                <h3 style="margin:5px 0;">Solicitud Rechazada</h3>
             </div>
 
         </div>
@@ -39,13 +39,14 @@
 
             <p>
                 Estado actual de la Solicitud:
-                <strong style="color:#FF812C">{{ $request->status->getLabel() }}</strong>
+                <strong style="color:darkred">{{ $paid_request->status->getLabel() }}</strong>
             </p>
 
             <p>
                 Nombre del Empleado Solicitante:
-                <strong>{{ $request->employee->full_name }}</strong>
+                <strong>{{ $paid_request->employee->full_name }}</strong>
             </p>
+
         </div>
 
         <!-- BOTONES -->
@@ -60,11 +61,11 @@
                 Ver detalles de la solicitud
             </a>
 
-            <a href="{{ $print }}"
+            <a href="{{ $app }}"
                 style="background:#C6F5C9; color:black; padding:12px 20px; text-decoration:none; border-radius:6px; border:1px solid darkgreen; display:inline-block; margin:12px 10px;">
-                Imprimir solicitud
+                Ver en la App
             </a>
-
+            
         </div>
 
     </div>

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mail\CompensationRequest;
 
+use App\Models\RequestForCompensation;
 use App\Models\User;
-use App\Models\VacationRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class RejectedRequest extends Mailable
+class ApprovedCompensationRequest extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -19,10 +19,9 @@ class RejectedRequest extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public VacationRequest $request,
+        public RequestForCompensation $compensation_request,
         public User $user,
-    )
-    {
+    ) {
         //
     }
 
@@ -32,7 +31,7 @@ class RejectedRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Rejected Request',
+            subject: 'Approved Compensation Request #' . $this->compensation_request->id,
         );
     }
 
@@ -42,12 +41,12 @@ class RejectedRequest extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.rejected_request',
-             with: [
-                'request' => $this->request,
+            view: 'emails.CompensationRequest.approved_manager_request',
+            with: [
+                'compensation_request' => $this->compensation_request,
                 'user' => $this->user,
-                'url' => route('detailsRejected', $this->request->id),
-                'app' => route('filament.admin.resources.vacation-requests.index', $this->request)
+                'url' => route('filament.admin.resources.request-for-compensation.edit', $this->compensation_request),
+                'print' => route('print.vacation', $this->compensation_request->id)
             ],
         );
     }

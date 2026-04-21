@@ -3,7 +3,12 @@
 namespace App\Filament\Resources\RequestForCompensation\Pages;
 
 use App\Filament\Resources\RequestForCompensation\RequestForCompensationResource;
+use App\Mail\CompensationRequest\ApprovedCompensationRequest;
+use App\Mail\CompensationRequest\ApprovedManagerCompensationRequest;
+use App\Mail\CompensationRequest\PendingCompensationRequest;
+use App\Mail\CompensationRequest\RejectedCompensationRequest;
 use App\Models\RequestComments;
+use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -14,6 +19,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class EditRequestForCompensation extends EditRecord
 {
@@ -209,12 +215,62 @@ class EditRequestForCompensation extends EditRecord
     //Garda el estado de la solicitud
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
-        $this->save(); // guarda cambios del form
+        $oldStatus = $this->record->getOriginal('status');
 
         $this->record->update([
             'status' => $status,
             'additional_comment' => $additional_comment,
-        ]); 
+        ]);
+
+        // SOLO si cambió el estado, se manda correo a los diferentes destinatarios
+        if ($oldStatus !== $status) {
+
+            $email = $this->record->employee?->user?->email;
+
+            if (!$email) {
+                logger('No email found for employee user');
+                return;
+            }
+            //Envia correo al jefe del departamento
+            if ($status === RequestStatus::Pending) {
+
+                $manager = $this->record->employee?->user?->where('role', 'manager')?->first();
+
+                if ($manager?->email) {
+                    Mail::to($manager->email)
+                        ->send(new PendingCompensationRequest($this->record, Auth::user()));
+                }
+            }
+
+            if ($status === RequestStatus::Approved) {
+
+                $employeeEmail = $this->record->employee?->user?->email;
+
+                if ($employeeEmail) {
+                    Mail::to($employeeEmail)
+                        ->send(new ApprovedCompensationRequest($this->record, Auth::user()));
+                }
+            }
+
+            if ($status === RequestStatus::ApprovedByManager) {
+
+                $admins = User::where('role', 'admin')->get();
+
+                foreach ($admins as $admin) {
+                    Mail::to($admin?->email)
+                        ->send(new ApprovedManagerCompensationRequest($this->record, Auth::user()));
+                }
+            }
+
+            if ($status === RequestStatus::Rejected) {
+                $rejectedEmail = $this->record->employee?->user?->email;
+
+                if ($rejectedEmail) {
+                    Mail::to($rejectedEmail)
+                        ->send(new RejectedCompensationRequest($this->record, Auth::user()));
+                }
+            }
+        }
     }
     //------------------------------------------------------
 

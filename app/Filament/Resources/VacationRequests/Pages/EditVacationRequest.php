@@ -3,11 +3,12 @@
 namespace App\Filament\Resources\VacationRequests\Pages;
 
 use App\Filament\Resources\VacationRequests\VacationRequestResource;
-use App\Mail\ApprovedManagerRequest;
-use App\Mail\ApprovedRequest;
-use App\Mail\PendingRequest;
-use App\Mail\RejectedRequest;
+use App\Mail\VacationRequest\ApprovedManagerRequest;
+use App\Mail\VacationRequest\ApprovedRequest;
+use App\Mail\VacationRequest\PendingRequest;
+use App\Mail\VacationRequest\RejectedRequest;
 use App\Models\User;
+use App\Notifications\ApprovedNotifications;
 use App\Notifications\MailNotifications;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
@@ -252,11 +253,12 @@ class EditVacationRequest extends EditRecord
 
             if ($status === RequestStatus::Approved) {
 
-                $employeeEmail = $this->record->employee?->user?->email;
+                $employeeUser = $this->record->employee?->user;
 
-                if ($employeeEmail) {
-                    Mail::to($employeeEmail)
-                        ->send(new ApprovedRequest($this->record, Auth::user()));
+                if ($employeeUser) {
+                    $employeeUser->notify(
+                        new ApprovedNotifications($this->record, Auth::user())
+                    );
                 }
             }
 

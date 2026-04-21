@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\States\RequestStatus;
+use App\Traits\HasRequestLogs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,6 +12,7 @@ class PaidRequest extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use HasRequestLogs;
 
     protected $table = 'paid_request'; // nombre real de la tabla
     protected $fillable = [
@@ -36,4 +38,11 @@ class PaidRequest extends Model
     {
         return $this->morphMany(RequestComments::class, 'commentable');
     }
+
+    // Relacion con la tabla de historico de las Solicitudes
+   public function logs()
+    {
+        return $this->morphMany(RequestLog::class, 'loggable');
+    }
+
 }

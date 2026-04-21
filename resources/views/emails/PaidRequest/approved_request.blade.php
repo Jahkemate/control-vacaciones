@@ -27,7 +27,7 @@
             </div>
 
             <div style="text-align:center; margin-top:20px;">
-                <h2 style="margin:0;">SOLICITUD DE VACACIONES</h2>
+                <h2 style="margin:0;">SOLICITUD PAGADA</h2>
                 <h3 style="margin:5px 0;">Solicitud Aprobada</h3>
             </div>
 
@@ -39,12 +39,12 @@
 
             <p>
                 Estado actual de la Solicitud:
-                <strong style="color:darkgreen">{{ $request->status->getLabel() }}</strong>
+                <strong style="color:darkgreen">{{ $paid_request->status->getLabel() }}</strong>
             </p>
 
             <p>
                 Nombre del Empleado Solicitante:
-                <strong>{{ $request->employee->full_name }}</strong>
+                <strong>{{ $paid_request->employee->full_name }}</strong>
             </p>
 
         </div>

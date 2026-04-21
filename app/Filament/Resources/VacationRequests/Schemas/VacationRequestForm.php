@@ -14,6 +14,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
+use function Symfony\Component\Clock\now;
+
 class VacationRequestForm
 {
     public static function configure(Schema $schema): Schema
@@ -25,7 +27,7 @@ class VacationRequestForm
                     ->schema([
                         Select::make('employee_id')
                             ->label('Empleado Solicitante')
-                            ->default(fn() => Auth::user()->employee?->first()?->id) // Establece el valor predeterminado al primer empleado del usuario autenticado
+                            ->default(fn() => Auth::user()->employee?->id) // Establece el valor predeterminado al primer empleado del usuario autenticado
                             ->disabled()
                             ->dehydrated()
                             ->relationship('employee', 'first_name', fn($query) => $query->whereHas('BalanceVacation')) //Para que solo me muestre los empleadfos que tiene balance
@@ -47,6 +49,7 @@ class VacationRequestForm
                                 DatePicker::make('start_date')
                                     ->label('Fecha de Inicio')
                                     ->required()
+                                    //->default(fn () => now()->format('Y-m-d'))
                                     ->reactive()
                                     ->date()
                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -71,6 +74,7 @@ class VacationRequestForm
                                 DatePicker::make('end_date')
                                     ->label('Fecha Final')
                                     ->reactive()
+                                    //->default(fn () => now()->format('Y-m-d'))
                                     ->required()
                                     ->date()
                                     ->afterStateUpdated(function ($state, callable $set, $get) {

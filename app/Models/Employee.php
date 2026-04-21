@@ -57,4 +57,12 @@ class Employee extends Model
     {
         return $this->hasMany(VacationRequest::class);
     }
+
+    public function paidRequests() {
+        return $this->hasMany(PaidRequest::class);
+    }
+
+    public function requestForCompensation() {
+        return $this->hasMany(RequestForCompensation::class);
+    }
 }

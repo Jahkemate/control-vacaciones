@@ -82,7 +82,7 @@ class CreateVacationRequest extends CreateRecord
         $data = $this->form->getState();
 
         $data['status'] = $state;
-        $data['employee_id'] = Auth::user()->employee?->first()?->id;
+        $data['employee_id'] = Auth::user()?->employee?->id;
         $this->record = static::getModel()::create($data);
 
         $this->redirect($this->getRedirectUrl());

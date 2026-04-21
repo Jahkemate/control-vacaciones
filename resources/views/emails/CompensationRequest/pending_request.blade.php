@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Solicitud Aprobada por Jefe</title>
+    <title>Solicitud enviada por Empleado</title>
 </head>
 
 <body style="font-family: Arial; margin:0; padding:0;">
@@ -27,8 +27,8 @@
             </div>
 
             <div style="text-align:center; margin-top:20px;">
-                <h2 style="margin:0;">SOLICITUD DE VACACIONES</h2>
-                <h3 style="margin:5px 0;">Solicitud Aprobada por Jefe</h3>
+                <h2 style="margin:0;">SOLICITUD POR COMPENSACIÓN</h2>
+                <h3 style="margin:5px 0;"> Solicitud Pendiente </h3>
             </div>
 
         </div>
@@ -39,21 +39,20 @@
 
             <p>
                 Estado actual de la Solicitud:
-                <strong style="color:#2CABFF">{{ $request->status->getLabel() }}</strong>
+                <strong style="color:#FF812C">{{ $compensation_request->status->getLabel() }}</strong>
             </p>
 
             <p>
                 Nombre del Empleado Solicitante:
-                <strong>{{ $request->employee->full_name }}</strong>
+                <strong>{{ $compensation_request->employee->full_name }}</strong>
             </p>
-
         </div>
 
         <!-- BOTONES -->
         <div style="margin-top:20px; text-align:center;">
 
             <p style="font-style:italic; color:#D1003F;">
-                "Esta notificación tambien puede verse dentro de la aplicación."
+                "Esta notificación puede verla también dentro de la aplicación."
             </p>
 
             <a href="{{ $url }}"

@@ -23,7 +23,7 @@ class RequestForCompensationForm
                     ->schema([
                         Select::make('employee_id')
                             ->label('Empleado Solicitante')
-                            ->default(fn() => Auth::user()->employee?->first()?->id) // Establece el valor predeterminado al primer empleado del usuario autenticado
+                            ->default(fn() => Auth::user()->employee?->id) // Establece el valor predeterminado al primer empleado del usuario autenticado
                             ->disabled()
                             ->dehydrated()
                             ->relationship('employee', 'first_name') //Para que solo me muestre los empleadfos que tiene balance
