@@ -37,6 +37,12 @@ class PaidRequestForm
                                     ->reactive(),
                                 TextInput::make('total_days')
                                     ->label('Dias Totales')
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ]))
                                     ->numeric()
                                     ->required(),
                                 Select::make('status')
@@ -47,6 +53,14 @@ class PaidRequestForm
                                     ->default(RequestStatus::Draft),
                                 DatePicker::make('request_date')
                                     ->label('Fecha de Creacion')
+                                    ->readOnly()
+                                    ->default(fn () => now()->format('Y-m-d'))
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ]))
                                     ->required(),
                                 Textarea::make('comment')
                                     ->label('Descripcion')

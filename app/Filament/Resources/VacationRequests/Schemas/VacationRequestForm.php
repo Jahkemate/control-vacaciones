@@ -49,7 +49,12 @@ class VacationRequestForm
                                 DatePicker::make('start_date')
                                     ->label('Fecha de Inicio')
                                     ->required()
-                                    //->default(fn () => now()->format('Y-m-d'))
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ]))
                                     ->reactive()
                                     ->date()
                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -75,6 +80,12 @@ class VacationRequestForm
                                     ->label('Fecha Final')
                                     ->reactive()
                                     //->default(fn () => now()->format('Y-m-d'))
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ]))
                                     ->required()
                                     ->date()
                                     ->afterStateUpdated(function ($state, callable $set, $get) {

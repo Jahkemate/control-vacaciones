@@ -7,12 +7,14 @@ use App\Traits\HasRequestLogs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 class RequestForCompensation extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use HasRequestLogs;
+    use Notifiable;
 
     protected $table = 'request_for_compensation'; // nombre real de la tabla
     protected $fillable = [

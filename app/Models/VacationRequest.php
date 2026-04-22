@@ -7,12 +7,14 @@ use App\Traits\HasRequestLogs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 class VacationRequest extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use HasRequestLogs;
+    use Notifiable;
 
     protected $table = 'vacation_request'; // nombre real de la tabla
     protected $fillable = [

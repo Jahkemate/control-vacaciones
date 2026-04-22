@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\VacationRequestController;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
@@ -25,4 +27,15 @@ Route::get('/vacation-request/{id}', [VacationRequestController::class, 'details
     return 'Correo enviado (revisa Mailtrap)';
     
 });
+ */
+
+/* Route::get('test', function(){
+    $recipient = filament()->auth()->user();
+
+    Notification::make()
+        ->title('Notificacion de prueba')
+        ->sendToDatabase($recipient);
+   
+        dd('done sending');
+})->middleware('auth');
  */

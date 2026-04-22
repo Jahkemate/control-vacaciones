@@ -83,7 +83,7 @@ class EditVacationRequest extends EditRecord
                         ->success()
                         ->body(match ($this->record->status) {
                             RequestStatus::Approved => 'La solicitud ha sido aprobada por ambos.',
-                            RequestStatus::ApprovedByManager => 'Aprobada por jefe, esperando admin.',
+                            RequestStatus::ApprovedByManager => 'Aprobada por jefe, esperando RRHH.',
                             RequestStatus::ApprovedByRRHH => 'Aprobada por RRHH.',
                             default => ''
                         })
@@ -249,17 +249,32 @@ class EditVacationRequest extends EditRecord
                     Mail::to($manager->email)
                         ->send(new PendingRequest($this->record, Auth::user()));
                 }
+            //Envia notificacion dentro de la App
+                Notification::make()
+                    ->title('Solicitud Pendiente')
+                    ->body('Tienes una Solicitud Pendiente')
+                    ->iconColor('primary')
+                    ->icon(Heroicon::OutlinedDocument)
+                    ->sendToDatabase($manager);
             }
 
             if ($status === RequestStatus::Approved) {
 
-                $employeeUser = $this->record->employee?->user;
+                $employeeEmail = $this->record->employee?->user;
 
-                if ($employeeUser) {
-                    $employeeUser->notify(
-                        new ApprovedNotifications($this->record, Auth::user())
-                    );
+                // Esto envia notificacion por correo
+                if ($employeeEmail) {
+                    Mail::to($employeeEmail)
+                        ->send(new ApprovedRequest($this->record, Auth::user()));
                 }
+
+                // Esto envia la notificacion en la aplicacion
+                Notification::make()
+                    ->title('Solicitud Aprobada')
+                    ->body('Tu solicitud de vacaciones fue aprobada')
+                    ->iconColor('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->sendToDatabase($employeeEmail);
             }
 
             if ($status === RequestStatus::ApprovedByManager) {
@@ -270,6 +285,21 @@ class EditVacationRequest extends EditRecord
                     Mail::to($admin?->email)
                         ->send(new ApprovedManagerRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud aprobada por Jefe')
+                    ->body('Solicitud Aprobada por Jefe')
+                    ->iconColor('send')
+                    ->icon(Heroicon::OutlinedDocumentCheck)
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->url(VacationRequestResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($admins);
             }
 
             if ($status === RequestStatus::Rejected) {
@@ -279,12 +309,19 @@ class EditVacationRequest extends EditRecord
                     Mail::to($rejectedEmail)
                         ->send(new RejectedRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud Rechazada')
+                    ->body('Tu solicitud de vacaciones fue Rechazada')
+                    ->iconColor('Danger')
+                    ->icon(Heroicon::OutlinedXCircle)
+                    ->sendToDatabase($rejectedEmail);
             }
         }
     }
     //------------------------------------------------------
 
-    // Esto es para evitar que se puedea editar una solicitud en estado diferente a borrador
+    // Esto es para evitar que se puedea editar una solicitud en estado diferente a borrador y envie una notificacio al respecto
     protected function beforeFill(): void
     {
         $user = Auth::user();

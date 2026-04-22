@@ -291,7 +291,7 @@ class EditPaidRequest extends EditRecord
                     ->color('danger')
                     ->icon(Heroicon::OutlinedXCircle)
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                //$this->redirect($this->getRedirectUrl());
                 break;
 
             case RequestStatus::Approved: // Aprobada
@@ -301,7 +301,7 @@ class EditPaidRequest extends EditRecord
                     ->color('success')
                     ->icon(Heroicon::OutlinedCheckCircle)
                     ->send();
-                $this->redirect($this->getRedirectView());
+                //$this->redirect($this->getRedirectView());
                 break;
 
             default:
@@ -313,7 +313,7 @@ class EditPaidRequest extends EditRecord
                     ->icon(Heroicon::OutlinedExclamationCircle)
 
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                //$this->redirect($this->getRedirectUrl());
                 break;
         }
     }
