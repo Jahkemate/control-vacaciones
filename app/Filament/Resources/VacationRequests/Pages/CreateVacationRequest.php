@@ -48,6 +48,7 @@ class CreateVacationRequest extends CreateRecord
                 ->modalIcon(Heroicon::OutlinedPaperAirplane)
                 ->color('send')
                 ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
+                ->disabled()
                 ->action(
                     fn() => $this->saveAs(RequestStatus::Pending),
 

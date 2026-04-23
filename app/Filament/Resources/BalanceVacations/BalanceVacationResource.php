@@ -20,8 +20,12 @@ use UnitEnum;
 class BalanceVacationResource extends Resource
 {
     protected static ?string $model = BalanceVacation::class;
+    protected static ?string $navigationLabel = 'Balance de Vacaciones';
 
-     protected static ?int $navigationSort = 3;
+    protected static ?string $pluralModelLabel = 'Balances de Vacaciones';
+    protected static ?string $modelLabel = 'Nuevo Balance';
+
+    protected static ?int $navigationSort = 3;
 
     protected static string|UnitEnum|null $navigationGroup = 'Gestion de Vacaciones';
 

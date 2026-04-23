@@ -7,13 +7,9 @@ use App\Mail\CompensationRequest\ApprovedCompensationRequest;
 use App\Mail\CompensationRequest\ApprovedManagerCompensationRequest;
 use App\Mail\CompensationRequest\PendingCompensationRequest;
 use App\Mail\CompensationRequest\RejectedCompensationRequest;
-use App\Models\RequestComments;
 use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
@@ -24,7 +20,7 @@ use Illuminate\Support\Facades\Mail;
 class EditRequestForCompensation extends EditRecord
 {
     protected static string $resource = RequestForCompensationResource::class;
- protected function getHeaderActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             //------------------Boton de Aprobar----------------------------------------
@@ -88,9 +84,8 @@ class EditRequestForCompensation extends EditRecord
                         ->title('Solicitud aprobada')
                         ->success()
                         ->body(match ($this->record->status) {
-                            RequestStatus::Approved => 'La solicitud ha sido aprobada por ambos.',
-                            RequestStatus::ApprovedByManager => 'Aprobada por jefe, esperando admin.',
-                            RequestStatus::ApprovedByRRHH => 'Aprobada por RRHH, esperando jefe.',
+                            RequestStatus::ApprovedByManager => 'Solicitud por Compensacion Aprobada por jefe, esperando admin.',
+                            RequestStatus::ApprovedByRRHH => 'Solicitud por Compensacion Aprobada por RRHH, esperando jefe.',
                             default => ''
                         })
                         ->send();
@@ -126,7 +121,7 @@ class EditRequestForCompensation extends EditRecord
                     RequestStatus::Rejected,
                     //RequestStatus::ApprovedByManager,
                 ]))
-               ->action(function (array $data, $record) {
+                ->action(function (array $data, $record) {
                     $this->saveAs(RequestStatus::Rejected);
                     $record->commentsAdditional()->create([
                         'user_id' => Auth::id(),
@@ -194,6 +189,7 @@ class EditRequestForCompensation extends EditRecord
                 ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
+                        RequestStatus::Rejected
                     ]))
                 ->url(fn($record) => route('print.vacation', [
                     'id' => $record->id
@@ -240,16 +236,48 @@ class EditRequestForCompensation extends EditRecord
                     Mail::to($manager->email)
                         ->send(new PendingCompensationRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud Pendiente')
+                    ->body('Tienes una Solicitud por Compensacion Pendiente')
+                    ->iconColor('primary')
+                    ->icon(Heroicon::OutlinedDocument)
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('primary')
+                            ->url(RequestForCompensationResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($manager);
             }
 
             if ($status === RequestStatus::Approved) {
 
-                $employeeEmail = $this->record->employee?->user?->email;
+                $employee = $this->record->employee?->user;
 
-                if ($employeeEmail) {
-                    Mail::to($employeeEmail)
+                if ($employee?->email) {
+                    Mail::to($employee->email)
                         ->send(new ApprovedCompensationRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud Aprobada')
+                    ->body('Tu Solicitud por Compensación fue aprobada')
+                    ->iconColor('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('success')
+                            ->url(RequestForCompensationResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($employee);
             }
 
             if ($status === RequestStatus::ApprovedByManager) {
@@ -260,15 +288,46 @@ class EditRequestForCompensation extends EditRecord
                     Mail::to($admin?->email)
                         ->send(new ApprovedManagerCompensationRequest($this->record, Auth::user()));
                 }
+                Notification::make()
+                    ->title('Solicitud aprobada por Jefe')
+                    ->body('Solicitud por Compensación Aprobada por Jefe')
+                    ->iconColor('send')
+                    ->icon(Heroicon::OutlinedDocumentCheck)
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('send')
+                            ->url(RequestForCompensationResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($admins);
             }
 
             if ($status === RequestStatus::Rejected) {
-                $rejectedEmail = $this->record->employee?->user?->email;
+                $rejected = $this->record->employee?->user?->email;
 
-                if ($rejectedEmail) {
-                    Mail::to($rejectedEmail)
+                if ($rejected) {
+                    Mail::to($rejected)
                         ->send(new RejectedCompensationRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud Rechazada')
+                    ->body('Tu Solicitud por Compensacón fue Rechazada')
+                    ->iconColor('danger')
+                    ->icon(Heroicon::OutlinedXCircle)
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('danger')
+                            ->url(RequestForCompensationResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($rejected);
             }
         }
     }
@@ -287,17 +346,18 @@ class EditRequestForCompensation extends EditRecord
         // Comprobamos el estado de la solicitud
         switch ($this->record->status) {
             case RequestStatus::Draft:
-                // Si es borrador, no hacemos nada
+                // Si es borrador, no hace nada
                 break;
-
-            case RequestStatus::Rejected: // Rechazada
+                
+            // Si es Rechazada se mostrara una notificacion
+            case RequestStatus::Rejected: 
                 Notification::make()
                     ->title('Esta solicitud ha sido rechazada')
                     ->body('Las solicitudes rechazadas no pueden ser editadas.')
                     ->color('danger')
                     ->icon(Heroicon::OutlinedXCircle)
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                //$this->redirect($this->getRedirectUrl());
                 break;
 
             case RequestStatus::Approved: // Aprobada
@@ -307,7 +367,7 @@ class EditRequestForCompensation extends EditRecord
                     ->color('success')
                     ->icon(Heroicon::OutlinedCheckCircle)
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                //$this->redirect($this->getRedirectUrl());
                 break;
 
             default:
@@ -317,9 +377,8 @@ class EditRequestForCompensation extends EditRecord
                     ->body('Solo las solicitudes en estado de borrador pueden ser editadas.')
                     ->color('send')
                     ->icon(Heroicon::OutlinedExclamationCircle)
-
                     ->send();
-                $this->redirect($this->getRedirectUrl());
+                //$this->redirect($this->getRedirectUrl());
                 break;
         }
     }

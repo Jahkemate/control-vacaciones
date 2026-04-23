@@ -22,6 +22,10 @@ class TypeOfPayrollResource extends Resource
     protected static ?string $model = Payroll::class;
     protected static ?string $navigationLabel = 'Tipo de Nomina';
 
+    protected static ?string $pluralModelLabel = 'Tipos de Nomina';
+    protected static ?string $modelLabel = 'Tipo de Nomina';
+
+
     protected static ?int $navigationSort = 2;
 
     protected static string|UnitEnum|null $navigationGroup = 'Gestion de Vacaciones';

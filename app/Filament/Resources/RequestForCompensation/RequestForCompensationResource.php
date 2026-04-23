@@ -20,7 +20,11 @@ use UnitEnum;
 class RequestForCompensationResource extends Resource
 {
     protected static ?string $model = RequestForCompensation::class;
-    protected static ?string $navigationLabel = 'Solicitudes de Compensacion';
+    protected static ?string $navigationLabel = 'Solicitudes de Compensación';
+
+    protected static ?string $pluralModelLabel = 'Solicitud de Compensación';
+    protected static ?string $modelLabel = 'Solicitud de Compensación';
+
 
     protected static string|UnitEnum|null $navigationGroup = 'Solicitudes';
     protected static ?int $navigationSort = 5;

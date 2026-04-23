@@ -22,6 +22,10 @@ class PaidRequestResource extends Resource
     protected static ?string $model = PaidRequest::class;
     protected static ?string $navigationLabel = 'Solicitudes Pagadas';
 
+    protected static ?string $pluralModelLabel = 'Solicitudes Pagadas';
+    protected static ?string $modelLabel = 'Solicitud de Pago';
+
+
     protected static string|UnitEnum|null $navigationGroup = 'Solicitudes';
     protected static ?int $navigationSort = 4;
 

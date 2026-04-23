@@ -41,12 +41,12 @@ class PendingPaidRequest extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.PaidRequest.approved_request',
+            view: 'emails.PaidRequest.pending_request',
             with: [
                 'paid_request' => $this->paid_request,
                 'user' => $this->user,
                 'url' => route('filament.admin.resources.paid-requests.edit', $this->paid_request),
-                'print' => route('print.vacation', $this->paid_request->id)
+                //'print' => route('print.vacation', $this->paid_request->id)
             ],
         );
     }

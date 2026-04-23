@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RequestLog extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+    //use SoftDeletes;
 
 
     protected $table = 'request_logs'; // nombre real de la tabla

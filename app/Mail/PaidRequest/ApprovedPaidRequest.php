@@ -47,7 +47,7 @@ class ApprovedPaidRequest extends Mailable
                 'paid_request' => $this->paid_request,
                 'user' => $this->user,
                 'url' => route('filament.admin.resources.paid-requests.edit', $this->paid_request),
-                'print' => route('print.vacation', $this->paid_request->id)
+                //'print' => route('print.vacation', $this->paid_request->id)
             ],
         );
     }

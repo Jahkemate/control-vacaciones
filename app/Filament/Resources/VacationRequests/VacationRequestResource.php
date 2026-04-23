@@ -23,6 +23,9 @@ class VacationRequestResource extends Resource
     protected static ?string $model = VacationRequest::class;
     protected static ?string $navigationLabel = 'Solicitudes de Vacaciones';
 
+    protected static ?string $pluralModelLabel = 'Solicitud de Vacaciones';
+    protected static ?string $modelLabel = 'Solicitud de Vacaciones';
+
     protected static string|UnitEnum|null $navigationGroup = 'Solicitudes';
     protected static ?int $navigationSort = 3;
 

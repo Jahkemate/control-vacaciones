@@ -8,8 +8,6 @@ use App\Mail\VacationRequest\ApprovedRequest;
 use App\Mail\VacationRequest\PendingRequest;
 use App\Mail\VacationRequest\RejectedRequest;
 use App\Models\User;
-use App\Notifications\ApprovedNotifications;
-use App\Notifications\MailNotifications;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
@@ -78,17 +76,19 @@ class EditVacationRequest extends EditRecord
 
                     $this->saveAs($this->record->status);
 
-                    Notification::make()
-                        ->title('Solicitud aprobada')
-                        ->success()
-                        ->body(match ($this->record->status) {
-                            RequestStatus::Approved => 'La solicitud ha sido aprobada por ambos.',
-                            RequestStatus::ApprovedByManager => 'Aprobada por jefe, esperando RRHH.',
-                            RequestStatus::ApprovedByRRHH => 'Aprobada por RRHH.',
-                            default => ''
-                        })
-                        ->send();
+                    $employeeUser = $this->record->employee?->user;
 
+                    if ($employeeUser) {
+                        Notification::make()
+                            ->title('Solicitud aprobada')
+                            ->success()
+                            ->body(match ($this->record->status) {
+                                RequestStatus::ApprovedByManager => 'Solicitud de Vacaciones Aprobada por jefe, esperando RRHH.',
+                                RequestStatus::ApprovedByRRHH => 'Solicitud de Vacaciones Aprobada por RRHH.',
+                                default => ''
+                            })
+                            ->sendToDatabase([$user, $employeeUser]);
+                    }
 
 
                     $this->redirect($this->getRedirectUrl());
@@ -166,7 +166,7 @@ class EditVacationRequest extends EditRecord
                     RequestStatus::ApprovedByManager,
                     RequestStatus::ApprovedByRRHH,
                 ]))
-                ->action(fn() => $this->saveAs(RequestStatus::Draft)),
+                ->action(fn() => $this->saveDraft(RequestStatus::Draft)),
             //---------------------------------------------------------------------------
 
             //--------------------Boton de Enviar----------------------------------------
@@ -221,6 +221,16 @@ class EditVacationRequest extends EditRecord
         return [];
     }
 
+    //----------------------Funcion pero solo para guardar como borrador--------------------------
+    protected function saveDraft(RequestStatus $status): void
+    {
+        $this->record->update([
+            'status' => $status,
+        ]);
+
+        $this->record->refresh();
+    }
+    //---------------------------------------------------------------------------------------------
     //Garda el estado de la solicitud y envia los correos correspondientes
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
@@ -240,6 +250,7 @@ class EditVacationRequest extends EditRecord
                 logger('No email found for employee user');
                 return;
             }
+            //------------------------NOTIFICACIONES POR CORREO Y APLICACION----------------------------------
             //Envia correo al jefe del departamento
             if ($status === RequestStatus::Pending) {
 
@@ -249,34 +260,54 @@ class EditVacationRequest extends EditRecord
                     Mail::to($manager->email)
                         ->send(new PendingRequest($this->record, Auth::user()));
                 }
-            //Envia notificacion dentro de la App
+                //Envia notificacion dentro de la App
                 Notification::make()
                     ->title('Solicitud Pendiente')
-                    ->body('Tienes una Solicitud Pendiente')
+                    ->body('Tienes una Solicitud de Vacaciones Pendiente')
                     ->iconColor('primary')
                     ->icon(Heroicon::OutlinedDocument)
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('send')
+                            ->url(VacationRequestResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
                     ->sendToDatabase($manager);
             }
-
+            //----------NOTIFICACION CUANDO ES APROBADA-------------------------------------------
             if ($status === RequestStatus::Approved) {
 
-                $employeeEmail = $this->record->employee?->user;
+                $employee = $this->record->employee?->user;
 
                 // Esto envia notificacion por correo
-                if ($employeeEmail) {
-                    Mail::to($employeeEmail)
+                if ($employee?->email) {
+                    Mail::to($employee->email)
                         ->send(new ApprovedRequest($this->record, Auth::user()));
                 }
 
                 // Esto envia la notificacion en la aplicacion
                 Notification::make()
                     ->title('Solicitud Aprobada')
-                    ->body('Tu solicitud de vacaciones fue aprobada')
+                    ->body('Tu Solicitud de Vacaciones fue aprobada')
                     ->iconColor('success')
                     ->icon('heroicon-o-check-circle')
-                    ->sendToDatabase($employeeEmail);
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('success')
+                            ->url(VacationRequestResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($employee);
             }
+            //---------------------------------------------------------------------------------------------------------
 
+            //----------------------------NOTIFICACION CUANDO ES APROBADA POR JEFE-------------------------------------
             if ($status === RequestStatus::ApprovedByManager) {
 
                 $admins = User::where('role', 'admin')->get();
@@ -288,12 +319,13 @@ class EditVacationRequest extends EditRecord
 
                 Notification::make()
                     ->title('Solicitud aprobada por Jefe')
-                    ->body('Solicitud Aprobada por Jefe')
+                    ->body('Solicitud de Vacaciones Aprobada por Jefe')
                     ->iconColor('send')
                     ->icon(Heroicon::OutlinedDocumentCheck)
                     ->actions([
                         Action::make('view')
                             ->label('Ver Solicitud')
+                            ->color('send')
                             ->url(VacationRequestResource::getUrl('edit', [
                                 'record' => $this->record->id,
                             ]))
@@ -301,25 +333,37 @@ class EditVacationRequest extends EditRecord
                     ])
                     ->sendToDatabase($admins);
             }
+            //-----------------------------------------------------------------------------------------------------------
 
+            //-----------------------------NOTIFICACION CUANDO ES RECHAZADA----------------------------------------------
             if ($status === RequestStatus::Rejected) {
-                $rejectedEmail = $this->record->employee?->user?->email;
+                $rejected = $this->record->employee?->user;
 
-                if ($rejectedEmail) {
-                    Mail::to($rejectedEmail)
+                if ($rejected?->email) {
+                    Mail::to($rejected->email)
                         ->send(new RejectedRequest($this->record, Auth::user()));
                 }
 
                 Notification::make()
                     ->title('Solicitud Rechazada')
-                    ->body('Tu solicitud de vacaciones fue Rechazada')
-                    ->iconColor('Danger')
+                    ->body('Tu Solicitud de Vacaciones fue Rechazada')
+                    ->iconColor('danger')
                     ->icon(Heroicon::OutlinedXCircle)
-                    ->sendToDatabase($rejectedEmail);
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('danger')
+                            ->url(VacationRequestResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($rejected);
             }
+            //--------------------------------------------------------------------------------------------------------------
         }
     }
-    //------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     // Esto es para evitar que se puedea editar una solicitud en estado diferente a borrador y envie una notificacio al respecto
     protected function beforeFill(): void

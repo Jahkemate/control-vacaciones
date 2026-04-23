@@ -7,7 +7,6 @@ use App\Mail\PaidRequest\ApprovedManagerPaidRequest;
 use App\Mail\PaidRequest\ApprovedPaidRequest;
 use App\Mail\PaidRequest\PendingPaidRequest;
 use App\Mail\PaidRequest\RejectedPaidRequest;
-use App\Models\RequestComments;
 use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
@@ -80,9 +79,8 @@ class EditPaidRequest extends EditRecord
                         ->title('Solicitud aprobada')
                         ->success()
                         ->body(match ($this->record->status) {
-                            RequestStatus::Approved => 'La solicitud ha sido aprobada por ambos.',
-                            RequestStatus::ApprovedByManager => 'Aprobada por jefe, esperando admin.',
-                            RequestStatus::ApprovedByRRHH => 'Aprobada por RRHH, esperando jefe.',
+                            RequestStatus::ApprovedByManager => 'Solicitud de Pago Aprobada por jefe, esperando admin.',
+                            RequestStatus::ApprovedByRRHH => 'Solicitud de Pago Aprobada por RRHH, esperando jefe.',
                             default => ''
                         })
                         ->send();
@@ -124,7 +122,7 @@ class EditPaidRequest extends EditRecord
                         'user_id' => Auth::id(),
                         'additional_comment' => $data['additional_comment'],
                         'type_comment' => 'rejection',
-                    ]); 
+                    ]);
 
                     $this->redirect($this->getRedirectUrl());
                 }),
@@ -188,6 +186,7 @@ class EditPaidRequest extends EditRecord
                 ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
+                        RequestStatus::Rejected
                     ]))
                 ->url(fn($record) => route('print.vacation', [
                     'id' => $record->id
@@ -209,7 +208,7 @@ class EditPaidRequest extends EditRecord
     //Garda el estado de la solicitud
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
-       $oldStatus = $this->record->getOriginal('status');
+        $oldStatus = $this->record->getOriginal('status');
 
         $this->record->update([
             'status' => $status,
@@ -234,16 +233,48 @@ class EditPaidRequest extends EditRecord
                     Mail::to($manager->email)
                         ->send(new PendingPaidRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud Pendiente')
+                    ->body('Tienes una Solicitud de Pago Pendiente')
+                    ->iconColor('primary')
+                    ->icon(Heroicon::OutlinedDocument)
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('primary')
+                            ->url(PaidRequestResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($manager);
             }
 
             if ($status === RequestStatus::Approved) {
 
-                $employeeEmail = $this->record->employee?->user?->email;
+                $employee = $this->record->employee?->user;
 
-                if ($employeeEmail) {
-                    Mail::to($employeeEmail)
+                if ($employee?->email) {
+                    Mail::to($employee->email)
                         ->send(new ApprovedPaidRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud Aprobada')
+                    ->body('Tu Solicitud de Pago fue aprobada')
+                    ->iconColor('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('success')
+                            ->url(PaidRequestResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($employee);
             }
 
             if ($status === RequestStatus::ApprovedByManager) {
@@ -254,15 +285,47 @@ class EditPaidRequest extends EditRecord
                     Mail::to($admin?->email)
                         ->send(new ApprovedManagerPaidRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud aprobada por Jefe')
+                    ->body('Solicitud de Pago Aprobada por Jefe')
+                    ->iconColor('send')
+                    ->icon(Heroicon::OutlinedDocumentCheck)
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('send')
+                            ->url(PaidRequestResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($admins);
             }
 
             if ($status === RequestStatus::Rejected) {
-                $rejectedEmail = $this->record->employee?->user?->email;
+                $rejected = $this->record->employee?->user;
 
-                if ($rejectedEmail) {
-                    Mail::to($rejectedEmail)
+                if ($rejected?->email) {
+                    Mail::to($rejected->email)
                         ->send(new RejectedPaidRequest($this->record, Auth::user()));
                 }
+
+                Notification::make()
+                    ->title('Solicitud Rechazada')
+                    ->body('Tu Solicitud de Pago fue Rechazada')
+                    ->iconColor('danger')
+                    ->icon(Heroicon::OutlinedXCircle)
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver Solicitud')
+                            ->color('danger')
+                            ->url(PaidRequestResource::getUrl('edit', [
+                                'record' => $this->record->id,
+                            ]))
+                            ->button(),
+                    ])
+                    ->sendToDatabase($rejected);
             }
         }
     }
@@ -311,7 +374,6 @@ class EditPaidRequest extends EditRecord
                     ->body('Solo las solicitudes en estado de borrador pueden ser editadas.')
                     ->color('send')
                     ->icon(Heroicon::OutlinedExclamationCircle)
-
                     ->send();
                 //$this->redirect($this->getRedirectUrl());
                 break;
@@ -325,5 +387,5 @@ class EditPaidRequest extends EditRecord
         return $this->getResource()::getUrl('index');
     }
     //-----------------------------------------------------------------
-    
+
 }

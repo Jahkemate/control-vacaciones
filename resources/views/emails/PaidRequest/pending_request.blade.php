@@ -60,10 +60,10 @@
                 Ver detalles de la solicitud
             </a>
 
-            <a href="{{ $print }}"
+           {{--  <a href="{{ $print }}"
                 style="background:#C6F5C9; color:black; padding:12px 20px; text-decoration:none; border-radius:6px; border:1px solid darkgreen; display:inline-block; margin:12px 10px;">
                 Imprimir solicitud
-            </a>
+            </a> --}}
 
         </div>
 

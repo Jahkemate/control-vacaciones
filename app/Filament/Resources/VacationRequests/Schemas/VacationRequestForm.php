@@ -11,7 +11,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 
 use function Symfony\Component\Clock\now;
@@ -139,6 +141,19 @@ class VacationRequestForm
                                     ->placeholder('Breve de Descripcion (Opcional)')
                             ])
                     ]),
+
+                //Se muestra un historico de lo que se hizo en esta solicitud
+                Section::make('Historial de Cambios')
+                    ->icon(Heroicon::Clock)
+                    ->schema([
+                        View::make('filament.components.request-logs')
+                            ->viewData([
+                                'record' => fn($livewire) => $livewire->getRecord(),
+                            ]),
+                    ])
+                    ->visible(fn($livewire) => $livewire->record !== null) // solo en edit/view
+                    ->collapsible()
+                    ->columnSpanFull(),
             ]);
     }
 }

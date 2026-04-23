@@ -42,7 +42,7 @@ class RejectedRequest extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.vacationRequest.rejected_request',
+            view: 'emails.VacationRequest.rejected_request',
              with: [
                 'vacation_request' => $this->vacation_request,
                 'user' => $this->user,

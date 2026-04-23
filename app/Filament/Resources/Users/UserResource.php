@@ -20,6 +20,9 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
     protected static ?string $navigationLabel = 'Usuarios';
 
+    protected static ?string $pluralModelLabel = 'Usuarios';
+    protected static ?string $modelLabel = 'Usuario';
+
     protected static ?int $navigationSort = 1;
 
     protected static string|UnitEnum|null $navigationGroup = 'Gestion de Usuarios'; // Para hacer un grupo en los iconos de navegacion del menu lateral (se agregan e los resources)

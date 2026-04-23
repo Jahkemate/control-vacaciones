@@ -30,6 +30,7 @@ class DepartmentsTable
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('name', 'asc')
             ->filters([
                 //
             ])

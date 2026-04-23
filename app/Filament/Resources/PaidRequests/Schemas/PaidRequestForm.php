@@ -10,7 +10,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 
 class PaidRequestForm
@@ -54,7 +56,7 @@ class PaidRequestForm
                                 DatePicker::make('request_date')
                                     ->label('Fecha de Creacion')
                                     ->readOnly()
-                                    ->default(fn () => now()->format('Y-m-d'))
+                                    ->default(fn() => now()->format('Y-m-d'))
                                     ->disabled(fn($get) => in_array($get('status'), [
                                         RequestStatus::Approved,
                                         RequestStatus::Rejected,
@@ -84,6 +86,18 @@ class PaidRequestForm
                                     ),
                             ]),
                     ]),
+                //Se muestra un historico de lo que se hizo en esta solicitud
+                Section::make('Historial de Cambios')
+                    ->icon(Heroicon::Clock)
+                    ->schema([
+                        View::make('filament.components.request-logs')
+                            ->viewData([
+                                'record' => fn($livewire) => $livewire->getRecord(),
+                            ]),
+                    ])
+                    ->visible(fn($livewire) => $livewire->record !== null) // solo en edit/view
+                    ->collapsible()
+                    ->columnSpanFull(),
             ]);
     }
 }
