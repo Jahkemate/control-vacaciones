@@ -72,7 +72,8 @@ class PaidRequestForm
                                         RequestStatus::Rejected,
                                         RequestStatus::Pending,
                                         RequestStatus::ApprovedByManager
-                                    ])),
+                                    ]))
+                                    ->dehydrated(),
                             ]),
                     ]),
                 Grid::make(1)
@@ -101,7 +102,7 @@ class PaidRequestForm
                                 'record' => fn($livewire) => $livewire->getRecord(),
                             ]),
                     ])
-                    ->visible(fn($livewire) => $livewire->record !== null) // solo en edit/view
+                     ->visible(fn($livewire) => true/* $livewire->record !== null */) // solo en edit/view
                     ->collapsible()
                     ->columnSpanFull(),
             ]);

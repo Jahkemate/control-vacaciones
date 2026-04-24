@@ -26,6 +26,7 @@ class EditPaidRequest extends EditRecord
             //------------------Boton de Aprobar----------------------------------------
             Action::make('approved')
                 ->label('Aprobar Solicitud')
+                ->icon(Heroicon::CheckBadge)
                 ->requiresConfirmation()
                 ->modalDescription('¿Desea aprobar esta solicitud?')
                 ->modalSubmitActionLabel('Si, Aprobar')
@@ -98,6 +99,7 @@ class EditPaidRequest extends EditRecord
                 ->modalDescription('¿ Desea rechazar esta Solicitud ?')
                 ->modalSubmitActionLabel('Si, Rechazar')
                 ->color('danger')
+                ->icon(Heroicon::XCircle)
                 ->requiresConfirmation()
                 ->schema([
                     Textarea::make('additional_comment')
@@ -109,14 +111,12 @@ class EditPaidRequest extends EditRecord
                     ! in_array($this->record->status, [
                         RequestStatus::Approved,
                         RequestStatus::Rejected,
-                        //RequestStatus::ApprovedByManager,
                         RequestStatus::Draft
                     ]))
                 ->disabled(fn() =>
                 in_array($this->record->status, [
                     RequestStatus::Approved,
                     RequestStatus::Rejected,
-                    RequestStatus::ApprovedByManager,
                 ]))
                 ->action(function (array $data, $record) {
                     $this->saveAs(RequestStatus::Rejected);
@@ -138,6 +138,7 @@ class EditPaidRequest extends EditRecord
                 ->modalSubmitActionLabel('Si, Guardar')
                 ->modalIcon(Heroicon::OutlinedPencil)
                 ->color('save')
+                ->icon(Heroicon::DocumentText)
                 ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
@@ -160,6 +161,7 @@ class EditPaidRequest extends EditRecord
             //--------------------Boton de Enviar----------------------------------------
             Action::make('pending')
                 ->label('Enviar Solicitud')
+                ->icon(Heroicon::Inbox)
                 ->requiresConfirmation()
                 ->modalDescription('¿ Desea enviar esta Solicitud ?')
                 ->modalSubmitActionLabel('Si, Enviar')
@@ -185,10 +187,12 @@ class EditPaidRequest extends EditRecord
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
+                ->icon(Heroicon::Printer)
                 ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
-                        RequestStatus::Rejected
+                        RequestStatus::Rejected,
+                        RequestStatus::ApprovedByManager
                     ]))
                 ->url(fn($record) => route('print.paid', [
                     'id' => $record->id
@@ -198,6 +202,7 @@ class EditPaidRequest extends EditRecord
             //--------------------Boton de cancelar solicitud--------------------------------------------
             Action::make('cancel')
                 ->label('Cancelar')
+                ->icon(Heroicon::ArrowUturnLeft)
                 ->url($this->getResource()::getUrl('index')) // redirige al listado
                 ->color('gray'),
         ];

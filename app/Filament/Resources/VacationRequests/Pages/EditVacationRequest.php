@@ -31,6 +31,7 @@ class EditVacationRequest extends EditRecord
                 ->modalDescription('¿Desea aprobar esta solicitud?')
                 ->modalSubmitActionLabel('Si, Aprobar')
                 ->color('secondary')
+                ->icon(Heroicon::CheckBadge)
                 ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager']) && //
                     ! in_array($this->record->status, [
                         RequestStatus::Approved,
@@ -102,6 +103,7 @@ class EditVacationRequest extends EditRecord
                 ->modalDescription('¿ Desea rechazar esta Solicitud ?')
                 ->modalSubmitActionLabel('Si, Rechazar')
                 ->color('danger')
+                ->icon(Heroicon::XCircle)
                 ->requiresConfirmation()
                 ->schema([
                     Textarea::make('additional_comment')
@@ -145,6 +147,7 @@ class EditVacationRequest extends EditRecord
             //--------------------Boton de Guardar como Borrador------------------------
             Action::make('draft')
                 ->label('Guardar como Borrador')
+                ->icon(Heroicon::DocumentText)
                 ->requiresConfirmation()
                 ->modalDescription('¿ Desea guardar como Borrador ?')
                 ->modalSubmitActionLabel('Si, Guardar')
@@ -173,6 +176,7 @@ class EditVacationRequest extends EditRecord
             Action::make('pending')
                 ->label('Enviar Solicitud')
                 ->requiresConfirmation()
+                ->icon(Heroicon::Inbox)
                 ->modalDescription('¿ Desea enviar esta Solicitud ?')
                 ->modalSubmitActionLabel('Si, Enviar')
                 ->modalIcon(Heroicon::OutlinedPaperAirplane)
@@ -199,7 +203,7 @@ class EditVacationRequest extends EditRecord
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
-                ->icon(Heroicon::OutlinedPrinter)
+                ->icon(Heroicon::Printer)
                 ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
@@ -213,6 +217,7 @@ class EditVacationRequest extends EditRecord
             //--------------------Boton de cancelar solicitud--------------------------------------------
             Action::make('cancel')
                 ->label('Cancelar')
+                ->icon(Heroicon::ArrowUturnLeft)
                 ->url($this->getResource()::getUrl('index')) // redirige al listado
                 ->color('gray'),
         ];
@@ -229,7 +234,7 @@ class EditVacationRequest extends EditRecord
             'status' => $status,
         ]);
 
-        $this->record->refresh();
+        $this->record->save();
     }
     //---------------------------------------------------------------------------------------------
     //Garda el estado de la solicitud y envia los correos correspondientes

@@ -81,7 +81,8 @@ class RequestForCompensationForm
                                         RequestStatus::Rejected,
                                         RequestStatus::Pending,
                                         RequestStatus::ApprovedByManager
-                                    ])),
+                                    ]))
+                                ->dehydrated(),
                     ]),
                 //Se muestra un historico de lo que se hizo en esta solicitud
                 Section::make('Historial de Cambios')
@@ -92,7 +93,7 @@ class RequestForCompensationForm
                                 'record' => fn($livewire) => $livewire->getRecord(),
                             ]),
                     ])
-                    ->visible(fn($livewire) => $livewire->record !== null) // solo en edit/view
+                     ->visible(fn($livewire) => true/* $livewire->record !== null */) // solo en edit/view
                     ->collapsible()
                     ->columnSpanFull(),
             ]);

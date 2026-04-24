@@ -20,6 +20,7 @@ class CreateRequestForCompensation extends CreateRecord
         return [
             Action::make('draft')
                 ->label('Guardar como borrador')
+                ->icon(Heroicon::DocumentText)
                 ->requiresConfirmation()
                 ->modalDescription('¿ Desea guardar como Borrador ?')
                 ->modalSubmitActionLabel('Si, Guardar')
@@ -31,6 +32,7 @@ class CreateRequestForCompensation extends CreateRecord
 
             Action::make('pending')
                 ->label('Enviar solicitud')
+                ->icon(Heroicon::Inbox)
                 ->requiresConfirmation()
                 ->modalDescription('¿ Desea enviar esta Solicitud ?')
                 ->modalSubmitActionLabel('Si, Enviar')
@@ -44,6 +46,7 @@ class CreateRequestForCompensation extends CreateRecord
             //--------------------Boton de cancelar solicitud--------------------------------------------
             Action::make('cancel')
                 ->label('Cancelar')
+                ->icon(Heroicon::ArrowUturnLeft)
                 ->url($this->getResource()::getUrl('index')) // redirige al listado
                 ->color('gray'),
         ];

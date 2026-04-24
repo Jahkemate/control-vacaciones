@@ -26,6 +26,7 @@ class EditRequestForCompensation extends EditRecord
             //------------------Boton de Aprobar----------------------------------------
             Action::make('approved')
                 ->label('Aprobar Solicitud')
+                ->icon(Heroicon::CheckBadge)
                 ->requiresConfirmation()
                 ->modalDescription('¿Desea aprobar esta solicitud?')
                 ->modalSubmitActionLabel('Si, Aprobar')
@@ -104,6 +105,7 @@ class EditRequestForCompensation extends EditRecord
                 ->modalDescription('¿ Desea rechazar esta Solicitud ?')
                 ->modalSubmitActionLabel('Si, Rechazar')
                 ->color('danger')
+                ->icon(Heroicon::XCircle)
                 ->requiresConfirmation()
                 ->schema([
                     Textarea::make('additional_comment')
@@ -142,6 +144,7 @@ class EditRequestForCompensation extends EditRecord
                 ->modalSubmitActionLabel('Si, Guardar')
                 ->modalIcon(Heroicon::OutlinedPencil)
                 ->color('save')
+                ->icon(Heroicon::DocumentText)
                 ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
@@ -164,6 +167,7 @@ class EditRequestForCompensation extends EditRecord
             //--------------------Boton de Enviar----------------------------------------
             Action::make('pending')
                 ->label('Enviar Solicitud')
+                ->icon(Heroicon::Inbox)
                 ->requiresConfirmation()
                 ->modalDescription('¿ Desea enviar esta Solicitud ?')
                 ->modalSubmitActionLabel('Si, Enviar')
@@ -189,10 +193,12 @@ class EditRequestForCompensation extends EditRecord
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
+                ->icon(Heroicon::Printer)
                 ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
-                        RequestStatus::Rejected
+                        RequestStatus::Rejected,
+                        RequestStatus::ApprovedByManager
                     ]))
                 ->url(fn($record) => route('print.compensation', [
                     'id' => $record->id
@@ -202,6 +208,7 @@ class EditRequestForCompensation extends EditRecord
             //--------------------Boton de cancelar solicitud--------------------------------------------
             Action::make('cancel')
                 ->label('Cancelar')
+                ->icon(Heroicon::ArrowUturnLeft)
                 ->url($this->getResource()::getUrl('index')) // redirige al listado
                 ->color('gray'),
         ];

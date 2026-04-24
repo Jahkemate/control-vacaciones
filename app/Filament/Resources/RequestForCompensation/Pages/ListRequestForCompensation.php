@@ -5,6 +5,7 @@ namespace App\Filament\Resources\RequestForCompensation\Pages;
 use App\Filament\Resources\RequestForCompensation\RequestForCompensationResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Icons\Heroicon;
 
 class ListRequestForCompensation extends ListRecords
 {
@@ -14,7 +15,8 @@ class ListRequestForCompensation extends ListRecords
     {
         return [
             CreateAction::make()
-            ->color('success'),
+            ->color('success')
+            ->icon(Heroicon::OutlinedDocumentDuplicate),
         ];
     }
 }

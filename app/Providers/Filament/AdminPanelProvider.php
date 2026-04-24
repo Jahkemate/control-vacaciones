@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
                 'danger' => Color::Rose,
                 'send' => Color::Cyan,
                 'save' => Color::Neutral,
+                'create' => Color::generatePalette('#556B2F'),
                 //'gray' => Color::Gray,
                 //'info' => Color::Blue,
                 //'secondary' => Color::Purple,

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\PaidRequests\Pages;
 use App\Filament\Resources\PaidRequests\PaidRequestResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Icons\Heroicon;
 
 class ListPaidRequests extends ListRecords
 {
@@ -14,7 +15,8 @@ class ListPaidRequests extends ListRecords
     {
         return [
             CreateAction::make()
-            ->color('success'),
+            ->color('success')
+            ->icon(Heroicon::OutlinedDocumentDuplicate),
         ];
     }
 }

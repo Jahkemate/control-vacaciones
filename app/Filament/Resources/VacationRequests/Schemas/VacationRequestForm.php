@@ -116,11 +116,11 @@ class VacationRequestForm
                             ->label('Total de Dias Habiles')
                             ->readOnly()
                             ->disabled(fn($get) => in_array($get('status'), [
-                                        RequestStatus::Approved,
-                                        RequestStatus::Rejected,
-                                        RequestStatus::Pending,
-                                        RequestStatus::ApprovedByManager
-                                    ])),
+                                RequestStatus::Approved,
+                                RequestStatus::Rejected,
+                                RequestStatus::Pending,
+                                RequestStatus::ApprovedByManager
+                            ])),
                     ]),
 
                 Grid::make(1)
@@ -151,6 +151,7 @@ class VacationRequestForm
                                         RequestStatus::Pending,
                                         RequestStatus::ApprovedByManager
                                     ]))
+                                    ->dehydrated(),
                             ])
                     ]),
 
@@ -163,7 +164,7 @@ class VacationRequestForm
                                 'record' => fn($livewire) => $livewire->getRecord(),
                             ]),
                     ])
-                    ->visible(fn($livewire) => $livewire->record !== null) // solo en edit/view
+                    ->visible(fn($livewire) => true/* $livewire->record !== null */) // solo en edit/view
                     ->collapsible()
                     ->columnSpanFull(),
             ]);

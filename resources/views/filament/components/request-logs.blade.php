@@ -39,7 +39,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" style="padding:6px;border:1px solid #d9d9d9; font-size:20px; text-align:center;">
+                    <td colspan="5" style="padding:6px;border:1px solid #d9d9d9; font-size:20px; text-align:center;">
                         No hay historial aún
                     </td>
                 </tr>
