@@ -33,7 +33,7 @@ class ApprovedRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Solicitud Aprobada #' . $this->vacation_request->id,
+            subject: 'Su Solicitud de Vacaciones ha sido Aprobada #' . $this->vacation_request->id,
         );
     }
 

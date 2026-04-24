@@ -43,7 +43,7 @@ class PaidRequestForm
                                         RequestStatus::Approved,
                                         RequestStatus::Rejected,
                                         RequestStatus::Pending,
-                                        RequestStatus::ApprovedByManager
+                                        RequestStatus::ApprovedByManager,
                                     ]))
                                     ->numeric()
                                     ->required(),
@@ -66,7 +66,13 @@ class PaidRequestForm
                                     ->required(),
                                 Textarea::make('comment')
                                     ->label('Descripcion')
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ])),
                             ]),
                     ]),
                 Grid::make(1)

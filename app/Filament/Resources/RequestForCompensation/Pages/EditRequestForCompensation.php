@@ -78,17 +78,20 @@ class EditRequestForCompensation extends EditRecord
                         $this->record->approval_date = now();
                     }
 
-                    $this->record->save();
+                    $this->saveAs($this->record->status);
+                    $employeeUser = $this->record->employee?->user;
 
-                    Notification::make()
-                        ->title('Solicitud aprobada')
-                        ->success()
-                        ->body(match ($this->record->status) {
-                            RequestStatus::ApprovedByManager => 'Solicitud por Compensacion Aprobada por jefe, esperando admin.',
-                            RequestStatus::ApprovedByRRHH => 'Solicitud por Compensacion Aprobada por RRHH, esperando jefe.',
-                            default => ''
-                        })
-                        ->send();
+                    if ($employeeUser) {
+                        Notification::make()
+                            ->title('Solicitud aprobada')
+                            ->success()
+                            ->body(match ($this->record->status) {
+                                RequestStatus::ApprovedByManager => 'Solicitud de Vacaciones Aprobada por jefe, esperando RRHH.',
+                                RequestStatus::ApprovedByRRHH => 'Solicitud de Vacaciones Aprobada por RRHH.',
+                                default => ''
+                            })
+                            ->sendToDatabase([$user, $employeeUser]);
+                    }
 
                     $this->redirect($this->getRedirectUrl());
                 }),
@@ -191,7 +194,7 @@ class EditRequestForCompensation extends EditRecord
                         RequestStatus::Pending,
                         RequestStatus::Rejected
                     ]))
-                ->url(fn($record) => route('print.vacation', [
+                ->url(fn($record) => route('print.compensation', [
                     'id' => $record->id
                 ]))
                 ->openUrlInNewTab(),
@@ -348,9 +351,9 @@ class EditRequestForCompensation extends EditRecord
             case RequestStatus::Draft:
                 // Si es borrador, no hace nada
                 break;
-                
+
             // Si es Rechazada se mostrara una notificacion
-            case RequestStatus::Rejected: 
+            case RequestStatus::Rejected:
                 Notification::make()
                     ->title('Esta solicitud ha sido rechazada')
                     ->body('Las solicitudes rechazadas no pueden ser editadas.')

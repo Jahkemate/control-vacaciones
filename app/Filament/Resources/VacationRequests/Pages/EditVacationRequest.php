@@ -76,7 +76,7 @@ class EditVacationRequest extends EditRecord
 
                     $this->saveAs($this->record->status);
 
-                    $employeeUser = $this->record->employee?->user;
+                    $employeeUser = $this->record->employee?->user; 
 
                     if ($employeeUser) {
                         Notification::make()
@@ -199,6 +199,7 @@ class EditVacationRequest extends EditRecord
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
+                ->icon(Heroicon::OutlinedPrinter)
                 ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,

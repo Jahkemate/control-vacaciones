@@ -31,7 +31,7 @@ class PendingPaidRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Pending Paid Request #' . $this->paid_request->id,
+            subject: 'Tiene una Solicitud de Pago Pendiente #' . $this->paid_request->id,
         );
     }
 
@@ -46,7 +46,7 @@ class PendingPaidRequest extends Mailable
                 'paid_request' => $this->paid_request,
                 'user' => $this->user,
                 'url' => route('filament.admin.resources.paid-requests.edit', $this->paid_request),
-                //'print' => route('print.vacation', $this->paid_request->id)
+                'print' => route('print.paid', $this->paid_request->id)
             ],
         );
     }

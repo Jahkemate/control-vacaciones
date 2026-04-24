@@ -1,3 +1,7 @@
+@php
+    $record = $this->getRecord();
+    $logs = $record?->logs()->with('user')->latest()->get() ?? collect();
+@endphp
 <div style="overflow-x-auto">
     <table style="w-full text-sm border rounded-xl overflow-hidden; width:100%">
         <thead style="bg-gray-100 dark:bg-gray-800">
@@ -10,10 +14,6 @@
             </tr>
         </thead>
         <tbody>
-            @php
-                $record = $this->getRecord();
-                $logs = $record?->logs()->with('user')->latest()->get() ?? collect();
-            @endphp
 
             @forelse ($logs as $log)
                 <tr style="border-t">

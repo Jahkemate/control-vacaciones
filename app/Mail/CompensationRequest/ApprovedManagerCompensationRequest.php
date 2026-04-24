@@ -32,7 +32,7 @@ class ApprovedManagerCompensationRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Approved Compensation Request #' . $this->compensation_request->id,
+            subject: 'Solicitud por Compensacion aprobada por el Jefe #' . $this->compensation_request->id,
         );
     }
 

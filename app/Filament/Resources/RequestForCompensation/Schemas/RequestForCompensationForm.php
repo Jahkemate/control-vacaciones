@@ -75,7 +75,13 @@ class RequestForCompensationForm
                             ->required(),
                         Textarea::make('comment')
                             ->label('Descripcion')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ])),
                     ]),
                 //Se muestra un historico de lo que se hizo en esta solicitud
                 Section::make('Historial de Cambios')

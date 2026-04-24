@@ -32,7 +32,7 @@ class ApprovedPaidRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Approved Paid Request #'. $this->paid_request->id,
+            subject: 'Su Solicitud de Pago ha sido Aprobada #'. $this->paid_request->id,
         );
     }
 
@@ -47,7 +47,7 @@ class ApprovedPaidRequest extends Mailable
                 'paid_request' => $this->paid_request,
                 'user' => $this->user,
                 'url' => route('filament.admin.resources.paid-requests.edit', $this->paid_request),
-                //'print' => route('print.vacation', $this->paid_request->id)
+                'print' => route('print.paid', $this->paid_request->id)
             ],
         );
     }

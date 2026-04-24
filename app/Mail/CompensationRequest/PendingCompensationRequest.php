@@ -31,7 +31,7 @@ class PendingCompensationRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Approved Compensation Request #' . $this->compensation_request->id,
+            subject: 'Tine una Solicitud por Compensacion Pendiente #' . $this->compensation_request->id,
         );
     }
 

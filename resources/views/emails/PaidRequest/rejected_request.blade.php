@@ -47,6 +47,11 @@
                 <strong>{{ $paid_request->employee->full_name }}</strong>
             </p>
 
+            <p>
+                Pertenece al Departamento de:
+                <strong>{{ $paid_request->employee->department->name }}</strong>
+            </p>
+
         </div>
 
         <!-- BOTONES -->

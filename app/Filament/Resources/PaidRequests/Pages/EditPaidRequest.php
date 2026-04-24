@@ -73,18 +73,20 @@ class EditPaidRequest extends EditRecord
                         }
                     }
 
-                    $this->record->save();
+                    $this->saveAs($this->record->status);
+                    $employeeUser = $this->record->employee?->user;
 
-                    Notification::make()
-                        ->title('Solicitud aprobada')
-                        ->success()
-                        ->body(match ($this->record->status) {
-                            RequestStatus::ApprovedByManager => 'Solicitud de Pago Aprobada por jefe, esperando admin.',
-                            RequestStatus::ApprovedByRRHH => 'Solicitud de Pago Aprobada por RRHH, esperando jefe.',
-                            default => ''
-                        })
-                        ->send();
-
+                    if ($employeeUser) {
+                        Notification::make()
+                            ->title('Solicitud aprobada')
+                            ->success()
+                            ->body(match ($this->record->status) {
+                                RequestStatus::ApprovedByManager => 'Solicitud de Vacaciones Aprobada por jefe, esperando RRHH.',
+                                RequestStatus::ApprovedByRRHH => 'Solicitud de Vacaciones Aprobada por RRHH.',
+                                default => ''
+                            })
+                            ->sendToDatabase([$user, $employeeUser]);
+                    }
                     $this->redirect($this->getRedirectUrl());
                 }),
             //------------------------------------------------------------------------
@@ -114,7 +116,7 @@ class EditPaidRequest extends EditRecord
                 in_array($this->record->status, [
                     RequestStatus::Approved,
                     RequestStatus::Rejected,
-                    //RequestStatus::ApprovedByManager,
+                    RequestStatus::ApprovedByManager,
                 ]))
                 ->action(function (array $data, $record) {
                     $this->saveAs(RequestStatus::Rejected);
@@ -188,7 +190,7 @@ class EditPaidRequest extends EditRecord
                         RequestStatus::Pending,
                         RequestStatus::Rejected
                     ]))
-                ->url(fn($record) => route('print.vacation', [
+                ->url(fn($record) => route('print.paid', [
                     'id' => $record->id
                 ]))
                 ->openUrlInNewTab(),
@@ -261,7 +263,7 @@ class EditPaidRequest extends EditRecord
                 }
 
                 Notification::make()
-                    ->title('Solicitud Aprobada')
+                    ->title('Solicitud de Pago Aprobada')
                     ->body('Tu Solicitud de Pago fue aprobada')
                     ->iconColor('success')
                     ->icon('heroicon-o-check-circle')

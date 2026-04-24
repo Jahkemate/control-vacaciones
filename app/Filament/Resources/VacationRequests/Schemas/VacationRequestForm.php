@@ -114,7 +114,13 @@ class VacationRequestForm
                         TextInput::make('total_business_days')
                             ->reactive()
                             ->label('Total de Dias Habiles')
-                            ->readOnly(),
+                            ->readOnly()
+                            ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ])),
                     ]),
 
                 Grid::make(1)
@@ -139,6 +145,12 @@ class VacationRequestForm
                                 Textarea::make('comment')
                                     ->label('Comentario o Justificacion')
                                     ->placeholder('Breve de Descripcion (Opcional)')
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ]))
                             ])
                     ]),
 

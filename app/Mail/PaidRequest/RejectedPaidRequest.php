@@ -32,7 +32,7 @@ class RejectedPaidRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Rejected Paid Request #'. $this->paid_request->id,
+            subject: 'Su Solicitud de Pago ha sido Rechazada #'. $this->paid_request->id,
         );
     }
 

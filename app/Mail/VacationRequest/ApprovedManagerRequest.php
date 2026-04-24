@@ -32,7 +32,7 @@ class ApprovedManagerRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Approved Manager Request #'. $this->vacation_request->id,
+            subject: 'Solicitud de Vacaciones Aprobada por Jefe #'. $this->vacation_request->id,
         );
     }
 

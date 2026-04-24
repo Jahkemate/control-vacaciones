@@ -27,7 +27,7 @@
             </div>
 
             <div style="text-align:center; margin-top:20px;">
-                <h2 style="margin:0;">SOLICITUD PAGADA</h2>
+                <h2 style="margin:0;">SOLICITUD DE PAGO</h2>
                 <h3 style="margin:5px 0;">Solicitud Aprobada por Jefe</h3>
             </div>
 
@@ -47,6 +47,11 @@
                 <strong>{{ $paid_request->employee->full_name }}</strong>
             </p>
 
+            <p>
+                Pertenece al Departamento de:
+                <strong>{{ $paid_request->employee->department->name }}</strong>
+            </p>
+
         </div>
 
         <!-- BOTONES -->
@@ -61,10 +66,10 @@
                 Ver detalles de la solicitud
             </a>
 
-           {{--  <a href="{{ $print }}"
+            <a href="{{ $print }}"
                 style="background:#C6F5C9; color:black; padding:12px 20px; text-decoration:none; border-radius:6px; border:1px solid darkgreen; display:inline-block; margin:12px 10px;">
                 Imprimir solicitud
-            </a> --}}
+            </a>
 
         </div>
 

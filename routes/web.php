@@ -1,9 +1,8 @@
 <?php
 
 use App\Http\Controllers\VacationRequestController;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\PaidRequestController;
+use App\Http\Controllers\RequestForCompensationtController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,9 +12,12 @@ Route::get('/', function () {
 // Rutas para imprimir solicitudes de vacaciones (vacation_request)
 Route::get('/print-vacation/{id}', [VacationRequestController::class, 'print'])->name('print.vacation');
 
-
-
 Route::get('/vacation-request/{id}', [VacationRequestController::class, 'detailsRequest'])->name('detailsRejected');
+
+
+Route::get('/paid-request/{id}', [PaidRequestController::class, 'paidPrint'])->name('print.paid');
+
+Route::get('/request-for-compensation/{id}', [RequestForCompensationtController::class, 'compensationPrint'])->name('print.compensation');
 
 
 /* Route::get('/test-mail', function () {

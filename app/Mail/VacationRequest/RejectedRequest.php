@@ -32,7 +32,7 @@ class RejectedRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Rejected Request #' . $this->vacation_request->id,
+            subject: 'Su solicitud de Vacaciones ha sido Rechazada #' . $this->vacation_request->id,
         );
     }
 

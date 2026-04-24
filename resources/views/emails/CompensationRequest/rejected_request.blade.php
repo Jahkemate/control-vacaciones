@@ -47,6 +47,11 @@
                 <strong>{{ $compensation_request->employee->full_name }}</strong>
             </p>
 
+            <p>
+                Pertenece al Departamento de:
+                <strong>{{ $compensation_request->employee->department->name }}</strong>
+            </p>
+
         </div>
 
         <!-- BOTONES -->

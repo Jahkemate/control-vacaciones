@@ -32,7 +32,7 @@ class RejectedCompensationRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-             subject: 'Approved Compensation Request #' . $this->compensation_request->id,
+             subject: 'Su Solicitu por Compensacion ha sido Rechazada #' . $this->compensation_request->id,
         );
     }
 

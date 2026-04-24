@@ -31,7 +31,7 @@ class PendingRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Pending Request #' . $this->vacation_request->id,
+            subject: 'Tienes una Solicitud de Vacaciones Pendiente #' . $this->vacation_request->id,
         );
     }
 

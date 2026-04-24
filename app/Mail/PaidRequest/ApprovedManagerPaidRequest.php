@@ -31,7 +31,7 @@ class ApprovedManagerPaidRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Paid request approved by manager' . $this->paid_request->id,
+            subject: 'Solicitud de Pago Aprobada por Jefe #' . $this->paid_request->id,
         );
     }
 
@@ -46,7 +46,7 @@ class ApprovedManagerPaidRequest extends Mailable
                 'paid_request' => $this->paid_request,
                 'user' => $this->user,
                 'url' => route('filament.admin.resources.paid-requests.edit', $this->paid_request),
-                //'print' => route('print.vacation', $this->paid_request->id)
+                'print' => route('print.paid', $this->paid_request->id)
             ],
         );
     }
