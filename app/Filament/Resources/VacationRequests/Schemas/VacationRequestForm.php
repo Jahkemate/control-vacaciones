@@ -32,7 +32,7 @@ class VacationRequestForm
                             ->default(fn() => Auth::user()->employee?->id) // Establece el valor predeterminado al primer empleado del usuario autenticado
                             ->disabled()
                             ->dehydrated()
-                            ->relationship('employee', 'first_name', fn($query) => $query->whereHas('BalanceVacation')) //Para que solo me muestre los empleadfos que tiene balance
+                            ->relationship('employee', 'first_name', fn($query) => $query->whereHas('BalanceVacation')) //Para que solo me muestre los empleados que tiene balance
                             ->getOptionLabelFromRecordUsing(
                                 fn($record) =>
                                 $record->first_name . ' ' . $record->last_name

@@ -26,10 +26,6 @@ class PaidRequestsTable
                 TextColumn::make('employee.full_name')
                     ->searchable(['first_name', 'last_name'])
                     ->label('Empleado Solicitante'),
-                TextColumn::make('total_days')
-                    ->label('Dias Totales')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('status')
                     ->alignCenter()
                     ->badge()
@@ -46,6 +42,30 @@ class PaidRequestsTable
                 TextColumn::make('request_date')
                     ->label('Fecha de Creacion')
                     ->date()
+                    ->sortable(),
+                TextColumn::make('start_date')
+                    ->label('Fecha de Inicio')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('end_date')
+                    ->label('Fecha Final')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('total_days')
+                    ->label('Dias Totales')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('paid_accrued')
+                    ->label('Total Acumulado')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('used')
+                    ->label('Dias Usados')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('paid_total')
+                    ->label('Dias Totales Pagados')
+                    ->numeric()
                     ->sortable(),
                 TextColumn::make('updated_at')
                     ->label('Fecha de Aprobacion')

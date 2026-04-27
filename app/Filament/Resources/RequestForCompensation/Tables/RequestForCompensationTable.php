@@ -30,10 +30,6 @@ class RequestForCompensationTable
                     ->label('Fecha de Creacion')
                     ->date()
                     ->sortable(),
-                TextColumn::make('total_days')
-                    ->label('Dias Totales')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('status')
                     ->alignCenter()
                     ->badge()
@@ -46,9 +42,33 @@ class RequestForCompensationTable
                     ->label('Fecha de Aprobacion')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('pending_date')
-                    ->label('Fecha de Vencimiento')
+                  TextColumn::make('days_to_compensate')
+                    ->label('Dias a Compensar')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('start_date')
+                    ->label('Fecha de Iicio')
                     ->date()
+                    ->sortable(),
+                TextColumn::make('end_date')
+                    ->label('Fecha de Iicio')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('total_days')
+                    ->label('Dias Totales')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('accrued_compensation')
+                    ->label('Acumulado')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('used')
+                    ->label('Dias Usados')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('total_compensation')
+                    ->label('Dias de Compensacion')
+                    ->numeric()
                     ->sortable(),
                 TextColumn::make('comment')
                     ->searchable()

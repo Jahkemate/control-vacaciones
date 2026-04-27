@@ -148,7 +148,7 @@ class BalanceVacationForm
 
                                         $set('balance', $balance);
 
-                                        //calcula las vacacione pendientes por gozar 
+                                        //calcula las vacaciones pendientes por gozar 
                                         $accruedThisYear = (int) ($get('accrued_this_year') ?? 0);
                                         $pendings = $balance - $accruedThisYear;
                                         $set('pendings', $pendings);

@@ -18,8 +18,13 @@ return new class extends Migration
             $table->integer('total_days')->nullable();
             $table->string('status');
             $table->date('approval_date')->nullable();
-            $table->date('pending_date')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->text('comment')->nullable();
+            $table->integer('days_to_compensate')->nullable();
+            $table->integer('accrued_compensation')->nullable();
+            $table->integer('used')->nullable();
+            $table->integer('total_compensation')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

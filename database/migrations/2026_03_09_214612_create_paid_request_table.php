@@ -18,6 +18,12 @@ return new class extends Migration
             $table->string('status');
             $table->date('request_date')->nullable();
             $table->text('comment')->nullable();
+            $table->integer('paid_accrued')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->integer('used')->nullable();
+            $table->integer('paid_total')->nullable();
+            $table->integer('days_to_compensate')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -68,7 +68,7 @@ class EmployeesTable
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-           /*  ->modifyQueryUsing(function (Builder $query) {
+            ->modifyQueryUsing(function (Builder $query) {
 
                 $user = Auth::user();
 
@@ -86,7 +86,7 @@ class EmployeesTable
                 }
 
                 return $query;
-            }) */
+            })
             ->filters([
                 TrashedFilter::make(),
             ])

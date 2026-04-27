@@ -25,10 +25,6 @@ class DepartmentSeeder extends Seeder
         $department->save();
 
         $department = new Department();
-        $department->name = 'Administracion';
-        $department->save();
-
-        $department = new Department();
         $department->name = 'Almacen';
         $department->save();
 
@@ -66,10 +62,6 @@ class DepartmentSeeder extends Seeder
 
         $department = new Department();
         $department->name = 'Fisioterapia';
-        $department->save();
-
-        $department = new Department();
-        $department->name = 'IT';
         $department->save();
 
         $department = new Department();

@@ -25,9 +25,13 @@ class RequestForCompensation extends Model
         'approval_date',
         'pending_date',
         'comment',
+        'accrued_compesation',
+        'used',
+        'total_compensation',
+        'days_to_compensate'
     ];
 
-     // ----------Para desabilitar los botones de acuerdo al estado de la Solicitud-------------
+    // ----------Para desabilitar los botones de acuerdo al estado de la Solicitud-------------
     protected $casts = [
         'status' => RequestStatus::class,
     ];
@@ -38,17 +42,37 @@ class RequestForCompensation extends Model
         return $this->belongsTo(Employee::class, 'employee_id'); //relacion con la tabla de Employees
     }
 
-     // Relacion con la tabla de RequestComments
+    // Relacion con la tabla de RequestComments
     public function commentsAdditional()
     {
         return $this->morphMany(RequestComments::class, 'commentable');
     }
 
-     // Realacion con la tabla de historico de las Solicitudes
+    // Realacion con la tabla de historico de las Solicitudes
     public function logs()
     {
         return $this->morphMany(RequestLog::class, 'loggable');
     }
 
+    // ----------------------- Logica del filtro que se muestra en la parte de arriba de los list --------------------------
+    public function scopeVisibleFor($query, \App\Models\User $user)
+    {
+        if ($user->role === 'admin') {
+            return $query;
+        }
+
+        $employeeId = $user->employee?->id;
+
+        if ($user->role === 'manager') {
+            $employeeIds = \App\Models\Employee::where('department_id', $user->employee->department_id)
+                ->pluck('id')
+                ->push($employeeId);
+
+            return $query->whereIn('employee_id', $employeeIds);
+        }
+
+        return $query->where('employee_id', $employeeId);
+    }
+    //-------------------------------------------------------------------------------------------------------------------------
 
 }
