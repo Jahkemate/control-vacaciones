@@ -22,7 +22,6 @@ class ApprovedManagerRequest extends Mailable
     public function __construct(
         public VacationRequest $vacation_request,
         public User $user,
-        public RequestLog $request_log,
     )
     {
         //
@@ -48,7 +47,6 @@ class ApprovedManagerRequest extends Mailable
             with: [
                 'vacation_request' => $this->vacation_request,
                 'user' => $this->user,
-                'request_log' => $this-> request_log,
                 'url' => route('filament.admin.resources.vacation-requests.edit', $this->vacation_request),
                 'print' => route('print.vacation', $this->vacation_request->id)
             ],

@@ -46,6 +46,7 @@ class RequestForCompensationForm
 
                         Select::make('status')
                             ->disabled()
+                            ->dehydrated()
                             ->reactive()
                             ->label('Estado de la Solicitud')
                             ->options(RequestStatus::class)
@@ -53,19 +54,13 @@ class RequestForCompensationForm
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                 if ($state === RequestStatus::Approved) {
                                     $set('approval_date', now());
-
-
-                                    $used = $get('total_days');
-                                    $accrued = $get('accrued_compensation');
-
-                                    $set('used', $used);
-                                    $set('total', $accrued - $used);
                                 }
                             }),
 
                         DatePicker::make('approval_date')
                             ->label('Fecha de Aprobacion')
-                            ->disabled(),
+                            ->disabled()
+                            ->dehydrated(),
 
                         TextInput::make('days_to_compensate')
                             ->label('Dias a Compensar')
@@ -76,6 +71,7 @@ class RequestForCompensationForm
                                 RequestStatus::Pending,
                                 RequestStatus::ApprovedByManager
                             ]))
+                            ->dehydrated()
                             ->numeric()
                             ->minValue('0')
                             ->reactive()
@@ -85,7 +81,7 @@ class RequestForCompensationForm
                             })
                             ->required(),
 
-                        Section::make('Fechas de Vacaciones')
+                        Section::make('Fechas de Dias a Compensar')
                             ->columns(2)
                             ->schema([
                                 DatePicker::make('start_date')
@@ -97,6 +93,7 @@ class RequestForCompensationForm
                                         RequestStatus::Pending,
                                         RequestStatus::ApprovedByManager
                                     ]))
+                                    ->dehydrated()
                                     ->reactive()
                                     ->date()
                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -116,8 +113,6 @@ class RequestForCompensationForm
                                             }
 
                                             $set('total_days', $diasHabiles); // se guarda el resultado y le especificacmo en que campo queremos mostrarlo
-                                            $set('accrued_compensation', $diasHabiles);
-                                            $set('total_compensation', $diasHabiles);
                                         }
                                     }),
                                 DatePicker::make('end_date')
@@ -129,6 +124,7 @@ class RequestForCompensationForm
                                         RequestStatus::Pending,
                                         RequestStatus::ApprovedByManager
                                     ]))
+                                    ->dehydrated()
                                     ->required()
                                     ->date()
                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -148,8 +144,6 @@ class RequestForCompensationForm
                                             }
 
                                             $set('total_days', $diasHabiles);
-                                            $set('accrued_compensation', $diasHabiles);
-                                            $set('total_compensation', $diasHabiles);
                                         }
                                     }),
                             ]),
@@ -163,13 +157,10 @@ class RequestForCompensationForm
                                 RequestStatus::Pending,
                                 RequestStatus::ApprovedByManager
                             ]))
+                            ->dehydrated()
                             ->numeric()
                             ->minValue('0')
                             ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                $set('accrued_compensation', $state);
-                                $set('total_compensation', $state);
-                            })
                             ->required(),
                     ]),
 

@@ -180,7 +180,9 @@ class EditPaidRequest extends EditRecord
                     RequestStatus::Approved,
                     RequestStatus::Rejected,
                 ]))
-                ->action(fn() => $this->saveAs(RequestStatus::Pending)),
+                ->action(function () {
+                    $this->saveAs(RequestStatus::Pending);
+                }),
             //---------------------------------------------------------------------------
 
             //--------------------Boton de Imprimir Solicitud----------------------------------------
@@ -216,11 +218,27 @@ class EditPaidRequest extends EditRecord
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
         $oldStatus = $this->record->getOriginal('status');
+        // Se asignan valores antes de guardarse
+        $this->record->status = $status;
 
-        $this->record->update([
-            'status' => $status,
-            'additional_comment' => $additional_comment,
-        ]);
+        // Logica para el calculo del balance de compensacion
+        if ($status === RequestStatus::Approved) {
+
+            $accrued = $this->record->paid_accrued ?? 0;
+
+            $used = $this->record->total_days ?? 0;
+
+            $this->record->used = $used;
+
+            $this->record->paid_total = $accrued - $used;
+
+            $this->record->request_date = now();
+        }
+
+
+        // Se guarda todo
+        $this->record->save();
+
 
         // SOLO si cambió el estado, se manda correo a los diferentes destinatarios
         if ($oldStatus !== $status) {
@@ -234,7 +252,7 @@ class EditPaidRequest extends EditRecord
             //Envia correo al jefe del departamento
             if ($status === RequestStatus::Pending) {
 
-                $manager = $this->record->employee?->user?->where('role', 'manager')?->first();
+                $manager = User::where('role', 'manager')?->first();
 
                 if ($manager?->email) {
                     Mail::to($manager->email)

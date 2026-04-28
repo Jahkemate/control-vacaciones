@@ -15,29 +15,13 @@ Route::get('/print-vacation/{id}', [VacationRequestController::class, 'print'])-
 Route::get('/vacation-request/{id}', [VacationRequestController::class, 'detailsRequest'])->name('detailsRejected');
 
 
+
+// Ruta para imprimir la solicitud pagada (paid_request)
 Route::get('/paid-request/{id}', [PaidRequestController::class, 'paidPrint'])->name('print.paid');
 
+
+
+
+// Ruta para imprimir solicitud por compensacion (request_for_compensation)
 Route::get('/request-for-compensation/{id}', [RequestForCompensationtController::class, 'compensationPrint'])->name('print.compensation');
 
-
-/* Route::get('/test-mail', function () {
-    Mail::raw('Este es un correo de prueba desde Laravel', function ($message) {
-        $message->to('test@example.com')
-            ->subject('Prueba Mailtrap');
-    });
-
-    return 'Correo enviado (revisa Mailtrap)';
-    
-});
- */
-
-/* Route::get('test', function(){
-    $recipient = filament()->auth()->user();
-
-    Notification::make()
-        ->title('Notificacion de prueba')
-        ->sendToDatabase($recipient);
-   
-        dd('done sending');
-})->middleware('auth');
- */

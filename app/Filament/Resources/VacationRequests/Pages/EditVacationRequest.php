@@ -7,6 +7,7 @@ use App\Mail\VacationRequest\ApprovedManagerRequest;
 use App\Mail\VacationRequest\ApprovedRequest;
 use App\Mail\VacationRequest\PendingRequest;
 use App\Mail\VacationRequest\RejectedRequest;
+use App\Models\RequestLog;
 use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
@@ -77,7 +78,7 @@ class EditVacationRequest extends EditRecord
 
                     $this->saveAs($this->record->status);
 
-                    $employeeUser = $this->record->employee?->user; 
+                    $employeeUser = $this->record->employee?->user;
 
                     if ($employeeUser) {
                         Notification::make()
@@ -260,7 +261,7 @@ class EditVacationRequest extends EditRecord
             //Envia correo al jefe del departamento
             if ($status === RequestStatus::Pending) {
 
-                $manager = $this->record->employee?->user?->where('role', 'manager')?->first();
+                $manager = User::where('role', 'manager')?->first();
 
                 if ($manager?->email) {
                     Mail::to($manager->email)

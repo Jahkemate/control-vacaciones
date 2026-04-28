@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RequestForCompensation;
+use Barryvdh\DomPDF\PDF;
 use Illuminate\Http\Request;
 
 class RequestForCompensationtController extends Controller
 {
-     public function compensationPrint($id)
+    public function compensationPrint($id)
     {
+        $record = RequestForCompensation::with('employee')->findOrFail($id);
 
-       
-
-        $pdf = app('dompdf.wrapper')->loadView('print.vacation-request', [
-           
+        $pdf = app('dompdf.wrapper')->loadView('print.request_for_compensation', [
+            'record' => $record
         ])
             ->setPaper('letter');
 
-        return $pdf->stream('solicitud_de_pago.pdf');
-    }
+        return $pdf->stream('solicitud-compensacion.pdf'); // o download()
 
+    }
 }

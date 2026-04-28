@@ -26,7 +26,9 @@ class UserForm
                         TextInput::make('password')
                             ->revealable()
                             ->password()
-                            ->required(),
+                            ->required(fn($context) => $context === 'create')
+                            ->dehydrated(fn($state) => filled($state))
+                            ->dehydrateStateUsing(fn($state) => filled($state) ? bcrypt($state) : null),
                     ]),
 
                 Section::make('Rol Info')

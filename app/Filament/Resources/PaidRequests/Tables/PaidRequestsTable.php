@@ -34,14 +34,9 @@ class PaidRequestsTable
                     ->formatStateUsing(fn(RequestStatus $state) => $state->getLabel())
                     ->color(fn(RequestStatus $state) => $state->getColor())
                     ->icon(fn(RequestStatus $state) => $state->getIcon()),
-                TextColumn::make('comment')
-                    ->searchable()
-                    ->limit(10)
-                    ->tooltip(fn($record) => $record->comment)
-                    ->label('Descripcion'),
                 TextColumn::make('request_date')
                     ->label('Fecha de Creacion')
-                    ->date()
+                    ->dateTime()
                     ->sortable(),
                 TextColumn::make('start_date')
                     ->label('Fecha de Inicio')
@@ -71,6 +66,11 @@ class PaidRequestsTable
                     ->label('Fecha de Aprobacion')
                     ->dateTime()
                     ->sortable(),
+                TextColumn::make('comment')
+                    ->searchable()
+                    ->limit(10)
+                    ->tooltip(fn($record) => $record->comment)
+                    ->label('Descripcion'),
                 TextColumn::make('rejection_comment')
                     ->label('Motivo de Rechazo')
                     ->limit(20)

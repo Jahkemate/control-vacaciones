@@ -37,6 +37,7 @@ class CreatePaidRequest extends CreateRecord
                 ->modalDescription('¿ Desea enviar esta Solicitud ?')
                 ->modalSubmitActionLabel('Si, Enviar')
                 ->modalIcon(Heroicon::OutlinedPaperAirplane)
+                ->disabled()
                 ->color('send')
                 ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
                 ->action(

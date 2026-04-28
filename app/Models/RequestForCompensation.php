@@ -25,10 +25,12 @@ class RequestForCompensation extends Model
         'approval_date',
         'pending_date',
         'comment',
-        'accrued_compesation',
+        'accrued_compensation',
         'used',
         'total_compensation',
-        'days_to_compensate'
+        'days_to_compensate',
+        'start_date',
+        'end_date'
     ];
 
     // ----------Para desabilitar los botones de acuerdo al estado de la Solicitud-------------

@@ -9,14 +9,14 @@ class PaidRequestController extends Controller
 {
     public function paidPrint($id)
     {
-        $paidRequest = PaidRequest::with('employee.user', 'employee.department')
-            ->findOrFail($id);
+       $record = PaidRequest::with('employee')->findOrFail($id);
 
-        $employee = $paidRequest->employee;
-
-        $pdf = app('dompdf.wrapper')->loadView('print.vacation-request', [])
+        $pdf = app('dompdf.wrapper')->loadView('print.paid_request', [
+            'record' => $record
+        ])
             ->setPaper('letter');
 
-        return $pdf->stream('solicitud_de_pago.pdf');
+        return $pdf->stream('solicitud-compensacion_por_pago.pdf'); // o download()
+
     }
 }

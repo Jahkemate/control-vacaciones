@@ -4,7 +4,9 @@ namespace App\Filament\Resources\PaidRequests\Schemas;
 
 use App\Models\BalanceVacation;
 use App\States\RequestStatus;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -37,6 +39,113 @@ class PaidRequestForm
                                         $record->first_name . ' ' . $record->last_name
                                     )
                                     ->reactive(),
+
+                                Select::make('status')
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->reactive()
+                                    ->label('Estado de la Solicitud')
+                                    ->options(RequestStatus::class)
+                                    ->default(RequestStatus::Draft),
+
+                                DateTimePicker::make('request_date')
+                                    ->label('Fecha de Creacion')
+                                    ->readOnly()
+                                    ->default(now())
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ]))
+                                    ->dehydrated()
+                                    ->required(),
+                                TextInput::make('days_to_compensate')
+                                    ->label('Dias a Compensar')
+                                    ->helperText('Dias habiles')
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ]))
+                                    ->dehydrated()
+                                    ->numeric()
+                                    ->minValue('0')
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        $set('paid_accrued', $state);
+                                        $set('paid_total', $state);
+                                    })
+                                    ->required(),
+
+                                Section::make('Fechas de Dias a Compensar por Pago')
+                                    ->columns(2)
+                                    ->schema([
+                                        DatePicker::make('start_date')
+                                            ->label('Fecha de Inicio')
+                                            ->required()
+                                            ->disabled(fn($get) => in_array($get('status'), [
+                                                RequestStatus::Approved,
+                                                RequestStatus::Rejected,
+                                                RequestStatus::Pending,
+                                                RequestStatus::ApprovedByManager
+                                            ]))
+                                            ->dehydrated()
+                                            ->reactive()
+                                            ->date()
+                                            ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                $fechaInicio = $state;
+                                                $fechaFin = $get('end_date');
+
+                                                if ($fechaInicio && $fechaFin) {
+                                                    $diasHabiles = 0;
+                                                    $inicio = Carbon::parse($fechaInicio);
+                                                    $fin = Carbon::parse($fechaFin);
+
+                                                    while ($inicio->lte($fin)) {
+                                                        if (!$inicio->isWeekend()) {
+                                                            $diasHabiles++;
+                                                        }
+                                                        $inicio->addDay();
+                                                    }
+
+                                                    $set('total_days', $diasHabiles); // se guarda el resultado y le especificacmo en que campo queremos mostrarlo
+                                                }
+                                            }),
+                                        DatePicker::make('end_date')
+                                            ->label('Fecha Final')
+                                            ->reactive()
+                                            ->disabled(fn($get) => in_array($get('status'), [
+                                                RequestStatus::Approved,
+                                                RequestStatus::Rejected,
+                                                RequestStatus::Pending,
+                                                RequestStatus::ApprovedByManager
+                                            ]))
+                                            ->dehydrated()
+                                            ->required()
+                                            ->date()
+                                            ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                $fechaInicio = $get('start_date');
+                                                $fechaFin = $state;
+
+                                                if ($fechaInicio && $fechaFin) {
+                                                    $diasHabiles = 0;
+                                                    $inicio = Carbon::parse($fechaInicio);
+                                                    $fin = Carbon::parse($fechaFin);
+
+                                                    while ($inicio->lte($fin)) {
+                                                        if (!$inicio->isWeekend()) {
+                                                            $diasHabiles++;
+                                                        }
+                                                        $inicio->addDay();
+                                                    }
+
+                                                    $set('total_days', $diasHabiles);
+                                                }
+                                            }),
+                                    ]),
+
                                 TextInput::make('total_days')
                                     ->label('Dias Totales')
                                     ->disabled(fn($get) => in_array($get('status'), [
@@ -45,35 +154,12 @@ class PaidRequestForm
                                         RequestStatus::Pending,
                                         RequestStatus::ApprovedByManager,
                                     ]))
+                                    ->dehydrated()
                                     ->numeric()
-                                    ->required(),
-                                Select::make('status')
-                                    ->disabled()
+                                    ->minValue('0')
                                     ->reactive()
-                                    ->label('Estado de la Solicitud')
-                                    ->options(RequestStatus::class)
-                                    ->default(RequestStatus::Draft),
-                                DatePicker::make('request_date')
-                                    ->label('Fecha de Creacion')
-                                    ->readOnly()
-                                    ->default(fn() => now()->format('Y-m-d'))
-                                    ->disabled(fn($get) => in_array($get('status'), [
-                                        RequestStatus::Approved,
-                                        RequestStatus::Rejected,
-                                        RequestStatus::Pending,
-                                        RequestStatus::ApprovedByManager
-                                    ]))
-                                    ->required(),
-                                Textarea::make('comment')
-                                    ->label('Descripcion')
-                                    ->maxLength(255)
-                                    ->disabled(fn($get) => in_array($get('status'), [
-                                        RequestStatus::Approved,
-                                        RequestStatus::Rejected,
-                                        RequestStatus::Pending,
-                                        RequestStatus::ApprovedByManager
-                                    ]))
-                                    ->dehydrated(),
+                                    ->required()
+                                    ->helperText('Dias habiles'),
                             ]),
                     ]),
                 Grid::make(1)
@@ -91,7 +177,38 @@ class PaidRequestForm
                                         fn($get) =>
                                         BalanceVacation::where('employee_id', $get('employee_id'))->value('balance') // Obtiene el balance de vacaciones del empleado seleccionado
                                     ),
+
+                                Section::make('Balance de Compensacion por Pago')
+                                    ->columns(1)
+                                    ->schema([
+                                        TextInput::make('paid_accrued')
+                                            ->label('Acumulado')
+                                            ->reactive()
+                                            ->default(0),
+                                        TextInput::make('used')
+                                            ->label('Usado')
+                                            ->default(0),
+                                        TextInput::make('paid_total')
+                                            ->label('Dias Totales para Compensar con Pago')
+                                            ->reactive()
+                                            ->default(0),
+                                    ])
                             ]),
+                        Section::make('Motivo por el cual Pide dias Pagados')
+                            ->columns(1)
+                            ->schema([
+                                Textarea::make('comment')
+                                    ->label('Descripcion')
+                                    ->maxLength(255)
+                                    ->disabled(fn($get) => in_array($get('status'), [
+                                        RequestStatus::Approved,
+                                        RequestStatus::Rejected,
+                                        RequestStatus::Pending,
+                                        RequestStatus::ApprovedByManager
+                                    ]))
+                                    ->dehydrated(),
+                            ])
+
                     ]),
                 //Se muestra un historico de lo que se hizo en esta solicitud
                 Section::make('Historial de Cambios')
@@ -102,7 +219,7 @@ class PaidRequestForm
                                 'record' => fn($livewire) => $livewire->getRecord(),
                             ]),
                     ])
-                     ->visible(fn($livewire) => true/* $livewire->record !== null */) // solo en edit/view
+                    ->visible(fn($livewire) => true/* $livewire->record !== null */) // solo en edit/view
                     ->collapsible()
                     ->columnSpanFull(),
             ]);

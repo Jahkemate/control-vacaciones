@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\VacationRequests\Pages;
 
 use App\Filament\Resources\VacationRequests\VacationRequestResource;
+use App\Models\BalanceVacation;
 use App\Models\Employee;
+use App\States\EmployeeStatus;
 use App\States\RequestStatus;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -17,13 +19,6 @@ class CreateVacationRequest extends CreateRecord
     protected static string $resource = VacationRequestResource::class;
 
     public ?RequestStatus $currentAction = null;
-
-    /* protected function getRedirectUrl(): string
-    {
-        // Redirige a la página de lista de la tabla
-        return $this->getResource()::getUrl('index');
-    } */
-
 
     //---------Botones en el formulario en el create------------
     protected function getHeaderActions(): array

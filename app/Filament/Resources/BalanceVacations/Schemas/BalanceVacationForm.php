@@ -28,7 +28,8 @@ class BalanceVacationForm
                             ->columns(1)
                             ->schema([
                                 Select::make('employee_id')
-                                    ->relationship('employee', 'first_name')
+                                    ->relationship('employee', 'first_name', fn($query) => $query
+                                        ->where('employee_status', EmployeeStatus::Active))
                                     ->getOptionLabelFromRecordUsing(
                                         fn($record) =>
                                         $record->first_name . ' ' . $record->last_name
@@ -192,23 +193,33 @@ class BalanceVacationForm
 
         $yearsWorked = Carbon::parse($employee_id->hiring_date)->diffInYears(now());
 
-        return (int) floor($yearsWorked * ($payroll->vacations_days ?? 0));
+        return (int) round($yearsWorked * ($payroll->vacations_days ?? 0));
     }
 
     // Metodo para hacer el calculo de acumulado este año
     // Vacaciones acumuladas este año (proporcional exacta)
-    public static function calculateAccruedThisYear(Employee $employee_id)
+    public static function calculateAccruedThisYear(Employee $employee)
 
     {
-        if (!$employee_id || !$employee_id->hiring_date) return 0;
+        if (!$employee || !$employee->hiring_date) return 0;
 
-        $hiringDate = Carbon::parse($employee_id->hiring_date);
+        $hiringDate = Carbon::parse($employee->hiring_date);
         $today = Carbon::today();
 
-        $daysThisYear = $hiringDate->diffInDays($today) % 365 + 1;
+        // Obtener el aniversario de este año
+        $anniversaryThisYear = $hiringDate->copy()->year($today->year);
 
-        $vacationDays = ($daysThisYear / 30) * 1.83;
+        // Si aún no ha llegado el aniversario, usar el del año pasado
+        if ($today->lt($anniversaryThisYear)) {
+            $anniversaryThisYear->subYear();
+        }
 
-        return (int) floor($vacationDays);
+        // Días desde el último aniversario (equivalente a "YD")
+        $days = $anniversaryThisYear->diffInDays($today);
+
+        // Fórmula tipo Excel
+        $vacationDays = ($days / 30) * 1.83;
+
+        return (int) round($vacationDays);
     }
 }

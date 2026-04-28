@@ -28,7 +28,7 @@ class RequestForCompensationTable
                     ->label('Empleado Solicitante'),
                 TextColumn::make('date_creation')
                     ->label('Fecha de Creacion')
-                    ->date()
+                    ->dateTime()
                     ->sortable(),
                 TextColumn::make('status')
                     ->alignCenter()

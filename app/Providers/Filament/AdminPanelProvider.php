@@ -17,6 +17,8 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -28,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->passwordReset()
             ->colors([
                 'primary' => Color::Amber,
                 'secondary' => Color::Indigo,
@@ -42,8 +45,41 @@ class AdminPanelProvider extends PanelProvider
                 //'warning' => Color::Orange,
                 //'yellow' => Color::Yellow,
             ])
-            //->brandName('Control de Vacaciones')
-            ->brandLogo(asset('images/logotipohvd.webp '))
+            ->brandLogo(
+                fn(): ?HtmlString => Auth::check()
+                    ? new HtmlString('
+                                        <div style="
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 12px;
+                                            height: 100%;
+                                        ">
+                                            <div style="
+                                                background: white;
+                                                padding: 8px 12px;
+                                                border-radius: 12px;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+                                            ">
+                                                <img src="/images/logotipohvd.webp"
+                                                    style="height: 45px; width: auto;">
+                                            </div>
+
+                                            <span style="
+                                                font-weight: 700;
+                                                font-size: 1.2rem;
+                                                color: var(--fi-color-gray-950);
+                                            ">
+                                                CONTROL DE VACACIONES
+                                            </span>
+                                        </div>
+                                    ')
+                    : null
+            )
+            ->brandLogoHeight('2rem')
+            ->homeUrl(false)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -52,7 +88,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
+                //FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -69,6 +105,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s');
+            ->databaseNotificationsPolling('30s')
+            ->globalSearch(false);
     }
 }
