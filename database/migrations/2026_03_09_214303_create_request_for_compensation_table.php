@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('request_for_compensation', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id');
-            $table->dateTime('date_creation');
+            $table->dateTime('date_creation')->nullable();
             $table->integer('total_days')->nullable();
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->date('approval_date')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

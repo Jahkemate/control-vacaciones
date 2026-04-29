@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Support\Icons\Heroicon;
@@ -21,18 +22,22 @@ class UsersTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
-                TextColumn::make('role')
+                TextColumn::make('roles.name')
                     ->label('Rol')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->separator(',')
+                    ->color(fn($state): string => match ($state) {
+                        'super_admin' => 'primary',
                         'employee' => 'info',
                         'admin'    => 'danger',
-                        'manager'  => 'secondary'
+                        'manager'  => 'secondary',
+                        default  =>   'gray'
                     })
-                    ->icon(fn(string $state): Heroicon => match ($state) {
+                    ->icon(fn($state): Heroicon => match ($state) {
                         'employee' => Heroicon::OutlinedUserCircle,
                         'admin' => Heroicon::OutlinedShieldCheck,
-                        'manager' => Heroicon::OutlinedBriefcase
+                        'manager' => Heroicon::OutlinedBriefcase,
+                        default  =>   Heroicon::OutlinedUser
                     })
                     ->searchable(),
                 TextColumn::make('email_verified_at')
@@ -50,10 +55,13 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->label('Archivar')
+                    ->icon(Heroicon::ArchiveBox),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                DeleteBulkAction::make(),
                 ]),
             ]);
     }

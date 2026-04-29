@@ -19,7 +19,8 @@ class DepartmentsTable
                     ->searchable(),
                 TextColumn::make('manager.full_name')
                     ->label('Jefe Departamento')
-                    ->searchable(['first_name', 'last_name']),
+                    ->searchable(['first_name', 'last_name'])
+                    ->alignCenter(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),

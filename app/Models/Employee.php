@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\VacationRequest;
+use App\States\EmployeeStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,12 +26,37 @@ class Employee extends Model
         'payroll_id',
         'user_id'
     ];
-    
+
+    // Para poder usar los colores y los iconos del enum de employee_status
+    protected $casts = [
+        'employee_status' => EmployeeStatus::class,
+    ];
+
     //----------Accesor para mostar el nombre completo----------
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
     }
+
+    // Medodo para la tabla de empleado 
+    public function scopeVisibleToUser($query, $user)
+    {
+        if ($user->hasRole('admin')) {
+            return $query;
+        }
+
+        if ($user->hasRole('manager')) {
+            return $query->where('department_id', $user->employee?->department_id);
+        }
+
+        if ($user->hasRole('employee')) {
+            return $query->where('id', $user->employee?->id);
+        }
+
+        return $query;
+    }
+
+
 
     //---------------------Relaciones----------------------------
     public function department()
@@ -58,11 +84,13 @@ class Employee extends Model
         return $this->hasMany(VacationRequest::class);
     }
 
-    public function paidRequests() {
+    public function paidRequests()
+    {
         return $this->hasMany(PaidRequest::class);
     }
 
-    public function requestForCompensation() {
+    public function requestForCompensation()
+    {
         return $this->hasMany(RequestForCompensation::class);
     }
 }

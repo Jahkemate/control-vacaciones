@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('employee_id');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->string('status');
+            $table->string('status')->nullable();
             //fecha de creacion de solicitud ira en la columna que filamente crea por defecto
             $table->integer('total_business_days')->nullable();
             $table->text('comment')->nullable();

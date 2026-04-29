@@ -34,13 +34,9 @@ class UserForm
                 Section::make('Rol Info')
                     ->columns(1)
                     ->schema([
-                        Select::make('role')
+                        Select::make('roles')
                             ->label('Rol del Usuario')
-                            ->options([
-                                'employee' => 'Empleado',
-                                'admin' => 'Administrador',
-                                'manager' => 'Jefe'
-                            ])
+                            ->relationship('roles', 'name')
                             ->required()
                     ]),
 

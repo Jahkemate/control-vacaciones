@@ -3,15 +3,20 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
     use Notifiable;
+    use HasRoles;
+    use HasPanelShield;
 
     /**
      * The attributes that are mass assignable.
@@ -22,7 +27,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
     ];
 
     /**
@@ -55,7 +59,7 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class); // Se hace relacion con la tabla de empleados
     }
 
-    // Atributo para mostrar el rol en español en el puesto a ala hora de imprimir la solicitud
+    // Atributo para mostrar el rol en español en el puesto al momento de imprimir la solicitud
     public function getRoleLabelAttribute()
     {
         return match ($this->role) {
@@ -69,5 +73,25 @@ class User extends Authenticatable
     public function commentsAdditional()
     {
         return $this->hasMany(RequestComments::class);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super_admin');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function isManager(): bool
+    {
+        return $this->hasRole('manager');
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->hasRole('employee');
     }
 }

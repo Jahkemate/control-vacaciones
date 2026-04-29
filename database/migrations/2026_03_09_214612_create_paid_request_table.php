@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id');
             $table->integer('total_days')->nullable();
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->date('request_date')->nullable();
             $table->text('comment')->nullable();
             $table->integer('paid_accrued')->nullable();

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('balance_vacation', function (Blueprint $table) {
             $table->id();
-            $table->integer('accrued_total');
-            $table->integer('accrued_this_year');
-            $table->integer('used');
-            $table->integer('balance');
+            $table->integer('accrued_total')->nullable();
+            $table->integer('accrued_this_year')->nullable();
+            $table->integer('used')->nullable();
+            $table->integer('balance')->nullable();
             $table->integer('pendings')->nullable();
             $table->string('notes')->nullable();
             $table->integer('employee_id');
