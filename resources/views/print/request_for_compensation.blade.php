@@ -31,7 +31,7 @@
         }
 
         .section-title {
-            background-color: #1f4e79;
+            background-color: #095741;
             color: white;
             padding: 8px 12px;
             font-weight: bold;
@@ -124,7 +124,7 @@
             <div class="row">
                 <div class="label">Cargo:</div>
                 <div class="value">
-                    {{ $record->employee?->user->role_label }} 
+                    {{ $record->employee?->user?->role_label }} 
                 </div>
             </div>
 

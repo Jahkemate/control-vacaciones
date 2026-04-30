@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\VacationRequests\Tables;
 
-use App\Models\Employee;
-use App\Models\User;
 use App\States\RequestStatus;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -85,16 +83,20 @@ class VacationRequestsTable
                 $user = Auth::user();
                 $employee = $user->employee;
 
+
                 $employeeId = $employee?->id;
                 $departmentId = $employee?->department_id;
 
-                // ADMIN → todo menos drafts de otros 
-                if ($user->role === 'admin') {
+
+                // ADMIN → todo menos drafts de otros
+                if ($user->hasRole('admin')) {
                     return $query
                         ->where(function ($q) use ($employeeId) {
 
+
                             // 1. Todo lo que NO es draft
                             $q->where('status', '!=', RequestStatus::Draft);
+
 
                             // 2. Sus propios drafts (si tiene employee)
                             if ($employeeId) {
@@ -107,17 +109,22 @@ class VacationRequestsTable
                         ->orderBy('created_at', 'desc');
                 }
 
+
                 //  MANAGER → su departamento + lo suyo
-                if ($user->role === 'manager' && $employee) {
+                if ($user->hasRole('manager') && $employee) {
                     return $query
                         ->where(function ($q) use ($employeeId, $departmentId) {
 
-                            // 1. Sus propias solicitudes (incluye drafts)
+
+                            // 1. sus propias solicitudes (incluye drafts)
                             if ($employeeId) {
-                                $q->where('employee_id', $employeeId);
+                                $q->where(function ($sub) use ($employeeId) {
+                                    $sub->where('employee_id', $employeeId);
+                                });
                             }
 
-                            // 2. Departamento (sin drafts)
+
+                            // 2. departamento (sin drafts)
                             if ($departmentId) {
                                 $q->orWhere(function ($sub) use ($departmentId) {
                                     $sub->whereHas('employee', function ($emp) use ($departmentId) {
@@ -130,6 +137,7 @@ class VacationRequestsTable
                         ->orderBy('created_at', 'desc');
                 }
 
+
                 // EMPLEADO → solo lo suyo
                 if ($employeeId) {
                     return $query
@@ -137,9 +145,11 @@ class VacationRequestsTable
                         ->orderBy('created_at', 'desc');
                 }
 
-                // fallback 
+
+                // fallback
                 return $query->whereRaw('1 = 0');
             })
+
             ->filters([
                 SelectFilter::make('status')
                     ->label('Filtrar por Estado')
@@ -176,6 +186,7 @@ class VacationRequestsTable
                             ])
                     ),
                 DeleteAction::make()
+                    ->label('Archivar')
                     // Si la solicitud esta rechazada o aprobada o pendiente no la puede eliminar
                     ->disabled(fn($record) => $record
                         ->status === RequestStatus::Rejected ||

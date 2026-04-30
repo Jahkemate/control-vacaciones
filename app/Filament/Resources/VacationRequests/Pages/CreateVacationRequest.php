@@ -1,6 +1,8 @@
 <?php
 
+
 namespace App\Filament\Resources\VacationRequests\Pages;
+
 
 use App\Filament\Resources\VacationRequests\VacationRequestResource;
 use App\Models\BalanceVacation;
@@ -14,11 +16,14 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 
+
 class CreateVacationRequest extends CreateRecord
 {
     protected static string $resource = VacationRequestResource::class;
 
+
     public ?RequestStatus $currentAction = null;
+
 
     //---------Botones en el formulario en el create------------
     protected function getHeaderActions(): array
@@ -31,10 +36,11 @@ class CreateVacationRequest extends CreateRecord
                 ->modalDescription('¿ Desea guardar como Borrador ?')
                 ->modalSubmitActionLabel('Si, Guardar')
                 ->color('save')
-                ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['employee', 'admin', 'manager']))
                 ->action(
                     fn() => $this->saveAs(RequestStatus::Draft),
                 ),
+
 
             Action::make('pending')
                 ->label('Enviar solicitud')
@@ -44,10 +50,11 @@ class CreateVacationRequest extends CreateRecord
                 ->modalSubmitActionLabel('Si, Enviar')
                 ->modalIcon(Heroicon::OutlinedPaperAirplane)
                 ->color('send')
-                ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['employee', 'admin', 'manager']))
                 ->disabled()
                 ->action(
                     fn() => $this->saveAs(RequestStatus::Pending),
+
 
                 ),
             //--------------------Boton de cancelar solicitud--------------------------------------------
@@ -59,10 +66,12 @@ class CreateVacationRequest extends CreateRecord
         ];
     }
 
+
     protected function getFormActions(): array
     {
         return [];
     }
+
 
     //Guarda el estado de la solicitud
     protected function saveAs(RequestStatus $state)
@@ -78,15 +87,21 @@ class CreateVacationRequest extends CreateRecord
         }
 
 
+
+
         $data = $this->form->getState();
+
 
         $data['status'] = $state;
         $data['employee_id'] = Auth::user()?->employee?->id;
         $this->record = static::getModel()::create($data);
 
+
         $this->redirect($this->getRedirectUrl());
     }
     //-------------------------------------------------------------
+
+
 
 
 }

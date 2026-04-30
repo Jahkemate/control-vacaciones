@@ -22,7 +22,7 @@ class Department extends Model
     {
         return $this->hasMany(Employee::class)
             ->whereHas('user', function ($query) {
-                $query->where('role', 'manager');
+                $query->role('manager');
             });
     }
 }

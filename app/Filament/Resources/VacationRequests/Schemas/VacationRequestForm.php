@@ -17,7 +17,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 
-use function Symfony\Component\Clock\now;
 
 class VacationRequestForm
 {

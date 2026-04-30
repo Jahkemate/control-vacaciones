@@ -1,6 +1,8 @@
 <?php
 
+
 namespace App\Filament\Resources\RequestForCompensation\Pages;
+
 
 use App\Filament\Resources\RequestForCompensation\RequestForCompensationResource;
 use App\Mail\CompensationRequest\ApprovedCompensationRequest;
@@ -16,6 +18,7 @@ use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class EditRequestForCompensation extends EditRecord
 {
@@ -31,7 +34,7 @@ class EditRequestForCompensation extends EditRecord
                 ->modalDescription('¿Desea aprobar esta solicitud?')
                 ->modalSubmitActionLabel('Si, Aprobar')
                 ->color('secondary')
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager']) && //
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager']) && //
                     ! in_array($this->record->status, [
                         RequestStatus::Approved,
                         RequestStatus::Rejected,
@@ -40,15 +43,18 @@ class EditRequestForCompensation extends EditRecord
                 ->disabled(function () {
                     $user = Auth::user();
 
+
                     // Si es admin, solo puede aprobar cuando manager ya aprobó
-                    if ($user->role === 'admin') {
+                    if ($user->hasRole('admin')) {
                         return $this->record->status !== RequestStatus::ApprovedByManager;
                     }
 
+
                     // Manager puede aprobar cuando está pendiente
-                    if ($user->role === 'manager') {
+                    if ($user->hasRole('manager')) {
                         return $this->record->status !== RequestStatus::Pending;
                     }
+
 
                     return true;
                 })
@@ -56,8 +62,9 @@ class EditRequestForCompensation extends EditRecord
                     $user = Auth::user();
                     $currentStatus = $this->record->status;
 
+
                     // Jefe aprueba
-                    if ($user->role === 'manager') {
+                    if ($user->hasRole('manager')) {
                         if ($currentStatus === RequestStatus::ApprovedByRRHH) {
                             $this->record->status = RequestStatus::Approved; // ambos aprobaron
                         } elseif ($currentStatus === RequestStatus::Pending) {
@@ -65,8 +72,9 @@ class EditRequestForCompensation extends EditRecord
                         }
                     }
 
+
                     // Admin aprueba
-                    if ($user->role === 'admin') {
+                    if ($user->hasRole('admin')) {
                         if ($currentStatus === RequestStatus::ApprovedByManager) {
                             $this->record->status = RequestStatus::Approved; // ambos aprobaron
                         } elseif ($currentStatus === RequestStatus::Pending) {
@@ -74,13 +82,16 @@ class EditRequestForCompensation extends EditRecord
                         }
                     }
 
+
                     // Si la solicitud se aprueba completamente, se establece la fecha de aprobación
                     if ($this->record->status === RequestStatus::Approved) {
                         $this->record->approval_date = now();
                     }
 
+
                     $this->saveAs($this->record->status);
                     $employeeUser = $this->record->employee?->user;
+
 
                     if ($employeeUser) {
                         Notification::make()
@@ -94,9 +105,11 @@ class EditRequestForCompensation extends EditRecord
                             ->sendToDatabase([$user, $employeeUser]);
                     }
 
+
                     $this->redirect($this->getRedirectUrl());
                 }),
             //------------------------------------------------------------------------
+
 
             //------------------Boton de Rechazar-------------------------------------
             Action::make('rejected')
@@ -113,19 +126,30 @@ class EditRequestForCompensation extends EditRecord
                         ->required(),
                 ])
                 ->modalSubmitActionLabel('Rechazar')
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager']) &&
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Approved,
                         RequestStatus::Rejected,
-                        //RequestStatus::ApprovedByManager,
                         RequestStatus::Draft
                     ]))
-                ->disabled(fn() =>
-                in_array($this->record->status, [
-                    RequestStatus::Approved,
-                    RequestStatus::Rejected,
-                    //RequestStatus::ApprovedByManager,
-                ]))
+                ->disabled(function () {
+                    $user = Auth::user();
+
+
+                    // Si es admin, solo puede aprobar cuando manager ya aprobó
+                    if ($user->hasRole('admin')) {
+                        return $this->record->status !== RequestStatus::ApprovedByManager;
+                    }
+
+
+                    // Manager puede aprobar cuando está pendiente
+                    if ($user->hasRole('manager')) {
+                        return $this->record->status !== RequestStatus::Pending;
+                    }
+
+
+                    return true;
+                })
                 ->action(function (array $data, $record) {
                     $this->saveAs(RequestStatus::Rejected);
                     $record->commentsAdditional()->create([
@@ -136,6 +160,7 @@ class EditRequestForCompensation extends EditRecord
                 }),
             //--------------------------------------------------------------------------
 
+
             //--------------------Boton de Guardar como Borrador------------------------
             Action::make('draft')
                 ->label('Guardar como Borrador')
@@ -145,14 +170,13 @@ class EditRequestForCompensation extends EditRecord
                 ->modalIcon(Heroicon::OutlinedPencil)
                 ->color('save')
                 ->icon(Heroicon::DocumentText)
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                         RequestStatus::Rejected,
                         RequestStatus::Approved,
                         RequestStatus::ApprovedByManager,
                         RequestStatus::ApprovedByRRHH,
-                        RequestStatus::Draft,
                     ]))
                 ->disabled(fn() =>
                 in_array($this->record->status, [
@@ -161,8 +185,9 @@ class EditRequestForCompensation extends EditRecord
                     RequestStatus::ApprovedByManager,
                     RequestStatus::ApprovedByRRHH,
                 ]))
-                ->action(fn() => $this->saveAs(RequestStatus::Draft)),
+                ->action(fn() => $this->saveDraft(RequestStatus::Draft)),
             //---------------------------------------------------------------------------
+
 
             //--------------------Boton de Enviar----------------------------------------
             Action::make('pending')
@@ -173,7 +198,7 @@ class EditRequestForCompensation extends EditRecord
                 ->modalSubmitActionLabel('Si, Enviar')
                 ->modalIcon(Heroicon::OutlinedPaperAirplane)
                 ->color('send')
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                         RequestStatus::Rejected,
@@ -191,18 +216,19 @@ class EditRequestForCompensation extends EditRecord
                 }),
             //---------------------------------------------------------------------------
 
+
             //--------------------Boton de Imprimir Solicitud----------------------------------------
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
                 ->icon(Heroicon::Printer)
-                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                         RequestStatus::Rejected,
                         RequestStatus::ApprovedByManager
                     ]))
-                ->url(fn($record) => route('print.compensation', [
+                ->url(fn($record) =>  URL::signedRoute('print.compensation', [
                     'id' => $record->id
                 ]))
                 ->openUrlInNewTab(),
@@ -220,22 +246,40 @@ class EditRequestForCompensation extends EditRecord
         return [];
     }
 
+     protected function saveDraft(RequestStatus $status): void
+    {
+        $data = $this->form->getState();
+
+
+        $data['status'] = $status;
+
+
+        $this->record->update($data);
+    }
+
+
     //Guarda el estado de la solicitud
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
         $oldStatus = $this->record->getOriginal('status');
-       
+
+
         // Se asignan valores antes de guardarse
         $this->record->status = $status;
+
 
         // Logica para el calculo del balance de compensacion
         if ($status === RequestStatus::Approved) {
 
+
             $accrued = $this->record->accrued_compensation ?? 0;
+
 
             $used = $this->record->total_days ?? 0;
 
+
             $this->record->used = $used;
+
 
             $this->record->total_compensation = $accrued - $used;
 
@@ -243,15 +287,15 @@ class EditRequestForCompensation extends EditRecord
             $this->record->approval_date = now();
         }
 
-
         // Se guarda todo
         $this->record->save();
-
 
         // SOLO si cambió el estado, se manda correo a los diferentes destinatarios
         if ($oldStatus !== $status) {
 
+
             $email = $this->record->employee?->user?->email;
+
 
             if (!$email) {
                 logger('No email found for employee user');
@@ -260,12 +304,15 @@ class EditRequestForCompensation extends EditRecord
             //Envia correo al jefe del departamento
             if ($status === RequestStatus::Pending) {
 
-                $manager = User::where('role', 'manager')?->first();
+
+                $manager = User::role('manager')?->first();
+
 
                 if ($manager?->email) {
                     Mail::to($manager->email)
                         ->send(new PendingCompensationRequest($this->record, Auth::user()));
                 }
+
 
                 Notification::make()
                     ->title('Solicitud Pendiente')
@@ -284,14 +331,18 @@ class EditRequestForCompensation extends EditRecord
                     ->sendToDatabase($manager);
             }
 
+
             if ($status === RequestStatus::Approved) {
 
+
                 $employee = $this->record->employee?->user;
+
 
                 if ($employee?->email) {
                     Mail::to($employee->email)
                         ->send(new ApprovedCompensationRequest($this->record, Auth::user()));
                 }
+
 
                 Notification::make()
                     ->title('Solicitud Aprobada')
@@ -310,9 +361,12 @@ class EditRequestForCompensation extends EditRecord
                     ->sendToDatabase($employee);
             }
 
+
             if ($status === RequestStatus::ApprovedByManager) {
 
-                $admins = User::where('role', 'admin')->get();
+
+                $admins = User::role('admin')->get();
+
 
                 foreach ($admins as $admin) {
                     Mail::to($admin?->email)
@@ -335,17 +389,20 @@ class EditRequestForCompensation extends EditRecord
                     ->sendToDatabase($admins);
             }
 
+
             if ($status === RequestStatus::Rejected) {
                 $rejectedUser = $this->record->employee?->user;
+
 
                 if ($rejectedUser) {
                     Mail::to($rejectedUser->email)
                         ->send(new RejectedCompensationRequest($this->record, Auth::user()));
                 }
 
+
                 Notification::make()
                     ->title('Solicitud Rechazada')
-                    ->body('Tu Solicitud por Compensacón fue Rechazada') 
+                    ->body('Tu Solicitud por Compensacón fue Rechazada')
                     ->iconColor('danger')
                     ->icon(Heroicon::OutlinedXCircle)
                     ->actions([
@@ -363,56 +420,54 @@ class EditRequestForCompensation extends EditRecord
     }
     //------------------------------------------------------
 
+
     // Esto es para evitar que se puedea editar una solicitud en estado diferente a borrador
     protected function beforeFill(): void
     {
         $user = Auth::user();
 
-        if (in_array($user->role, ['admin', 'manager'])) {
-            if ($this->record->status === RequestStatus::Pending || $this->record->status === RequestStatus::ApprovedByManager) {
+
+        // admins y managers pueden editar estados específicos
+        if ($user->hasAnyRole(['admin', 'manager'])) {
+            if (
+                $this->record->status === RequestStatus::Pending ||
+                $this->record->status === RequestStatus::ApprovedByManager
+            ) {
                 return;
             }
-        };
-        // Comprobamos el estado de la solicitud
-        switch ($this->record->status) {
-            case RequestStatus::Draft:
-                // Si es borrador, no hace nada
-                break;
+        }
 
-            // Si es Rechazada se mostrara una notificacion
-            case RequestStatus::Rejected:
-                Notification::make()
+
+        //  bloquear edición si NO es borrador
+        if ($this->record->status !== RequestStatus::Draft) {
+
+
+            match ($this->record->status) {
+                RequestStatus::Rejected => Notification::make()
                     ->title('Esta solicitud ha sido rechazada')
                     ->body('Las solicitudes rechazadas no pueden ser editadas.')
                     ->color('danger')
                     ->icon(Heroicon::OutlinedXCircle)
-                    ->send();
-                //$this->redirect($this->getRedirectUrl());
-                break;
+                    ->send(),
 
-            case RequestStatus::Approved: // Aprobada
-                Notification::make()
+
+                RequestStatus::Approved => Notification::make()
                     ->title('Esta solicitud ya fue aprobada')
                     ->body('Las solicitudes aprobadas no pueden ser editadas.')
                     ->color('success')
                     ->icon(Heroicon::OutlinedCheckCircle)
-                    ->send();
-                //$this->redirect($this->getRedirectUrl());
-                break;
+                    ->send(),
 
-            default:
-                // Para cualquier otro estado que no sea borrador
-                Notification::make()
-                    ->title('No puedes editar una solicitud Enviada')
+
+                default => Notification::make()
+                    ->title('No puedes editar esta solicitud')
                     ->body('Solo las solicitudes en estado de borrador pueden ser editadas.')
-                    ->color('send')
+                    ->color('warning')
                     ->icon(Heroicon::OutlinedExclamationCircle)
-                    ->send();
-                //$this->redirect($this->getRedirectUrl());
-                break;
+                    ->send(),
+            };
         }
     }
-
     //-----------------------------------------------------------------
     protected function getRedirectUrl(): string
     {

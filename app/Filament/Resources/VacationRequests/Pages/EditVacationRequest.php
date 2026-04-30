@@ -1,6 +1,8 @@
 <?php
 
+
 namespace App\Filament\Resources\VacationRequests\Pages;
+
 
 use App\Filament\Resources\VacationRequests\VacationRequestResource;
 use App\Mail\VacationRequest\ApprovedManagerRequest;
@@ -17,10 +19,12 @@ use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class EditVacationRequest extends EditRecord
 {
     protected static string $resource = VacationRequestResource::class;
+
 
     protected function getHeaderActions(): array
     {
@@ -33,24 +37,22 @@ class EditVacationRequest extends EditRecord
                 ->modalSubmitActionLabel('Si, Aprobar')
                 ->color('secondary')
                 ->icon(Heroicon::CheckBadge)
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager']) && //
-                    ! in_array($this->record->status, [
-                        RequestStatus::Approved,
-                        RequestStatus::Rejected,
-                        RequestStatus::Draft
-                    ]))
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager']))
                 ->disabled(function () {
                     $user = Auth::user();
 
+
                     // Si es admin, solo puede aprobar cuando manager ya aprobó
-                    if ($user->role === 'admin') {
+                    if ($user->hasRole('admin')) {
                         return $this->record->status !== RequestStatus::ApprovedByManager;
                     }
 
+
                     // Manager puede aprobar cuando está pendiente
-                    if ($user->role === 'manager') {
+                    if ($user->hasRole('manager')) {
                         return $this->record->status !== RequestStatus::Pending;
                     }
+
 
                     return true;
                 })
@@ -58,8 +60,9 @@ class EditVacationRequest extends EditRecord
                     $user = Auth::user();
                     $currentStatus = $this->record->status;
 
+
                     // Jefe aprueba
-                    if ($user->role === 'manager') {
+                    if ($user->hasRole('manager')) {
                         if ($currentStatus === RequestStatus::ApprovedByRRHH) {
                             $this->record->status = RequestStatus::Approved; // ambos aprobaron
                         } elseif ($currentStatus === RequestStatus::Pending) {
@@ -67,8 +70,9 @@ class EditVacationRequest extends EditRecord
                         }
                     }
 
+
                     // Admin aprueba
-                    if ($user->role === 'admin') {
+                    if ($user->hasRole('admin')) {
                         if ($currentStatus === RequestStatus::ApprovedByManager) {
                             $this->record->status = RequestStatus::Approved; // ambos aprobaron
                         } elseif ($currentStatus === RequestStatus::Pending) {
@@ -76,9 +80,12 @@ class EditVacationRequest extends EditRecord
                         }
                     }
 
+
                     $this->saveAs($this->record->status);
 
+
                     $employeeUser = $this->record->employee?->user;
+
 
                     if ($employeeUser) {
                         Notification::make()
@@ -93,9 +100,12 @@ class EditVacationRequest extends EditRecord
                     }
 
 
+
+
                     $this->redirect($this->getRedirectUrl());
                 }),
             //------------------------------------------------------------------------
+
 
             //------------------Boton de Rechazar-------------------------------------
             Action::make('rejected')
@@ -112,29 +122,32 @@ class EditVacationRequest extends EditRecord
                         ->required(),
                 ])
                 ->modalSubmitActionLabel('Rechazar')
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager']) &&
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Approved,
                         RequestStatus::Rejected,
-                        //RequestStatus::ApprovedByManager,
                         RequestStatus::Draft
                     ]))
                 ->disabled(function () {
                     $user = Auth::user();
 
+
                     // Si es admin, solo puede aprobar cuando manager ya aprobó
-                    if ($user->role === 'admin') {
+                    if ($user->hasRole('admin')) {
                         return $this->record->status !== RequestStatus::ApprovedByManager;
                     }
 
+
                     // Manager puede aprobar cuando está pendiente
-                    if ($user->role === 'manager') {
+                    if ($user->hasRole('manager')) {
                         return $this->record->status !== RequestStatus::Pending;
                     }
+
 
                     return true;
                 })
                 ->action(function (array $data, $record) {
+
 
                     $this->saveAs(RequestStatus::Rejected);
                     $record->commentsAdditional()->create([
@@ -145,6 +158,7 @@ class EditVacationRequest extends EditRecord
                 }),
             //--------------------------------------------------------------------------
 
+
             //--------------------Boton de Guardar como Borrador------------------------
             Action::make('draft')
                 ->label('Guardar como Borrador')
@@ -154,14 +168,13 @@ class EditVacationRequest extends EditRecord
                 ->modalSubmitActionLabel('Si, Guardar')
                 ->modalIcon(Heroicon::OutlinedPencil)
                 ->color('save')
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                         RequestStatus::Rejected,
                         RequestStatus::Approved,
                         RequestStatus::ApprovedByManager,
                         RequestStatus::ApprovedByRRHH,
-                        RequestStatus::Draft,
                     ]))
                 ->disabled(fn() =>
                 in_array($this->record->status, [
@@ -173,6 +186,7 @@ class EditVacationRequest extends EditRecord
                 ->action(fn() => $this->saveDraft(RequestStatus::Draft)),
             //---------------------------------------------------------------------------
 
+
             //--------------------Boton de Enviar----------------------------------------
             Action::make('pending')
                 ->label('Enviar Solicitud')
@@ -182,7 +196,7 @@ class EditVacationRequest extends EditRecord
                 ->modalSubmitActionLabel('Si, Enviar')
                 ->modalIcon(Heroicon::OutlinedPaperAirplane)
                 ->color('send')
-                ->visible(fn() => in_array(Auth::user()?->role, ['admin', 'manager', 'employee']) &&
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                         RequestStatus::Rejected,
@@ -200,17 +214,18 @@ class EditVacationRequest extends EditRecord
                 }),
             //---------------------------------------------------------------------------
 
+
             //--------------------Boton de Imprimir Solicitud----------------------------------------
             Action::make('print')
                 ->label('Imprimir Solicitud')
                 ->color('primary')
                 ->icon(Heroicon::Printer)
-                ->visible(fn() => in_array(Auth::user()?->role, ['manager', 'employee', 'admin']) &&
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['admin', 'manager', 'employee']) &&
                     ! in_array($this->record->status, [
                         RequestStatus::Pending,
                         RequestStatus::Rejected
                     ]))
-                ->url(fn($record) => route('print.vacation', [
+                ->url(fn($record) => URL::signedRoute('print.vacation', [
                     'id' => $record->id
                 ]))
                 ->openUrlInNewTab(),
@@ -228,30 +243,38 @@ class EditVacationRequest extends EditRecord
         return [];
     }
 
+
     //----------------------Funcion pero solo para guardar como borrador--------------------------
     protected function saveDraft(RequestStatus $status): void
     {
-        $this->record->update([
-            'status' => $status,
-        ]);
+        $data = $this->form->getState();
 
-        $this->record->save();
+
+        $data['status'] = $status;
+
+
+        $this->record->update($data);
     }
     //---------------------------------------------------------------------------------------------
     //Garda el estado de la solicitud y envia los correos correspondientes
     protected function saveAs(RequestStatus $status, $additional_comment = null)
     {
+        //$user = Auth::user();
         $oldStatus = $this->record->getOriginal('status');
+
 
         $this->record->update([
             'status' => $status,
             'additional_comment' => $additional_comment,
         ]);
 
+
         // SOLO si cambió el estado, se manda correo a los diferentes destinatarios
         if ($oldStatus !== $status) {
 
+
             $email = $this->record->employee?->user?->email;
+
 
             if (!$email) {
                 logger('No email found for employee user');
@@ -261,7 +284,9 @@ class EditVacationRequest extends EditRecord
             //Envia correo al jefe del departamento
             if ($status === RequestStatus::Pending) {
 
-                $manager = User::where('role', 'manager')?->first();
+
+                $manager = User::role('manager')?->first();
+
 
                 if ($manager?->email) {
                     Mail::to($manager->email)
@@ -287,13 +312,16 @@ class EditVacationRequest extends EditRecord
             //----------NOTIFICACION CUANDO ES APROBADA-------------------------------------------
             if ($status === RequestStatus::Approved) {
 
+
                 $employee = $this->record->employee?->user;
+
 
                 // Esto envia notificacion por correo
                 if ($employee?->email) {
                     Mail::to($employee->email)
                         ->send(new ApprovedRequest($this->record, Auth::user()));
                 }
+
 
                 // Esto envia la notificacion en la aplicacion
                 Notification::make()
@@ -314,15 +342,19 @@ class EditVacationRequest extends EditRecord
             }
             //---------------------------------------------------------------------------------------------------------
 
+
             //----------------------------NOTIFICACION CUANDO ES APROBADA POR JEFE-------------------------------------
             if ($status === RequestStatus::ApprovedByManager) {
 
-                $admins = User::where('role', 'admin')->get();
+
+                $admins = User::role('admin')->get();
+
 
                 foreach ($admins as $admin) {
                     Mail::to($admin?->email)
                         ->send(new ApprovedManagerRequest($this->record, Auth::user()));
                 }
+
 
                 Notification::make()
                     ->title('Solicitud aprobada por Jefe')
@@ -342,14 +374,17 @@ class EditVacationRequest extends EditRecord
             }
             //-----------------------------------------------------------------------------------------------------------
 
+
             //-----------------------------NOTIFICACION CUANDO ES RECHAZADA----------------------------------------------
             if ($status === RequestStatus::Rejected) {
                 $rejected = $this->record->employee?->user;
+
 
                 if ($rejected?->email) {
                     Mail::to($rejected->email)
                         ->send(new RejectedRequest($this->record, Auth::user()));
                 }
+
 
                 Notification::make()
                     ->title('Solicitud Rechazada')
@@ -372,54 +407,56 @@ class EditVacationRequest extends EditRecord
     }
     //----------------------------------------------------------------------------------------------
 
+
     // Esto es para evitar que se puedea editar una solicitud en estado diferente a borrador y envie una notificacio al respecto
     protected function beforeFill(): void
     {
         $user = Auth::user();
 
-        if (in_array($user->role, ['admin', 'manager'])) {
-            if ($this->record->status === RequestStatus::Pending || $this->record->status === RequestStatus::ApprovedByManager) {
+
+        // admins y managers pueden editar estados específicos
+        if ($user->hasAnyRole(['admin', 'manager'])) {
+            if (
+                $this->record->status === RequestStatus::Pending ||
+                $this->record->status === RequestStatus::ApprovedByManager
+            ) {
                 return;
             }
-        };
-        // Comprobamos el estado de la solicitud
-        switch ($this->record->status) {
-            case RequestStatus::Draft:
-                // Si es borrador, entra al edit.
-                break;
+        }
 
-            case RequestStatus::Rejected: // Rechazada
-                Notification::make()
+
+        //  bloquear edición si NO es borrador
+        if ($this->record->status !== RequestStatus::Draft) {
+
+
+            match ($this->record->status) {
+                RequestStatus::Rejected => Notification::make()
                     ->title('Esta solicitud ha sido rechazada')
                     ->body('Las solicitudes rechazadas no pueden ser editadas.')
                     ->color('danger')
                     ->icon(Heroicon::OutlinedXCircle)
-                    ->send();
-                //$this->redirect($this->getRedirectUrl());
-                break;
+                    ->send(),
 
-            case RequestStatus::Approved: // Aprobada
-                Notification::make()
+
+                RequestStatus::Approved => Notification::make()
                     ->title('Esta solicitud ya fue aprobada')
                     ->body('Las solicitudes aprobadas no pueden ser editadas.')
                     ->color('success')
                     ->icon(Heroicon::OutlinedCheckCircle)
-                    ->send();
-                //$this->redirect($this->getRedirectUrl());
-                break;
+                    ->send(),
 
-            default:
-                // Para cualquier otro estado que no sea borrador
-                Notification::make()
-                    ->title('No puedes editar una solicitud Enviada')
+
+                default => Notification::make()
+                    ->title('No puedes editar esta solicitud')
                     ->body('Solo las solicitudes en estado de borrador pueden ser editadas.')
-                    ->color('send')
+                    ->color('warning')
                     ->icon(Heroicon::OutlinedExclamationCircle)
-                    ->send();
-                //$this->redirect($this->getRedirectUrl());
-                break;
+                    ->send(),
+            };
+
         }
     }
+
 
     //-----------------------------------------------------------------
     protected function getRedirectUrl(): string

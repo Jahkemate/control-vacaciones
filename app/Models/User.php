@@ -62,36 +62,25 @@ class User extends Authenticatable
     // Atributo para mostrar el rol en español en el puesto al momento de imprimir la solicitud
     public function getRoleLabelAttribute()
     {
-        return match ($this->role) {
+        $role = $this->getRoleNames()->first();
+
+        return match ($role) {
             'admin' => 'Administrador',
             'manager' => 'Jefe',
             'employee' => 'Empleado',
-            default => $this->role,
+            default => $role ?? 'Sin rol',
         };
+    }
+
+    // helper pra traer los roles del usuario
+    public function hasAnyAppRole(array $roles): bool
+    {
+        // compatibilidad: primero revisa Spatie
+        return $this->hasAnyRole($roles);
     }
 
     public function commentsAdditional()
     {
         return $this->hasMany(RequestComments::class);
-    }
-
-    public function isSuperAdmin(): bool
-    {
-        return $this->hasRole('super_admin');
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->hasRole('admin');
-    }
-
-    public function isManager(): bool
-    {
-        return $this->hasRole('manager');
-    }
-
-    public function isEmployee(): bool
-    {
-        return $this->hasRole('employee');
     }
 }

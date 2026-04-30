@@ -59,22 +59,38 @@ class RequestForCompensation extends Model
     // ----------------------- Logica del filtro que se muestra en la parte de arriba de los list --------------------------
     public function scopeVisibleFor($query, \App\Models\User $user)
     {
-        if ($user->role === 'admin') {
+        // ADMIN → todo
+        if ($user->hasRole('admin')) {
             return $query;
         }
 
-        $employeeId = $user->employee?->id;
 
-        if ($user->role === 'manager') {
-            $employeeIds = \App\Models\Employee::where('department_id', $user->employee->department_id)
+        $employee = $user->employee;
+
+
+        // si no tiene employee, no ve nada
+        if (! $employee) {
+            return $query->whereRaw('1 = 0');
+        }
+
+
+        // MANAGER → departamento + lo suyo
+        if ($user->hasRole('manager')) {
+
+
+            $employeeIds = Employee::where('department_id', $employee->department_id)
                 ->pluck('id')
-                ->push($employeeId);
+                ->push($employee->id);
+
 
             return $query->whereIn('employee_id', $employeeIds);
         }
 
-        return $query->where('employee_id', $employeeId);
+
+        // EMPLOYEE → solo lo suyo
+        return $query->where('employee_id', $employee->id);
     }
     //-------------------------------------------------------------------------------------------------------------------------
+
 
 }

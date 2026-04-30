@@ -1,6 +1,8 @@
 <?php
 
+
 namespace App\Filament\Resources\RequestForCompensation\Pages;
+
 
 use App\Filament\Resources\RequestForCompensation\RequestForCompensationResource;
 use App\Models\RequestForCompensation;
@@ -12,9 +14,11 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
+
 class ListRequestForCompensation extends ListRecords
 {
     protected static string $resource = RequestForCompensationResource::class;
+
 
     protected function getHeaderActions(): array
     {
@@ -25,42 +29,106 @@ class ListRequestForCompensation extends ListRecords
         ];
     }
 
+
     //----------------------Filtri en la part de arriba de la tabla--------------------------------
     public function getTabs(): array
     {
-        $employeeId = Auth::user()->employee?->id;
+
+
         return [
             'all' => Tab::make()
                 ->label('Todas')
                 ->icon(Heroicon::ListBullet)
-                ->badge(fn () => RequestForCompensation::visibleFor(Auth::user())->count()),
+                ->badge(fn() => RequestForCompensation::visibleFor(Auth::user())->count())
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    RequestForCompensation::visibleFor(Auth::user())
+                ),
+
+
             'draft' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', RequestStatus::Draft)->where('employee_id', $employeeId))
                 ->label('Borrador')
                 ->icon(Heroicon::PencilSquare)
-                ->badge(fn() => RequestForCompensation::where('employee_id', $employeeId)->where('status', RequestStatus::Draft)->count())
-                ->badgeColor('gray'),
+                ->badge(
+                    fn() => RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::Draft)
+                        ->count()
+                )
+                ->badgeColor('gray')
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::Draft)
+                ),
+
+
             'pending' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', RequestStatus::Pending))
                 ->label('Pendientes')
                 ->icon(Heroicon::Clock)
-                ->badge(fn() => RequestForCompensation::visibleFor(Auth::user())->where('status', RequestStatus::Pending)->count())
-                ->badgeColor('primary'),
+                ->badge(
+                    fn() => RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::Pending)
+                        ->count()
+                )
+                ->badgeColor('primary')
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::Pending)
+                ),
+
+
             'approved' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', RequestStatus::Approved))
                 ->label('Aprobadas')
                 ->icon(Heroicon::CheckCircle)
-                ->badge(fn() => RequestForCompensation::visibleFor(Auth::user())->where('status', RequestStatus::Approved)->count())
-                ->badgeColor('success'),
+                ->badge(
+                    fn() => RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::Approved)
+                        ->count()
+                )
+                ->badgeColor('success')
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::Approved)
+                ),
+
+            'approved_by_manager' => Tab::make()
+                ->label('Aprobadas por Jefe')
+                ->icon(Heroicon::CheckCircle)
+                ->badge(
+                    fn() => RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::ApprovedByManager)
+                        ->count()
+                )
+                ->badgeColor('send')
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::ApprovedByManager)
+                ),
+
+
             'rejected' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', RequestStatus::Rejected))
                 ->label('Rechazadas')
                 ->icon(Heroicon::XCircle)
-                ->badge(fn() => RequestForCompensation::visibleFor(Auth::user())->where('status', RequestStatus::Rejected)->count())
-                ->badgeColor('danger'),
+                ->badge(
+                    fn() => RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::Rejected)
+                        ->count()
+                )
+                ->badgeColor('danger')
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
+                    RequestForCompensation::visibleFor(Auth::user())
+                        ->where('status', RequestStatus::Rejected)
+                ),
+
+
         ];
     }
     //--------------------------------------------------------------------------------------------------------
+
 
     //----------------------- Se trae la logica del modelo ----------------------------------
     public static function getEloquentQuery(): Builder
@@ -70,5 +138,5 @@ class ListRequestForCompensation extends ListRecords
     }
     //--------------------------------------------------------------------------------------------------------
 
-}
 
+}

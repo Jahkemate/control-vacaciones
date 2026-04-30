@@ -47,7 +47,7 @@ class ApprovedManagerCompensationRequest extends Mailable
                 'compensation_request' => $this->compensation_request,
                 'user' => $this->user,
                 'url' => route('filament.admin.resources.request-for-compensation.edit', $this->compensation_request),
-                //'print' => route('print.vacation', $this->compensation_request->id)
+                'print' => route('print.compensation', $this->compensation_request->id)
             ],
         );
     }

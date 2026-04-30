@@ -9,6 +9,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -78,10 +79,11 @@ class EmployeesTable
                 EditAction::make()
                     ->label('Editar'),
                 DeleteAction::make()
-                    ->label('Borrar')
-                    ->modalHeading('Borrar Empleado')
+                    ->label('Archivar')
+                    ->icon(Heroicon::ArchiveBox)
+                    ->modalHeading('Archivar Empleado')
                     ->modalDescription('Estas seguro/a que quieres borrar este Empleado')
-                    ->modalSubmitActionLabel('Si, borralo'),
+                    ->modalSubmitActionLabel('Si, archivar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -9,6 +9,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -88,10 +89,11 @@ class BalanceVacationsTable
                 EditAction::make()
                     ->label('Editar'),
                 DeleteAction::make()
-                    ->label('Borrar')
-                    ->modalHeading('Borrar Balance')
+                    ->label('Archivar')
+                    ->icon(Heroicon::ArchiveBox)
+                    ->modalHeading('Archivar Balance')
                     ->modalDescription('Estas seguro/a que quieres borrar este balance ')
-                    ->modalSubmitActionLabel('Si, borralo'),
+                    ->modalSubmitActionLabel('Si, archivar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

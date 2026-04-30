@@ -52,14 +52,8 @@ class PaidRequestForm
                                     ->label('Fecha de Creacion')
                                     ->readOnly()
                                     ->default(now())
-                                    ->disabled(fn($get) => in_array($get('status'), [
-                                        RequestStatus::Approved,
-                                        RequestStatus::Rejected,
-                                        RequestStatus::Pending,
-                                        RequestStatus::ApprovedByManager
-                                    ]))
-                                    ->dehydrated()
                                     ->required(),
+                                    
                                 TextInput::make('days_to_compensate')
                                     ->label('Dias a Compensar')
                                     ->helperText('Dias habiles')

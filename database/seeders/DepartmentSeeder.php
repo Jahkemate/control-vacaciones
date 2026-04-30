@@ -77,10 +77,6 @@ class DepartmentSeeder extends Seeder
         $department->save();
 
         $department = new Department();
-        $department->name = 'Recursos Humanos';
-        $department->save();
-
-        $department = new Department();
         $department->name = 'Registros Medicos';
         $department->save();
 

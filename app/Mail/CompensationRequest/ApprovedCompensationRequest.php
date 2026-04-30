@@ -31,7 +31,7 @@ class ApprovedCompensationRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Approved Compensation Request #' . $this->compensation_request->id,
+            subject: 'Su Solicitud por Compensacion ha sido Aporbada #' . $this->compensation_request->id,
         );
     }
 
@@ -46,7 +46,7 @@ class ApprovedCompensationRequest extends Mailable
                 'compensation_request' => $this->compensation_request,
                 'user' => $this->user,
                 'url' => route('filament.admin.resources.request-for-compensation.edit', $this->compensation_request),
-                //'print' => route('print.vacation', $this->compensation_request->id)
+                'print' => route('print.compensation', $this->compensation_request->id)
             ],
         );
     }

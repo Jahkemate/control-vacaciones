@@ -1,6 +1,8 @@
 <?php
 
+
 namespace App\Filament\Resources\RequestForCompensation\Pages;
+
 
 use App\Filament\Resources\RequestForCompensation\RequestForCompensationResource;
 use App\States\RequestStatus;
@@ -9,11 +11,14 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 
+
 class CreateRequestForCompensation extends CreateRecord
 {
     protected static string $resource = RequestForCompensationResource::class;
 
-     public ?RequestStatus $currentAction = null; 
+
+     public ?RequestStatus $currentAction = null;
+
 
      protected function getHeaderActions(): array
     {
@@ -25,10 +30,11 @@ class CreateRequestForCompensation extends CreateRecord
                 ->modalDescription('¿ Desea guardar como Borrador ?')
                 ->modalSubmitActionLabel('Si, Guardar')
                 ->color('save')
-                ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
+                ->visible(fn() => Auth::user()?->hasAnyAppRole(['employee', 'admin', 'manager']))
                 ->action(
                     fn() => $this->saveAs(RequestStatus::Draft),
                 ),
+
 
             Action::make('pending')
                 ->label('Enviar solicitud')
@@ -39,9 +45,10 @@ class CreateRequestForCompensation extends CreateRecord
                 ->modalIcon(Heroicon::OutlinedPaperAirplane)
                 ->disabled()
                 ->color('send')
-                ->visible(fn() => in_array(Auth::user()?->role, ['employee', 'admin', 'manager']))
+                 ->visible(fn() => Auth::user()?->hasAnyAppRole(['employee', 'admin', 'manager']))
                 ->action(
                     fn() => $this->saveAs(RequestStatus::Pending),
+
 
                 ),
             //--------------------Boton de cancelar solicitud--------------------------------------------
@@ -53,10 +60,12 @@ class CreateRequestForCompensation extends CreateRecord
         ];
     }
 
+
     protected function getFormActions(): array
     {
         return [];
     }
+
 
     //Guarda el estado de la solicitud
     protected function saveAs(RequestStatus $state)
@@ -71,11 +80,15 @@ class CreateRequestForCompensation extends CreateRecord
         }
 
 
+
+
         $data = $this->form->getState();
+
 
         $data['status'] = $state;
         $data['employee_id'] = Auth::user()?->employee?->id;
         $this->record = static::getModel()::create($data);
+
 
         $this->redirect($this->getRedirectUrl());
     }

@@ -42,7 +42,7 @@ class RejectedPaidRequest extends Mailable
     public function content(): Content
     {
         return new Content(
-         view: 'emails.PaidRequest.approved_request',
+         view: 'emails.PaidRequest.rejected_request',
             with: [
                 'paid_request' => $this->paid_request,
                 'user' => $this->user,

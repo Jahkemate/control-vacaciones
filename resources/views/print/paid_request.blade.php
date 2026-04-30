@@ -31,7 +31,7 @@
         }
 
         .section-title {
-            background-color: #1f4e79;
+            background-color: #095741;
             color: white;
             padding: 8px 12px;
             font-size: 15px;
