@@ -1,0 +1,70 @@
+services:
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - storage_data:/app/storage
+    ports:
+      - "8080:8080"  # Puerto administrativo
+    networks:
+      - default
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=120", "--sleep=1", "--max-time=3600"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - storage_data:/app/storage
+    networks:
+      - default
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - default
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: app
+      MYSQL_USER: app
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      
+    networks:
+        - default
+
+volumes:
+  db_data:
+  storage_data:

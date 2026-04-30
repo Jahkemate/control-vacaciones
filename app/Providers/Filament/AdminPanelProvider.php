@@ -2,6 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\CompensationRequestsStatus;
+use App\Filament\Widgets\PaidRequestsStatus;
+use App\Filament\Widgets\VacationRequestsStatus;
+use App\Filament\Widgets\VacationStatsWidget;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -90,6 +94,9 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
+                VacationRequestsStatus::class,
+                PaidRequestsStatus::class,
+                CompensationRequestsStatus::class
                 //FilamentInfoWidget::class,
             ])
             ->middleware([
